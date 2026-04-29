@@ -29,9 +29,71 @@ The application uses MySQL and manages schema via Hibernate's `ddl-auto: update`
 | created_at            | DATETIME(6)  | NOT NULL, auto-set       |
 | updated_at            | DATETIME(6)  | NOT NULL, auto-set       |
 
+### good_categories
+
+| Column      | Type         | Constraints              |
+|-------------|--------------|--------------------------|
+| id          | BIGINT       | PRIMARY KEY, AUTO_INCREMENT |
+| name        | VARCHAR(255) | UNIQUE, NOT NULL         |
+| description | VARCHAR(255) | NULLABLE                 |
+| created_at  | DATETIME(6)  | NOT NULL, auto-set       |
+| updated_at  | DATETIME(6)  | NOT NULL, auto-set       |
+
+### good_brands
+
+| Column       | Type         | Constraints              |
+|--------------|--------------|--------------------------|
+| id           | BIGINT       | PRIMARY KEY, AUTO_INCREMENT |
+| brand_name   | VARCHAR(255) | UNIQUE, NOT NULL         |
+| company_name | VARCHAR(255) | NULLABLE                 |
+| created_at   | DATETIME(6)  | NOT NULL, auto-set       |
+| updated_at   | DATETIME(6)  | NOT NULL, auto-set       |
+
+### goods
+
+| Column             | Type         | Constraints                       |
+|--------------------|--------------|-----------------------------------|
+| id                 | BIGINT       | PRIMARY KEY, AUTO_INCREMENT       |
+| product_name       | VARCHAR(255) | NOT NULL                          |
+| barcode            | VARCHAR(255) | UNIQUE, NOT NULL                  |
+| category_id        | BIGINT       | NOT NULL, FK → good_categories(id)|
+| brand_id           | BIGINT       | NOT NULL, FK → good_brands(id)    |
+| expiring_soon_days | INT          | NOT NULL, default 30              |
+| created_at         | DATETIME(6)  | NOT NULL, auto-set                |
+| updated_at         | DATETIME(6)  | NOT NULL, auto-set                |
+
+### good_items
+
+| Column          | Type         | Constraints              |
+|-----------------|--------------|--------------------------|
+| id              | BIGINT       | PRIMARY KEY, AUTO_INCREMENT |
+| good_id         | BIGINT       | NOT NULL, FK → goods(id) |
+| product_date    | DATE         | NOT NULL                 |
+| expiration_date | DATE         | NOT NULL                 |
+| life_days       | INT          | NOT NULL                 |
+| in_use          | BIT(1)       | NOT NULL, default TRUE   |
+| created_at      | DATETIME(6)  | NOT NULL, auto-set       |
+| updated_at      | DATETIME(6)  | NOT NULL, auto-set       |
+
+### good_pictures
+
+| Column       | Type         | Constraints              |
+|--------------|--------------|--------------------------|
+| id           | BIGINT       | PRIMARY KEY, AUTO_INCREMENT |
+| good_id      | BIGINT       | NOT NULL, FK → goods(id) |
+| filename     | VARCHAR(255) | NOT NULL                 |
+| filepath     | VARCHAR(255) | NOT NULL                 |
+| content_type | VARCHAR(255) | NOT NULL                 |
+| file_size    | BIGINT       | NOT NULL                 |
+| created_at   | DATETIME(6)  | NOT NULL, auto-set       |
+
 ## Relationships
 
 - `users.role_id` → `roles.id` (Many-to-One: many users can share one role)
+- `goods.category_id` → `good_categories.id` (Many-to-One: many goods can share one category)
+- `goods.brand_id` → `good_brands.id` (Many-to-One: many goods can share one brand)
+- `good_items.good_id` → `goods.id` (Many-to-One: many items belong to one good)
+- `good_pictures.good_id` → `goods.id` (Many-to-One: many pictures belong to one good)
 
 ## Initial Data
 

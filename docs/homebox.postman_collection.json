@@ -361,6 +361,534 @@
           }
         }
       ]
+    },
+    {
+      "name": "Good Categories",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/good-categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "good-categories"]
+            }
+          }
+        },
+        {
+          "name": "Get Category By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/good-categories/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "good-categories", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Food\",\n  \"description\": \"Food and beverages\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/good-categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "good-categories"]
+            }
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Food & Drinks\",\n  \"description\": \"Updated description\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/good-categories/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "good-categories", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/good-categories/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "good-categories", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Good Brands",
+      "item": [
+        {
+          "name": "Get All Brands",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/good-brands",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "good-brands"]
+            }
+          }
+        },
+        {
+          "name": "Get Brand By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/good-brands/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "good-brands", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Brand",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brandName\": \"Nestlé\",\n  \"companyName\": \"Nestlé S.A.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/good-brands",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "good-brands"]
+            }
+          }
+        },
+        {
+          "name": "Update Brand",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brandName\": \"Nestlé Updated\",\n  \"companyName\": \"Nestlé Group\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/good-brands/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "good-brands", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Brand",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/good-brands/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "good-brands", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Goods",
+      "item": [
+        {
+          "name": "Get Goods (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/goods?page=0&size=10&sortBy=createdAt&sortDir=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goods"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortDir",
+                  "value": "desc"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "categoryId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "brandId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Good By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/goods/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goods", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Good By Barcode",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/goods/barcode/1234567890123",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goods", "barcode", "1234567890123"]
+            }
+          }
+        },
+        {
+          "name": "Create Good",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productName\": \"Instant Coffee\",\n  \"barcode\": \"1234567890123\",\n  \"categoryId\": 1,\n  \"brandId\": 1,\n  \"expiringSoonDays\": 30\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/goods",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goods"]
+            }
+          }
+        },
+        {
+          "name": "Update Good",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productName\": \"Premium Coffee\",\n  \"expiringSoonDays\": 14\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/goods/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goods", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Good",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/goods/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goods", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Good Items",
+      "item": [
+        {
+          "name": "Get Items By Good",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/goods/1/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goods", "1", "items"]
+            }
+          }
+        },
+        {
+          "name": "Create Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productDate\": \"2026-01-01\",\n  \"expirationDate\": \"2026-07-01\",\n  \"inUse\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/goods/1/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goods", "1", "items"]
+            }
+          }
+        },
+        {
+          "name": "Update Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productDate\": \"2026-02-01\",\n  \"expirationDate\": \"2026-08-01\",\n  \"inUse\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/goods/1/items/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goods", "1", "items", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Item",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/goods/1/items/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goods", "1", "items", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Good Pictures",
+      "item": [
+        {
+          "name": "Upload Picture",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/goods/1/pictures",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goods", "1", "pictures"]
+            }
+          }
+        },
+        {
+          "name": "Get Picture File",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/goods/1/pictures/1/file",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goods", "1", "pictures", "1", "file"]
+            }
+          }
+        },
+        {
+          "name": "Delete Picture",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/goods/1/pictures/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goods", "1", "pictures", "1"]
+            }
+          }
+        }
+      ]
     }
   ]
 }
