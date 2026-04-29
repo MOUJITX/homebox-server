@@ -23,3 +23,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Rules
 
 - After every task, immediately update `README.md` and `CLAUDE.md` if the changes warrant documentation updates (e.g. new features, changed commands, altered architecture, new dependencies, updated setup steps).
+- Commit changes only after all steps are approved by the user.
+- Do not edit or create tests unless explicitly noted.
+- When API usage changes, update the API usage doc (`docs/api.md`) and the Postman collection file (`docs/homebox.postman_collection.json`). If either file does not exist, create it.
