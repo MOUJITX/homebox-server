@@ -44,6 +44,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Rules
 
+- Before coding, clarify and detail the requirements. The user's initial request may be high-level or incomplete — ask questions, identify edge cases, and flesh out the full scope before writing any code. Use the `feature-dev` skill when appropriate to analyze the codebase and produce a thorough implementation plan.
 - After every task, immediately update `README.md` and `CLAUDE.md` if the changes warrant documentation updates (e.g. new features, changed commands, altered architecture, new dependencies, updated setup steps).
 - Commit changes only after all steps are approved by the user. For large modifications containing multiple small tasks or features, commit at each small task/feature boundary rather than one big commit at the end.
 - Do not edit or create tests unless explicitly noted.
