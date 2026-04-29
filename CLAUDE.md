@@ -49,3 +49,4 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Do not edit or create tests unless explicitly noted.
 - When API usage changes, update the API usage doc (`docs/api.md`) and the Postman collection file (`docs/homebox.postman_collection.json`). If either file does not exist, create it.
 - When database schema changes, update `docs/database.md`.
+- Use the latest stable versions of technologies, libraries, and frameworks. Code structure and content should follow common technical standards and best practices, but avoid over-engineering or unnecessary complexity.
