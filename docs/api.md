@@ -78,6 +78,84 @@ Change the current user's password. Requires authentication.
 
 ---
 
+## Profile Endpoints
+
+All profile endpoints require authentication (any role).
+
+### GET /api/profile
+
+Get the current user's profile.
+
+**Response (200):**
+```json
+{
+  "id": 1,
+  "username": "admin",
+  "displayName": "Root Administrator",
+  "roleName": "root",
+  "createdAt": "2026-01-01T00:00:00",
+  "updatedAt": "2026-01-01T00:00:00"
+}
+```
+
+---
+
+### PUT /api/profile
+
+Update the current user's profile. All fields are optional.
+
+**Request Body:**
+```json
+{
+  "displayName": "New Display Name"
+}
+```
+
+**Response (200):**
+```json
+{
+  "id": 1,
+  "username": "admin",
+  "displayName": "New Display Name",
+  "roleName": "root",
+  "createdAt": "2026-01-01T00:00:00",
+  "updatedAt": "2026-01-02T00:00:00"
+}
+```
+
+---
+
+### PUT /api/profile/password
+
+Change the current user's password.
+
+**Request Body:**
+```json
+{
+  "currentPassword": "admin123",
+  "newPassword": "newSecurePassword123"
+}
+```
+
+**Response (200):**
+```json
+{
+  "message": "Password changed successfully"
+}
+```
+
+**Response (400):**
+```json
+{
+  "message": "Validation failed",
+  "errors": {
+    "newPassword": "size must be between 8 and 2147483647"
+  }
+}
+```
+
+---
+
 ## Member Endpoints
 
 All member endpoints require the `root` role.
