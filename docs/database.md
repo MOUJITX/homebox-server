@@ -1,0 +1,40 @@
+# Database Schema
+
+## Overview
+
+The application uses MySQL and manages schema via Hibernate's `ddl-auto: update` strategy. Tables are created automatically on first startup.
+
+## Tables
+
+### roles
+
+| Column      | Type         | Constraints              |
+|-------------|--------------|--------------------------|
+| id          | BIGINT       | PRIMARY KEY, AUTO_INCREMENT |
+| name        | VARCHAR(255) | UNIQUE, NOT NULL         |
+| description | VARCHAR(255) | NULLABLE                 |
+| created_at  | DATETIME(6)  | NOT NULL, auto-set       |
+| updated_at  | DATETIME(6)  | NOT NULL, auto-set       |
+
+### users
+
+| Column                | Type         | Constraints              |
+|-----------------------|--------------|--------------------------|
+| id                    | BIGINT       | PRIMARY KEY, AUTO_INCREMENT |
+| username              | VARCHAR(255) | UNIQUE, NOT NULL         |
+| password              | VARCHAR(255) | NOT NULL (BCrypt hash)   |
+| display_name          | VARCHAR(255) | NULLABLE                 |
+| role_id               | BIGINT       | NOT NULL, FK → roles(id) |
+| force_change_password | BIT(1)       | NOT NULL, default TRUE   |
+| created_at            | DATETIME(6)  | NOT NULL, auto-set       |
+| updated_at            | DATETIME(6)  | NOT NULL, auto-set       |
+
+## Relationships
+
+- `users.role_id` → `roles.id` (Many-to-One: many users can share one role)
+
+## Initial Data
+
+On first startup, the application seeds:
+- **Roles**: `root` (System administrator role), `member` (Standard member role)
+- **Users**: One root user with credentials from environment variables (`ROOT_USERNAME`, `ROOT_PASSWORD`) with `force_change_password = true`
