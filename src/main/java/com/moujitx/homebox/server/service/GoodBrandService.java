@@ -64,7 +64,7 @@ public class GoodBrandService {
         }
 
         if (request.getCompanyName() != null) {
-            brand.setCompanyName(request.getCompanyName());
+            brand.setCompanyName(request.getCompanyName().isEmpty() ? null : request.getCompanyName());
         }
 
         return GoodBrandResponse.from(brandRepository.save(brand));

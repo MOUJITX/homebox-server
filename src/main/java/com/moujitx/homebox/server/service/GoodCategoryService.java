@@ -64,7 +64,7 @@ public class GoodCategoryService {
         }
 
         if (request.getDescription() != null) {
-            category.setDescription(request.getDescription());
+            category.setDescription(request.getDescription().isEmpty() ? null : request.getDescription());
         }
 
         return GoodCategoryResponse.from(categoryRepository.save(category));
