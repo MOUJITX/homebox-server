@@ -14,7 +14,7 @@ public class GoodPicture {
     @JoinColumn(name = "good_id")
     private Good good;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "file_id")
     private FileRecord file;
 
