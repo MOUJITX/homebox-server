@@ -3,12 +3,16 @@ package com.moujitx.homebox.server.controller;
 import com.moujitx.homebox.server.dto.response.FileResponse;
 import com.moujitx.homebox.server.entity.FileRecord;
 import com.moujitx.homebox.server.service.FileService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/files")
@@ -18,6 +22,13 @@ public class FileController {
 
     public FileController(FileService fileService) {
         this.fileService = fileService;
+    }
+
+    @GetMapping
+    public Page<FileResponse> listFiles(@RequestParam(defaultValue = "0") int page,
+                                         @RequestParam(defaultValue = "20") int size) {
+        return fileService.listFiles(PageRequest.of(page, size))
+                .map(FileResponse::from);
     }
 
     @PostMapping
@@ -32,6 +43,18 @@ public class FileController {
         return ResponseEntity.ok(FileResponse.from(record));
     }
 
+    @GetMapping("/{id}/preview")
+    public ResponseEntity<byte[]> preview(@PathVariable Long id) {
+        FileRecord record = fileService.getFileById(id);
+        byte[] fileData = fileService.loadFileContent(id);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(record.getContentType()));
+        headers.setContentLength(fileData.length);
+
+        return new ResponseEntity<>(fileData, headers, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}/download")
     public ResponseEntity<byte[]> download(@PathVariable Long id) {
         FileRecord record = fileService.getFileById(id);
@@ -43,6 +66,17 @@ public class FileController {
         headers.setContentDispositionFormData("attachment", record.getOriginalFilename());
 
         return new ResponseEntity<>(fileData, headers, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}/rename")
+    public ResponseEntity<FileResponse> rename(@PathVariable Long id,
+                                                @RequestBody Map<String, String> body) {
+        String originalFilename = body.get("originalFilename");
+        if (originalFilename == null || originalFilename.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+        FileRecord record = fileService.rename(id, originalFilename.trim());
+        return ResponseEntity.ok(FileResponse.from(record));
     }
 
     @DeleteMapping("/{id}")

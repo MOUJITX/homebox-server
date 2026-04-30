@@ -3,6 +3,8 @@ package com.moujitx.homebox.server.service;
 import com.moujitx.homebox.server.entity.FileRecord;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.FileRecordRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +42,17 @@ public class FileService {
     public byte[] loadFileContent(Long id) {
         FileRecord record = getFileById(id);
         return fileStorageService.load(record.getStoredFilename());
+    }
+
+    public Page<FileRecord> listFiles(Pageable pageable) {
+        return fileRecordRepository.findAllByOrderByCreatedAtDesc(pageable);
+    }
+
+    @Transactional
+    public FileRecord rename(Long id, String originalFilename) {
+        FileRecord record = getFileById(id);
+        record.setOriginalFilename(originalFilename);
+        return fileRecordRepository.save(record);
     }
 
     @Transactional

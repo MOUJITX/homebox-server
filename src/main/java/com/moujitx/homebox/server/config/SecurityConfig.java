@@ -2,6 +2,7 @@ package com.moujitx.homebox.server.config;
 
 import com.moujitx.homebox.server.security.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpMethod;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +38,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/profile/**").authenticated()
                         .requestMatchers("/api/members/**").hasRole("root")
                         .requestMatchers("/api/roles/**").hasRole("root")
+                        .requestMatchers(HttpMethod.GET, "/api/files", "/api/files/").hasRole("root")
+                        .requestMatchers(HttpMethod.POST, "/api/files", "/api/files/").hasRole("root")
+                        .requestMatchers("/api/files/*/rename").hasRole("root")
+                        .requestMatchers(HttpMethod.DELETE, "/api/files/*").hasRole("root")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions
