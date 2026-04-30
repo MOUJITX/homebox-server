@@ -1,6 +1,10 @@
 package com.moujitx.homebox.server.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -8,6 +12,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "good_brands")
+@Getter
+@Setter
+@NoArgsConstructor
 public class GoodBrand {
 
     @Id
@@ -19,49 +26,17 @@ public class GoodBrand {
 
     private String companyName;
 
+    @Setter(AccessLevel.NONE)
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
+    @Setter(AccessLevel.NONE)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    public GoodBrand() {}
 
     public GoodBrand(String brandName, String companyName) {
         this.brandName = brandName;
         this.companyName = companyName;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getBrandName() {
-        return brandName;
-    }
-
-    public void setBrandName(String brandName) {
-        this.brandName = brandName;
-    }
-
-    public String getCompanyName() {
-        return companyName;
-    }
-
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 }

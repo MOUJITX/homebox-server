@@ -1,6 +1,10 @@
 package com.moujitx.homebox.server.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -9,6 +13,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "good_items")
+@Getter
+@Setter
+@NoArgsConstructor
 public class GoodItem {
 
     @Id
@@ -31,68 +38,12 @@ public class GoodItem {
     @Column(nullable = false)
     private boolean inUse = true;
 
+    @Setter(AccessLevel.NONE)
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
+    @Setter(AccessLevel.NONE)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    public GoodItem() {}
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Good getGood() {
-        return good;
-    }
-
-    public void setGood(Good good) {
-        this.good = good;
-    }
-
-    public LocalDate getProductDate() {
-        return productDate;
-    }
-
-    public void setProductDate(LocalDate productDate) {
-        this.productDate = productDate;
-    }
-
-    public LocalDate getExpirationDate() {
-        return expirationDate;
-    }
-
-    public void setExpirationDate(LocalDate expirationDate) {
-        this.expirationDate = expirationDate;
-    }
-
-    public int getLifeDays() {
-        return lifeDays;
-    }
-
-    public void setLifeDays(int lifeDays) {
-        this.lifeDays = lifeDays;
-    }
-
-    public boolean isInUse() {
-        return inUse;
-    }
-
-    public void setInUse(boolean inUse) {
-        this.inUse = inUse;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
 }

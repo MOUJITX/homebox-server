@@ -1,9 +1,11 @@
 package com.moujitx.homebox.server.dto.response;
 
 import com.moujitx.homebox.server.entity.GoodBrand;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+@Getter
 public class GoodBrandResponse {
 
     private Long id;
@@ -20,25 +22,5 @@ public class GoodBrandResponse {
         response.createdAt = brand.getCreatedAt();
         response.updatedAt = brand.getUpdatedAt();
         return response;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getBrandName() {
-        return brandName;
-    }
-
-    public String getCompanyName() {
-        return companyName;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 }

@@ -10,6 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Spring Data JPA (Hibernate, MySQL)
 - Gradle 8.14 (wrapper included)
 - JJWT 0.13.0 (JWT token handling)
+- Lombok (boilerplate reduction: `@Getter`, `@Setter`, `@RequiredArgsConstructor`, `@Slf4j`)
 
 ## Build Commands
 

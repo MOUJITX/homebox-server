@@ -1,9 +1,11 @@
 package com.moujitx.homebox.server.dto.response;
 
 import com.moujitx.homebox.server.entity.User;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+@Getter
 public class MemberResponse {
 
     private Long id;
@@ -24,33 +26,5 @@ public class MemberResponse {
         response.createdAt = user.getCreatedAt();
         response.updatedAt = user.getUpdatedAt();
         return response;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public String getRoleName() {
-        return roleName;
-    }
-
-    public boolean isForceChangePassword() {
-        return forceChangePassword;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 }

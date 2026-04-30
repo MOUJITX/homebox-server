@@ -9,22 +9,18 @@ import com.moujitx.homebox.server.exception.ResourceAlreadyExistsException;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.GoodCategoryRepository;
 import com.moujitx.homebox.server.repository.GoodRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class GoodCategoryService {
 
     private final GoodCategoryRepository categoryRepository;
     private final GoodRepository goodRepository;
-
-    public GoodCategoryService(GoodCategoryRepository categoryRepository,
-                               GoodRepository goodRepository) {
-        this.categoryRepository = categoryRepository;
-        this.goodRepository = goodRepository;
-    }
 
     public List<GoodCategoryResponse> getAllCategories() {
         return categoryRepository.findAll().stream()
@@ -44,10 +40,7 @@ public class GoodCategoryService {
             throw new ResourceAlreadyExistsException("Category already exists: " + request.getName());
         }
 
-        GoodCategory category = new GoodCategory();
-        category.setName(request.getName());
-        category.setDescription(request.getDescription());
-
+        GoodCategory category = new GoodCategory(request.getName(), request.getDescription());
         return GoodCategoryResponse.from(categoryRepository.save(category));
     }
 

@@ -9,6 +9,7 @@ import com.moujitx.homebox.server.enums.ItemStatus;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.GoodItemRepository;
 import com.moujitx.homebox.server.repository.GoodRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,19 +18,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class GoodItemService {
 
     private final GoodItemRepository itemRepository;
     private final GoodRepository goodRepository;
     private final GoodService goodService;
-
-    public GoodItemService(GoodItemRepository itemRepository,
-                           GoodRepository goodRepository,
-                           GoodService goodService) {
-        this.itemRepository = itemRepository;
-        this.goodRepository = goodRepository;
-        this.goodService = goodService;
-    }
 
     public List<GoodItemResponse> getItemsByGoodId(Long goodId, ItemStatus itemStatus) {
         Good good = goodRepository.findById(goodId)

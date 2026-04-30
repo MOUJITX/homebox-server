@@ -17,6 +17,7 @@ import com.moujitx.homebox.server.repository.GoodBrandRepository;
 import com.moujitx.homebox.server.repository.GoodCategoryRepository;
 import com.moujitx.homebox.server.repository.GoodItemRepository;
 import com.moujitx.homebox.server.repository.GoodRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class GoodService {
 
     private final GoodRepository goodRepository;
@@ -36,18 +38,6 @@ public class GoodService {
     private final GoodBrandRepository brandRepository;
     private final GoodItemRepository itemRepository;
     private final FileService fileService;
-
-    public GoodService(GoodRepository goodRepository,
-                       GoodCategoryRepository categoryRepository,
-                       GoodBrandRepository brandRepository,
-                       GoodItemRepository itemRepository,
-                       FileService fileService) {
-        this.goodRepository = goodRepository;
-        this.categoryRepository = categoryRepository;
-        this.brandRepository = brandRepository;
-        this.itemRepository = itemRepository;
-        this.fileService = fileService;
-    }
 
     @Transactional(readOnly = true)
     public Page<GoodResponse> getGoods(String search, Long categoryId, Long brandId, GoodStatus status, ItemStatus itemStatus, Pageable pageable) {

@@ -1,10 +1,12 @@
 package com.moujitx.homebox.server.dto.response;
 
 import com.moujitx.homebox.server.entity.GoodItem;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Getter
 public class GoodItemResponse {
 
     private Long id;
@@ -25,33 +27,5 @@ public class GoodItemResponse {
         response.createdAt = item.getCreatedAt();
         response.updatedAt = item.getUpdatedAt();
         return response;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public LocalDate getProductDate() {
-        return productDate;
-    }
-
-    public LocalDate getExpirationDate() {
-        return expirationDate;
-    }
-
-    public int getLifeDays() {
-        return lifeDays;
-    }
-
-    public boolean isInUse() {
-        return inUse;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 }

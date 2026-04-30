@@ -2,9 +2,11 @@ package com.moujitx.homebox.server.dto.response;
 
 import com.moujitx.homebox.server.entity.Good;
 import com.moujitx.homebox.server.enums.GoodStatus;
+import lombok.Getter;
 
 import java.util.List;
 
+@Getter
 public class GoodDetailResponse extends GoodResponse {
 
     private List<GoodItemResponse> items;
@@ -22,13 +24,5 @@ public class GoodDetailResponse extends GoodResponse {
                 .toList();
 
         return response;
-    }
-
-    public List<GoodItemResponse> getItems() {
-        return items;
-    }
-
-    public List<GoodPictureResponse> getPictures() {
-        return pictures;
     }
 }

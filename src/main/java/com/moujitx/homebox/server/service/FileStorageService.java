@@ -77,10 +77,11 @@ public class FileStorageService {
     }
 
     private Path resolvePath(String storedFilename) {
-        if (storedFilename.startsWith("/") || storedFilename.startsWith("\\")) {
-            return Paths.get(storedFilename);
+        Path resolved = uploadDirectory.resolve(storedFilename).normalize();
+        if (!resolved.startsWith(uploadDirectory)) {
+            throw new IllegalArgumentException("Invalid file path");
         }
-        return uploadDirectory.resolve(storedFilename);
+        return resolved;
     }
 
     private void validateFile(MultipartFile file) {

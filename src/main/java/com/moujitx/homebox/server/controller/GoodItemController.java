@@ -6,6 +6,7 @@ import com.moujitx.homebox.server.dto.response.GoodItemResponse;
 import com.moujitx.homebox.server.enums.ItemStatus;
 import com.moujitx.homebox.server.service.GoodItemService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,13 +15,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/goods/{goodId}/items")
+@RequiredArgsConstructor
 public class GoodItemController {
 
     private final GoodItemService itemService;
-
-    public GoodItemController(GoodItemService itemService) {
-        this.itemService = itemService;
-    }
 
     @GetMapping
     public ResponseEntity<List<GoodItemResponse>> getItems(@PathVariable Long goodId,

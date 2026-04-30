@@ -5,20 +5,20 @@ import com.moujitx.homebox.server.dto.request.LoginRequest;
 import com.moujitx.homebox.server.dto.response.LoginResponse;
 import com.moujitx.homebox.server.dto.response.MessageResponse;
 import com.moujitx.homebox.server.service.AuthService;
+import com.moujitx.homebox.server.service.ProfileService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
-
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
+    private final ProfileService profileService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
@@ -29,7 +29,7 @@ public class AuthController {
     @PostMapping("/change-password")
     public ResponseEntity<MessageResponse> changePassword(@Valid @RequestBody ChangePasswordRequest request,
                                                           Authentication authentication) {
-        authService.changePassword(authentication.getName(), request);
+        profileService.changePassword(authentication.getName(), request);
         return ResponseEntity.ok(new MessageResponse("Password changed successfully"));
     }
 }

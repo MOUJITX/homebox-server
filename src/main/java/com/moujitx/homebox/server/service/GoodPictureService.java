@@ -7,6 +7,7 @@ import com.moujitx.homebox.server.entity.GoodPicture;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.GoodPictureRepository;
 import com.moujitx.homebox.server.repository.GoodRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,19 +15,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class GoodPictureService {
 
     private final GoodPictureRepository pictureRepository;
     private final GoodRepository goodRepository;
     private final FileService fileService;
-
-    public GoodPictureService(GoodPictureRepository pictureRepository,
-                              GoodRepository goodRepository,
-                              FileService fileService) {
-        this.pictureRepository = pictureRepository;
-        this.goodRepository = goodRepository;
-        this.fileService = fileService;
-    }
 
     public List<GoodPictureResponse> getPicturesByGoodId(Long goodId) {
         if (!goodRepository.existsById(goodId)) {

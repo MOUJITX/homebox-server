@@ -3,6 +3,7 @@ package com.moujitx.homebox.server.controller;
 import com.moujitx.homebox.server.dto.response.FileResponse;
 import com.moujitx.homebox.server.entity.FileRecord;
 import com.moujitx.homebox.server.service.FileService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
@@ -16,13 +17,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/files")
+@RequiredArgsConstructor
 public class FileController {
 
     private final FileService fileService;
-
-    public FileController(FileService fileService) {
-        this.fileService = fileService;
-    }
 
     @GetMapping
     public Page<FileResponse> listFiles(@RequestParam(defaultValue = "0") int page,
@@ -46,7 +44,7 @@ public class FileController {
     @GetMapping("/{id}/preview")
     public ResponseEntity<byte[]> preview(@PathVariable Long id) {
         FileRecord record = fileService.getFileById(id);
-        byte[] fileData = fileService.loadFileContent(id);
+        byte[] fileData = fileService.loadFileContent(record);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(record.getContentType()));
@@ -58,7 +56,7 @@ public class FileController {
     @GetMapping("/{id}/download")
     public ResponseEntity<byte[]> download(@PathVariable Long id) {
         FileRecord record = fileService.getFileById(id);
-        byte[] fileData = fileService.loadFileContent(id);
+        byte[] fileData = fileService.loadFileContent(record);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(record.getContentType()));

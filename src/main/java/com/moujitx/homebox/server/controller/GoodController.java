@@ -8,6 +8,7 @@ import com.moujitx.homebox.server.enums.GoodStatus;
 import com.moujitx.homebox.server.enums.ItemStatus;
 import com.moujitx.homebox.server.service.GoodService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,13 +19,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/goods")
+@RequiredArgsConstructor
 public class GoodController {
 
     private final GoodService goodService;
-
-    public GoodController(GoodService goodService) {
-        this.goodService = goodService;
-    }
 
     @GetMapping
     public ResponseEntity<Page<GoodResponse>> getGoods(

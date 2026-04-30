@@ -1,9 +1,11 @@
 package com.moujitx.homebox.server.dto.response;
 
 import com.moujitx.homebox.server.entity.FileRecord;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+@Getter
 public class FileResponse {
 
     private Long id;
@@ -22,29 +24,5 @@ public class FileResponse {
         response.url = "/api/files/" + record.getId() + "/download";
         response.createdAt = record.getCreatedAt();
         return response;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getOriginalFilename() {
-        return originalFilename;
-    }
-
-    public String getContentType() {
-        return contentType;
-    }
-
-    public long getFileSize() {
-        return fileSize;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
     }
 }

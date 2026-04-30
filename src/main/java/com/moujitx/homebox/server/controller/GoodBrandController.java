@@ -5,6 +5,7 @@ import com.moujitx.homebox.server.dto.request.UpdateGoodBrandRequest;
 import com.moujitx.homebox.server.dto.response.GoodBrandResponse;
 import com.moujitx.homebox.server.service.GoodBrandService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +14,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/good-brands")
+@RequiredArgsConstructor
 public class GoodBrandController {
 
     private final GoodBrandService brandService;
-
-    public GoodBrandController(GoodBrandService brandService) {
-        this.brandService = brandService;
-    }
 
     @GetMapping
     public ResponseEntity<List<GoodBrandResponse>> getAllBrands() {

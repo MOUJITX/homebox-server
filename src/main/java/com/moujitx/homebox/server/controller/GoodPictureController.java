@@ -4,6 +4,7 @@ import com.moujitx.homebox.server.dto.response.GoodPictureResponse;
 import com.moujitx.homebox.server.entity.GoodPicture;
 import com.moujitx.homebox.server.service.FileService;
 import com.moujitx.homebox.server.service.GoodPictureService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,16 +14,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/goods/{goodId}/pictures")
+@RequiredArgsConstructor
 public class GoodPictureController {
 
     private final GoodPictureService pictureService;
     private final FileService fileService;
-
-    public GoodPictureController(GoodPictureService pictureService,
-                                 FileService fileService) {
-        this.pictureService = pictureService;
-        this.fileService = fileService;
-    }
 
     @PostMapping
     public ResponseEntity<GoodPictureResponse> uploadPicture(@PathVariable Long goodId,

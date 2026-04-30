@@ -1,9 +1,11 @@
 package com.moujitx.homebox.server.dto.response;
 
 import com.moujitx.homebox.server.entity.Role;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+@Getter
 public class RoleResponse {
 
     private Long id;
@@ -20,25 +22,5 @@ public class RoleResponse {
         response.createdAt = role.getCreatedAt();
         response.updatedAt = role.getUpdatedAt();
         return response;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 }

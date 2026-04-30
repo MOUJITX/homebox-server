@@ -3,6 +3,7 @@ package com.moujitx.homebox.server.service;
 import com.moujitx.homebox.server.entity.FileRecord;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.FileRecordRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -10,16 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
+@RequiredArgsConstructor
 public class FileService {
 
     private final FileRecordRepository fileRecordRepository;
     private final FileStorageService fileStorageService;
-
-    public FileService(FileRecordRepository fileRecordRepository,
-                       FileStorageService fileStorageService) {
-        this.fileRecordRepository = fileRecordRepository;
-        this.fileStorageService = fileStorageService;
-    }
 
     @Transactional
     public FileRecord upload(MultipartFile file) {
@@ -41,6 +37,10 @@ public class FileService {
 
     public byte[] loadFileContent(Long id) {
         FileRecord record = getFileById(id);
+        return fileStorageService.load(record.getStoredFilename());
+    }
+
+    public byte[] loadFileContent(FileRecord record) {
         return fileStorageService.load(record.getStoredFilename());
     }
 

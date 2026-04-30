@@ -53,6 +53,14 @@ public class JwtTokenProvider {
         }
     }
 
+    public Claims validateAndGetClaims(String token) {
+        try {
+            return parseClaims(token);
+        } catch (JwtException | IllegalArgumentException e) {
+            return null;
+        }
+    }
+
     private Claims parseClaims(String token) {
         return Jwts.parser()
                 .verifyWith(key)

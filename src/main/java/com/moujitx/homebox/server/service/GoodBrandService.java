@@ -9,22 +9,18 @@ import com.moujitx.homebox.server.exception.ResourceAlreadyExistsException;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.GoodBrandRepository;
 import com.moujitx.homebox.server.repository.GoodRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class GoodBrandService {
 
     private final GoodBrandRepository brandRepository;
     private final GoodRepository goodRepository;
-
-    public GoodBrandService(GoodBrandRepository brandRepository,
-                            GoodRepository goodRepository) {
-        this.brandRepository = brandRepository;
-        this.goodRepository = goodRepository;
-    }
 
     public List<GoodBrandResponse> getAllBrands() {
         return brandRepository.findAll().stream()
@@ -44,10 +40,7 @@ public class GoodBrandService {
             throw new ResourceAlreadyExistsException("Brand already exists: " + request.getBrandName());
         }
 
-        GoodBrand brand = new GoodBrand();
-        brand.setBrandName(request.getBrandName());
-        brand.setCompanyName(request.getCompanyName());
-
+        GoodBrand brand = new GoodBrand(request.getBrandName(), request.getCompanyName());
         return GoodBrandResponse.from(brandRepository.save(brand));
     }
 

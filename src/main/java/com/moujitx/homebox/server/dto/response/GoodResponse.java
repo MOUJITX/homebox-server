@@ -3,9 +3,11 @@ package com.moujitx.homebox.server.dto.response;
 import com.moujitx.homebox.server.entity.Good;
 import com.moujitx.homebox.server.entity.GoodPicture;
 import com.moujitx.homebox.server.enums.GoodStatus;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+@Getter
 public class GoodResponse {
 
     private Long id;
@@ -49,61 +51,5 @@ public class GoodResponse {
 
         response.createdAt = good.getCreatedAt();
         response.updatedAt = good.getUpdatedAt();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
-    public String getBarcode() {
-        return barcode;
-    }
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public String getBrandName() {
-        return brandName;
-    }
-
-    public Long getBrandId() {
-        return brandId;
-    }
-
-    public int getExpiringSoonDays() {
-        return expiringSoonDays;
-    }
-
-    public int getItemCountTotal() {
-        return itemCountTotal;
-    }
-
-    public int getItemCountInUse() {
-        return itemCountInUse;
-    }
-
-    public GoodStatus getStatus() {
-        return status;
-    }
-
-    public String getFirstPictureUrl() {
-        return firstPictureUrl;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 }

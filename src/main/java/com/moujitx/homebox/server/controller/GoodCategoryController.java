@@ -5,6 +5,7 @@ import com.moujitx.homebox.server.dto.request.UpdateGoodCategoryRequest;
 import com.moujitx.homebox.server.dto.response.GoodCategoryResponse;
 import com.moujitx.homebox.server.service.GoodCategoryService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +14,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/good-categories")
+@RequiredArgsConstructor
 public class GoodCategoryController {
 
     private final GoodCategoryService categoryService;
-
-    public GoodCategoryController(GoodCategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
 
     @GetMapping
     public ResponseEntity<List<GoodCategoryResponse>> getAllCategories() {
