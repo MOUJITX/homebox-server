@@ -75,17 +75,24 @@ The application uses MySQL and manages schema via Hibernate's `ddl-auto: update`
 | created_at      | DATETIME(6)  | NOT NULL, auto-set       |
 | updated_at      | DATETIME(6)  | NOT NULL, auto-set       |
 
+### file_records
+
+| Column            | Type         | Constraints              |
+|-------------------|--------------|--------------------------|
+| id                | BIGINT       | PRIMARY KEY, AUTO_INCREMENT |
+| stored_filename   | VARCHAR(255) | NOT NULL (relative path: `yyyymmdd/uuid.ext`) |
+| original_filename | VARCHAR(255) | NOT NULL (original upload name) |
+| content_type      | VARCHAR(255) | NOT NULL                 |
+| file_size         | BIGINT       | NOT NULL                 |
+| created_at        | DATETIME(6)  | NOT NULL, auto-set       |
+
 ### good_pictures
 
-| Column       | Type         | Constraints              |
-|--------------|--------------|--------------------------|
-| id           | BIGINT       | PRIMARY KEY, AUTO_INCREMENT |
-| good_id      | BIGINT       | NOT NULL, FK → goods(id) |
-| filename     | VARCHAR(255) | NOT NULL                 |
-| filepath     | VARCHAR(255) | NOT NULL                 |
-| content_type | VARCHAR(255) | NOT NULL                 |
-| file_size    | BIGINT       | NOT NULL                 |
-| created_at   | DATETIME(6)  | NOT NULL, auto-set       |
+| Column  | Type   | Constraints                  |
+|---------|--------|------------------------------|
+| id      | BIGINT | PRIMARY KEY, AUTO_INCREMENT  |
+| good_id | BIGINT | NOT NULL, FK → goods(id)     |
+| file_id | BIGINT | NOT NULL, FK → file_records(id) |
 
 ## Relationships
 
@@ -94,6 +101,7 @@ The application uses MySQL and manages schema via Hibernate's `ddl-auto: update`
 - `goods.brand_id` → `good_brands.id` (Many-to-One: many goods can share one brand)
 - `good_items.good_id` → `goods.id` (Many-to-One: many items belong to one good)
 - `good_pictures.good_id` → `goods.id` (Many-to-One: many pictures belong to one good)
+- `good_pictures.file_id` → `file_records.id` (Many-to-One: many pictures can reference one file)
 
 ## Initial Data
 

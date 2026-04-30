@@ -34,15 +34,18 @@ public class GoodService {
     private final GoodCategoryRepository categoryRepository;
     private final GoodBrandRepository brandRepository;
     private final GoodItemRepository itemRepository;
+    private final FileService fileService;
 
     public GoodService(GoodRepository goodRepository,
                        GoodCategoryRepository categoryRepository,
                        GoodBrandRepository brandRepository,
-                       GoodItemRepository itemRepository) {
+                       GoodItemRepository itemRepository,
+                       FileService fileService) {
         this.goodRepository = goodRepository;
         this.categoryRepository = categoryRepository;
         this.brandRepository = brandRepository;
         this.itemRepository = itemRepository;
+        this.fileService = fileService;
     }
 
     @Transactional(readOnly = true)
@@ -155,6 +158,10 @@ public class GoodService {
 
         if (itemRepository.existsByGoodId(good.getId())) {
             throw new OperationNotAllowedException("Cannot delete good that has items. Delete all items first.");
+        }
+
+        for (var picture : good.getPictures()) {
+            fileService.delete(picture.getFile().getId());
         }
 
         goodRepository.delete(good);

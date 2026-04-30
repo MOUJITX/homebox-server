@@ -80,5 +80,12 @@ The root user must change their password on first login (`forceChangePassword: t
 - `GET/PUT/DELETE /api/members/{id}` — get/update/delete member (root only)
 - `GET/POST /api/roles` — list/create roles (root only)
 - `GET/PUT/DELETE /api/roles/{id}` — get/update/delete role (root only)
+- `POST /api/files` — upload any file
+- `GET /api/files/{id}` — get file metadata
+- `GET /api/files/{id}/download` — download file with original filename
+- `DELETE /api/files/{id}` — delete file
+- `POST /api/goods/{id}/pictures` — upload picture for a good
+- `GET /api/goods/{id}/pictures/{pid}/file` — serve picture inline
+- `DELETE /api/goods/{id}/pictures/{pid}` — delete picture
 
 See [docs/api.md](docs/api.md) for full API documentation.

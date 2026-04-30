@@ -1,9 +1,6 @@
 package com.moujitx.homebox.server.entity;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "good_pictures")
@@ -17,21 +14,9 @@ public class GoodPicture {
     @JoinColumn(name = "good_id")
     private Good good;
 
-    @Column(nullable = false)
-    private String filename;
-
-    @Column(nullable = false)
-    private String filepath;
-
-    @Column(nullable = false)
-    private String contentType;
-
-    @Column(nullable = false)
-    private long fileSize;
-
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "file_id")
+    private FileRecord file;
 
     public GoodPicture() {}
 
@@ -51,39 +36,11 @@ public class GoodPicture {
         this.good = good;
     }
 
-    public String getFilename() {
-        return filename;
+    public FileRecord getFile() {
+        return file;
     }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
-
-    public String getFilepath() {
-        return filepath;
-    }
-
-    public void setFilepath(String filepath) {
-        this.filepath = filepath;
-    }
-
-    public String getContentType() {
-        return contentType;
-    }
-
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
-    public long getFileSize() {
-        return fileSize;
-    }
-
-    public void setFileSize(long fileSize) {
-        this.fileSize = fileSize;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public void setFile(FileRecord file) {
+        this.file = file;
     }
 }

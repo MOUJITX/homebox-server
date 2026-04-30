@@ -10,16 +10,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Set;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
 public class FileStorageService {
 
-    private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
-            "image/jpeg", "image/png", "image/webp", "image/gif"
-    );
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
+    private static final DateTimeFormatter DATE_DIR_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     private final Path uploadDirectory;
 
@@ -32,7 +31,7 @@ public class FileStorageService {
         }
     }
 
-    public String store(MultipartFile file, Long goodId) {
+    public String store(MultipartFile file) {
         validateFile(file);
 
         String originalFilename = file.getOriginalFilename();
@@ -42,38 +41,46 @@ public class FileStorageService {
         }
         String storedFilename = UUID.randomUUID() + extension;
 
-        Path goodDir = uploadDirectory.resolve(String.valueOf(goodId));
+        String dateDir = LocalDate.now().format(DATE_DIR_FORMAT);
+        Path targetDir = uploadDirectory.resolve(dateDir);
         try {
-            Files.createDirectories(goodDir);
-            Path targetPath = goodDir.resolve(storedFilename);
+            Files.createDirectories(targetDir);
+            Path targetPath = targetDir.resolve(storedFilename);
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
             }
-            return targetPath.toString();
+            return dateDir + "/" + storedFilename;
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file", e);
         }
     }
 
-    public byte[] load(String filepath) {
+    public byte[] load(String storedFilename) {
         try {
-            Path path = Paths.get(filepath);
+            Path path = resolvePath(storedFilename);
             if (!Files.exists(path)) {
-                throw new RuntimeException("File not found: " + filepath);
+                throw new RuntimeException("File not found: " + storedFilename);
             }
             return Files.readAllBytes(path);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read file: " + filepath, e);
+            throw new RuntimeException("Failed to read file: " + storedFilename, e);
         }
     }
 
-    public void delete(String filepath) {
+    public void delete(String storedFilename) {
         try {
-            Path path = Paths.get(filepath);
+            Path path = resolvePath(storedFilename);
             Files.deleteIfExists(path);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to delete file: " + filepath, e);
+            throw new RuntimeException("Failed to delete file: " + storedFilename, e);
         }
+    }
+
+    private Path resolvePath(String storedFilename) {
+        if (storedFilename.startsWith("/") || storedFilename.startsWith("\\")) {
+            return Paths.get(storedFilename);
+        }
+        return uploadDirectory.resolve(storedFilename);
     }
 
     private void validateFile(MultipartFile file) {
@@ -82,10 +89,6 @@ public class FileStorageService {
         }
         if (file.getSize() > MAX_FILE_SIZE) {
             throw new IllegalArgumentException("File size exceeds maximum limit of 10MB");
-        }
-        String contentType = file.getContentType();
-        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
-            throw new IllegalArgumentException("File type not allowed. Accepted types: JPEG, PNG, WebP, GIF");
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.moujitx.homebox.server.service;
 
 import com.moujitx.homebox.server.dto.response.GoodPictureResponse;
+import com.moujitx.homebox.server.entity.FileRecord;
 import com.moujitx.homebox.server.entity.Good;
 import com.moujitx.homebox.server.entity.GoodPicture;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
@@ -17,14 +18,14 @@ public class GoodPictureService {
 
     private final GoodPictureRepository pictureRepository;
     private final GoodRepository goodRepository;
-    private final FileStorageService fileStorageService;
+    private final FileService fileService;
 
     public GoodPictureService(GoodPictureRepository pictureRepository,
                               GoodRepository goodRepository,
-                              FileStorageService fileStorageService) {
+                              FileService fileService) {
         this.pictureRepository = pictureRepository;
         this.goodRepository = goodRepository;
-        this.fileStorageService = fileStorageService;
+        this.fileService = fileService;
     }
 
     public List<GoodPictureResponse> getPicturesByGoodId(Long goodId) {
@@ -41,14 +42,11 @@ public class GoodPictureService {
         Good good = goodRepository.findById(goodId)
                 .orElseThrow(() -> new ResourceNotFoundException("Good not found with id: " + goodId));
 
-        String filepath = fileStorageService.store(file, goodId);
+        FileRecord fileRecord = fileService.upload(file);
 
         GoodPicture picture = new GoodPicture();
         picture.setGood(good);
-        picture.setFilename(file.getOriginalFilename());
-        picture.setFilepath(filepath);
-        picture.setContentType(file.getContentType());
-        picture.setFileSize(file.getSize());
+        picture.setFile(fileRecord);
 
         return GoodPictureResponse.from(pictureRepository.save(picture));
     }
@@ -66,8 +64,9 @@ public class GoodPictureService {
             throw new ResourceNotFoundException("Picture not found with id: " + pictureId + " for good: " + goodId);
         }
 
-        fileStorageService.delete(picture.getFilepath());
+        Long fileId = picture.getFile().getId();
         pictureRepository.delete(picture);
+        fileService.delete(fileId);
     }
 
     public GoodPicture getPictureEntity(Long goodId, Long pictureId) {

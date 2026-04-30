@@ -1005,9 +1005,74 @@ Delete an item.
 
 ---
 
+## File Endpoints
+
+All file endpoints require authentication (any role). Supports any file type. Max file size: 10MB.
+
+### POST /api/files
+
+Upload a file. Uses multipart/form-data.
+
+**Request:** `multipart/form-data` with field `file`
+
+**Response (201):**
+```json
+{
+  "id": 1,
+  "originalFilename": "document.pdf",
+  "contentType": "application/pdf",
+  "fileSize": 204800,
+  "url": "/api/files/1/download",
+  "createdAt": "2026-01-01T00:00:00"
+}
+```
+
+---
+
+### GET /api/files/{id}
+
+Get file metadata by ID.
+
+**Response (200):**
+```json
+{
+  "id": 1,
+  "originalFilename": "document.pdf",
+  "contentType": "application/pdf",
+  "fileSize": 204800,
+  "url": "/api/files/1/download",
+  "createdAt": "2026-01-01T00:00:00"
+}
+```
+
+**Response (404):**
+```json
+{
+  "message": "File not found with id: 99"
+}
+```
+
+---
+
+### GET /api/files/{id}/download
+
+Download a file. Returns the raw file bytes with `Content-Disposition: attachment` header using the original filename.
+
+**Response (200):** Binary file data with `Content-Type` and `Content-Disposition` headers.
+
+---
+
+### DELETE /api/files/{id}
+
+Delete a file (removes from disk and database).
+
+**Response (204):** No content.
+
+---
+
 ## Good Picture Endpoints
 
-All good picture endpoints require authentication (any role). Pictures are nested under goods. Accepted file types: JPEG, PNG, WebP, GIF. Max file size: 10MB.
+All good picture endpoints require authentication (any role). Pictures are nested under goods. Max file size: 10MB.
 
 ### POST /api/goods/{goodId}/pictures
 
@@ -1024,13 +1089,6 @@ Upload a picture for a good. Uses multipart/form-data.
   "fileSize": 102400,
   "url": "/api/goods/1/pictures/1/file",
   "createdAt": "2026-01-01T00:00:00"
-}
-```
-
-**Response (400):**
-```json
-{
-  "message": "File type not allowed. Accepted types: JPEG, PNG, WebP, GIF"
 }
 ```
 
