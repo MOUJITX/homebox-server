@@ -3,6 +3,7 @@ package com.moujitx.homebox.server.controller;
 import com.moujitx.homebox.server.dto.request.CreateGoodItemRequest;
 import com.moujitx.homebox.server.dto.request.UpdateGoodItemRequest;
 import com.moujitx.homebox.server.dto.response.GoodItemResponse;
+import com.moujitx.homebox.server.enums.ItemStatus;
 import com.moujitx.homebox.server.service.GoodItemService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -22,8 +23,9 @@ public class GoodItemController {
     }
 
     @GetMapping
-    public ResponseEntity<List<GoodItemResponse>> getItems(@PathVariable Long goodId) {
-        return ResponseEntity.ok(itemService.getItemsByGoodId(goodId));
+    public ResponseEntity<List<GoodItemResponse>> getItems(@PathVariable Long goodId,
+                                                            @RequestParam(required = false) ItemStatus itemStatus) {
+        return ResponseEntity.ok(itemService.getItemsByGoodId(goodId, itemStatus));
     }
 
     @PostMapping

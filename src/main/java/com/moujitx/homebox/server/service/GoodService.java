@@ -9,6 +9,7 @@ import com.moujitx.homebox.server.entity.GoodBrand;
 import com.moujitx.homebox.server.entity.GoodCategory;
 import com.moujitx.homebox.server.entity.GoodItem;
 import com.moujitx.homebox.server.enums.GoodStatus;
+import com.moujitx.homebox.server.enums.ItemStatus;
 import com.moujitx.homebox.server.exception.OperationNotAllowedException;
 import com.moujitx.homebox.server.exception.ResourceAlreadyExistsException;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
@@ -49,18 +50,21 @@ public class GoodService {
     }
 
     @Transactional(readOnly = true)
-    public Page<GoodResponse> getGoods(String search, Long categoryId, Long brandId, GoodStatus status, Pageable pageable) {
+    public Page<GoodResponse> getGoods(String search, Long categoryId, Long brandId, GoodStatus status, ItemStatus itemStatus, Pageable pageable) {
         String searchParam = (search != null && !search.isBlank()) ? search.trim() : null;
 
-        if (status != null) {
+        if (status != null || itemStatus != null) {
             List<Good> allGoods = goodRepository.findWithFilters(searchParam, categoryId, brandId, Pageable.unpaged()).getContent();
             List<GoodResponse> filtered = allGoods.stream()
-                    .map(good -> {
-                        GoodStatus computed = computeStatus(good);
-                        if (computed != status) return null;
-                        return GoodResponse.from(good, computed);
+                    .filter(good -> {
+                        if (status != null && computeStatus(good) != status) return false;
+                        if (itemStatus != null) {
+                            return good.getItems().stream()
+                                    .anyMatch(item -> computeItemStatus(item, good.getExpiringSoonDays()) == itemStatus);
+                        }
+                        return true;
                     })
-                    .filter(Objects::nonNull)
+                    .map(good -> GoodResponse.from(good, computeStatus(good)))
                     .toList();
 
             int start = (int) pageable.getOffset();
@@ -169,30 +173,23 @@ public class GoodService {
 
     public GoodStatus computeStatus(Good good) {
         List<GoodItem> items = good.getItems();
-        if (items.isEmpty()) return GoodStatus.EXHAUSTED;
-
         LocalDate today = LocalDate.now();
-        boolean hasExpired = false;
-        boolean hasExpiringSoon = false;
-        boolean hasInUse = false;
 
         for (GoodItem item : items) {
-            if (item.getExpirationDate().isBefore(today)) {
-                hasExpired = true;
-                break;
-            }
-            if (item.isInUse()) {
-                hasInUse = true;
-                long daysUntilExpiration = ChronoUnit.DAYS.between(today, item.getExpirationDate());
-                if (daysUntilExpiration <= good.getExpiringSoonDays()) {
-                    hasExpiringSoon = true;
-                }
+            if (item.isInUse() && !item.getExpirationDate().isBefore(today)) {
+                return GoodStatus.IN_USE;
             }
         }
 
-        if (hasExpired) return GoodStatus.EXPIRED;
-        if (hasExpiringSoon) return GoodStatus.EXPIRING_SOON;
-        if (!hasInUse) return GoodStatus.EXHAUSTED;
-        return GoodStatus.IN_USE;
+        return GoodStatus.NOT_IN_USE;
+    }
+
+    public ItemStatus computeItemStatus(GoodItem item, int expiringSoonDays) {
+        LocalDate today = LocalDate.now();
+        if (!item.isInUse()) return ItemStatus.EXHAUSTED;
+        if (item.getExpirationDate().isBefore(today)) return ItemStatus.EXPIRED;
+        long daysUntil = ChronoUnit.DAYS.between(today, item.getExpirationDate());
+        if (daysUntil <= expiringSoonDays) return ItemStatus.EXPIRING_SOON;
+        return ItemStatus.IN_USE;
     }
 }

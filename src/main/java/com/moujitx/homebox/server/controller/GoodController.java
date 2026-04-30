@@ -5,6 +5,7 @@ import com.moujitx.homebox.server.dto.request.UpdateGoodRequest;
 import com.moujitx.homebox.server.dto.response.GoodDetailResponse;
 import com.moujitx.homebox.server.dto.response.GoodResponse;
 import com.moujitx.homebox.server.enums.GoodStatus;
+import com.moujitx.homebox.server.enums.ItemStatus;
 import com.moujitx.homebox.server.service.GoodService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -31,13 +32,14 @@ public class GoodController {
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Long brandId,
             @RequestParam(required = false) GoodStatus status,
+            @RequestParam(required = false) ItemStatus itemStatus,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        return ResponseEntity.ok(goodService.getGoods(search, categoryId, brandId, status, pageable));
+        return ResponseEntity.ok(goodService.getGoods(search, categoryId, brandId, status, itemStatus, pageable));
     }
 
     @GetMapping("/{id}")

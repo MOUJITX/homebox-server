@@ -5,6 +5,7 @@ import com.moujitx.homebox.server.dto.request.UpdateGoodItemRequest;
 import com.moujitx.homebox.server.dto.response.GoodItemResponse;
 import com.moujitx.homebox.server.entity.Good;
 import com.moujitx.homebox.server.entity.GoodItem;
+import com.moujitx.homebox.server.enums.ItemStatus;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.GoodItemRepository;
 import com.moujitx.homebox.server.repository.GoodRepository;
@@ -20,18 +21,24 @@ public class GoodItemService {
 
     private final GoodItemRepository itemRepository;
     private final GoodRepository goodRepository;
+    private final GoodService goodService;
 
     public GoodItemService(GoodItemRepository itemRepository,
-                           GoodRepository goodRepository) {
+                           GoodRepository goodRepository,
+                           GoodService goodService) {
         this.itemRepository = itemRepository;
         this.goodRepository = goodRepository;
+        this.goodService = goodService;
     }
 
-    public List<GoodItemResponse> getItemsByGoodId(Long goodId) {
-        if (!goodRepository.existsById(goodId)) {
-            throw new ResourceNotFoundException("Good not found with id: " + goodId);
-        }
+    public List<GoodItemResponse> getItemsByGoodId(Long goodId, ItemStatus itemStatus) {
+        Good good = goodRepository.findById(goodId)
+                .orElseThrow(() -> new ResourceNotFoundException("Good not found with id: " + goodId));
         return itemRepository.findByGoodId(goodId).stream()
+                .filter(item -> {
+                    if (itemStatus == null) return true;
+                    return goodService.computeItemStatus(item, good.getExpiringSoonDays()) == itemStatus;
+                })
                 .map(GoodItemResponse::from)
                 .toList();
     }
