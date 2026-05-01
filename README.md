@@ -107,9 +107,11 @@ The root user must change their password on first login (`forceChangePassword: t
 - `POST /api/assets/{id}/pictures` — upload picture for an asset
 - `GET /api/assets/{id}/pictures/{pid}/file` — serve asset picture inline
 - `DELETE /api/assets/{id}/pictures/{pid}` — delete asset picture
-- `GET/POST /api/places` — list/create places (authenticated)
-- `GET/PUT/DELETE /api/places/{id}` — get/update/delete place (authenticated)
-- `GET/POST /api/stores` — list/create stores (authenticated)
-- `GET/PUT/DELETE /api/stores/{id}` — get/update/delete store (authenticated)
+- `GET/POST /api/asset-categories` — list/create asset categories (authenticated)
+- `GET/PUT/DELETE /api/asset-categories/{id}` — get/update/delete asset category (authenticated)
+- `GET/POST /api/asset-places` — list/create asset places (authenticated)
+- `GET/PUT/DELETE /api/asset-places/{id}` — get/update/delete asset place (authenticated)
+- `GET/POST /api/asset-stores` — list/create asset stores (authenticated)
+- `GET/PUT/DELETE /api/asset-stores/{id}` — get/update/delete asset store (authenticated)
 
 See [docs/api.md](docs/api.md) for full API documentation.

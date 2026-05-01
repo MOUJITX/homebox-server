@@ -11,20 +11,20 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "stores")
+@Table(name = "asset_places")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Store {
+public class AssetPlace {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(unique = true, nullable = false)
     private String name;
 
-    private String channel;
+    private String description;
 
     @Setter(AccessLevel.NONE)
     @CreationTimestamp
@@ -35,8 +35,8 @@ public class Store {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    public Store(String name, String channel) {
+    public AssetPlace(String name, String description) {
         this.name = name;
-        this.channel = channel;
+        this.description = description;
     }
 }

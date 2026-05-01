@@ -26,9 +26,9 @@ import java.util.List;
 public class AssetService {
 
     private final AssetRepository assetRepository;
-    private final GoodCategoryRepository categoryRepository;
-    private final PlaceRepository placeRepository;
-    private final StoreRepository storeRepository;
+    private final AssetCategoryRepository categoryRepository;
+    private final AssetPlaceRepository placeRepository;
+    private final AssetStoreRepository storeRepository;
     private final AssetPictureRepository assetPictureRepository;
     private final FileService fileService;
 
@@ -77,10 +77,10 @@ public class AssetService {
             throw new ResourceAlreadyExistsException("Asset already exists with barcode: " + request.getBarcode() + " and serial number: " + request.getSerialNumber());
         }
 
-        GoodCategory category = categoryRepository.findById(request.getCategoryId())
+        AssetCategory category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.getCategoryId()));
 
-        Place place = placeRepository.findById(request.getPlaceId())
+        AssetPlace place = placeRepository.findById(request.getPlaceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Place not found with id: " + request.getPlaceId()));
 
         Asset asset = new Asset();
@@ -94,7 +94,7 @@ public class AssetService {
         asset.setShopDate(request.getShopDate());
 
         if (request.getStoreId() != null) {
-            Store store = storeRepository.findById(request.getStoreId())
+            AssetStore store = storeRepository.findById(request.getStoreId())
                     .orElseThrow(() -> new ResourceNotFoundException("Store not found with id: " + request.getStoreId()));
             asset.setStore(store);
         }
@@ -145,13 +145,13 @@ public class AssetService {
         }
 
         if (request.getCategoryId() != null) {
-            GoodCategory category = categoryRepository.findById(request.getCategoryId())
+            AssetCategory category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.getCategoryId()));
             asset.setCategory(category);
         }
 
         if (request.getPlaceId() != null) {
-            Place place = placeRepository.findById(request.getPlaceId())
+            AssetPlace place = placeRepository.findById(request.getPlaceId())
                     .orElseThrow(() -> new ResourceNotFoundException("Place not found with id: " + request.getPlaceId()));
             asset.setPlace(place);
         }
@@ -169,7 +169,7 @@ public class AssetService {
         }
 
         if (request.getStoreId() != null) {
-            Store store = storeRepository.findById(request.getStoreId())
+            AssetStore store = storeRepository.findById(request.getStoreId())
                     .orElseThrow(() -> new ResourceNotFoundException("Store not found with id: " + request.getStoreId()));
             asset.setStore(store);
         }

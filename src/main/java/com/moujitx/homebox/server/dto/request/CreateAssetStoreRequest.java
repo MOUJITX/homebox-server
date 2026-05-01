@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateStoreRequest {
+public class CreateAssetStoreRequest {
 
     @NotBlank
     private String name;

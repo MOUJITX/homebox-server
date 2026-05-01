@@ -1,12 +1,12 @@
 package com.moujitx.homebox.server.dto.response;
 
-import com.moujitx.homebox.server.entity.Store;
+import com.moujitx.homebox.server.entity.AssetStore;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Getter
-public class StoreResponse {
+public class AssetStoreResponse {
 
     private Long id;
     private String name;
@@ -14,8 +14,8 @@ public class StoreResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static StoreResponse from(Store store) {
-        StoreResponse response = new StoreResponse();
+    public static AssetStoreResponse from(AssetStore store) {
+        AssetStoreResponse response = new AssetStoreResponse();
         response.id = store.getId();
         response.name = store.getName();
         response.channel = store.getChannel();

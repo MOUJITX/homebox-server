@@ -94,7 +94,7 @@ The application uses MySQL and manages schema via Hibernate's `ddl-auto: update`
 | good_id | BIGINT | NOT NULL, FK → goods(id)     |
 | file_id | BIGINT | NOT NULL, FK → file_records(id) |
 
-### places
+### asset_categories
 
 | Column      | Type         | Constraints              |
 |-------------|--------------|--------------------------|
@@ -104,7 +104,17 @@ The application uses MySQL and manages schema via Hibernate's `ddl-auto: update`
 | created_at  | DATETIME(6)  | NOT NULL, auto-set       |
 | updated_at  | DATETIME(6)  | NOT NULL, auto-set       |
 
-### stores
+### asset_places
+
+| Column      | Type         | Constraints              |
+|-------------|--------------|--------------------------|
+| id          | BIGINT       | PRIMARY KEY, AUTO_INCREMENT |
+| name        | VARCHAR(255) | UNIQUE, NOT NULL         |
+| description | VARCHAR(255) | NULLABLE                 |
+| created_at  | DATETIME(6)  | NOT NULL, auto-set       |
+| updated_at  | DATETIME(6)  | NOT NULL, auto-set       |
+
+### asset_stores
 
 | Column      | Type         | Constraints              |
 |-------------|--------------|--------------------------|
@@ -116,18 +126,18 @@ The application uses MySQL and manages schema via Hibernate's `ddl-auto: update`
 
 ### assets
 
-| Column           | Type           | Constraints                        |
-|------------------|----------------|------------------------------------|
-| id               | BIGINT         | PRIMARY KEY, AUTO_INCREMENT        |
-| name             | VARCHAR(255)   | NOT NULL                           |
-| barcode          | VARCHAR(255)   | NULLABLE                           |
-| serial_number    | VARCHAR(255)   | NULLABLE                           |
-| category_id      | BIGINT         | NOT NULL, FK → good_categories(id) |
-| place_id         | BIGINT         | NOT NULL, FK → places(id)          |
-| in_use           | BIT(1)         | NOT NULL, default TRUE             |
-| price            | DECIMAL(19,2)  | NULLABLE                           |
-| shop_date        | DATE           | NULLABLE                           |
-| store_id         | BIGINT         | NULLABLE, FK → stores(id)          |
+| Column           | Type           | Constraints                          |
+|------------------|----------------|--------------------------------------|
+| id               | BIGINT         | PRIMARY KEY, AUTO_INCREMENT          |
+| name             | VARCHAR(255)   | NOT NULL                             |
+| barcode          | VARCHAR(255)   | NULLABLE                             |
+| serial_number    | VARCHAR(255)   | NULLABLE                             |
+| category_id      | BIGINT         | NOT NULL, FK → asset_categories(id)  |
+| place_id         | BIGINT         | NOT NULL, FK → asset_places(id)      |
+| in_use           | BIT(1)         | NOT NULL, default TRUE               |
+| price            | DECIMAL(19,2)  | NULLABLE                             |
+| shop_date        | DATE           | NULLABLE                             |
+| store_id         | BIGINT         | NULLABLE, FK → asset_stores(id)      |
 | has_warranty     | BIT(1)         | NOT NULL, default FALSE            |
 | active_date      | DATE           | NULLABLE                           |
 | warranty_period  | INT            | NULLABLE (days)                    |
@@ -155,9 +165,9 @@ UNIQUE INDEX on (barcode, serial_number) — enforced only when both are non-nul
 - `good_items.good_id` → `goods.id` (Many-to-One: many items belong to one good)
 - `good_pictures.good_id` → `goods.id` (Many-to-One: many pictures belong to one good)
 - `good_pictures.file_id` → `file_records.id` (Many-to-One: many pictures can reference one file)
-- `assets.category_id` → `good_categories.id` (Many-to-One: many assets share one category)
-- `assets.place_id` → `places.id` (Many-to-One: many assets share one place)
-- `assets.store_id` → `stores.id` (Many-to-One: many assets can share one store)
+- `assets.category_id` → `asset_categories.id` (Many-to-One: many assets share one category)
+- `assets.place_id` → `asset_places.id` (Many-to-One: many assets share one place)
+- `assets.store_id` → `asset_stores.id` (Many-to-One: many assets can share one store)
 - `assets.parent_id` → `assets.id` (Many-to-One: sub-asset references parent)
 - `asset_pictures.asset_id` → `assets.id` (Many-to-One: many pictures belong to one asset)
 - `asset_pictures.file_id` → `file_records.id` (Many-to-One: many pictures can reference one file)

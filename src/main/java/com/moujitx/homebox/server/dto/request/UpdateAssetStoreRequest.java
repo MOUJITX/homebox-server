@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UpdateStoreRequest {
+public class UpdateAssetStoreRequest {
 
     private String name;
 

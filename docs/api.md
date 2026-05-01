@@ -1110,69 +1110,102 @@ Delete a picture (removes from disk and database).
 
 ---
 
-## Place Endpoints
+## Asset Category Endpoints
 
-### GET /api/places
+### GET /api/asset-categories
 
-List all places.
+List all asset categories.
 
-**Response (200):** `PlaceResponse[]`
+**Response (200):** `AssetCategoryResponse[]`
 
-### GET /api/places/{id}
+### GET /api/asset-categories/{id}
 
-Get place by ID.
+Get asset category by ID.
 
-### POST /api/places
+### POST /api/asset-categories
 
-Create a new place.
+Create a new asset category.
+
+**Request Body:**
+```json
+{ "name": "Electronics", "description": "Electronic devices" }
+```
+
+**Response (201):** `AssetCategoryResponse`
+
+### PUT /api/asset-categories/{id}
+
+Update an asset category. All fields optional.
+
+### DELETE /api/asset-categories/{id}
+
+Delete an asset category. Cannot delete if used by assets.
+
+---
+
+## Asset Place Endpoints
+
+### GET /api/asset-places
+
+List all asset places.
+
+**Response (200):** `AssetPlaceResponse[]`
+
+### GET /api/asset-places/{id}
+
+Get asset place by ID.
+
+### POST /api/asset-places
+
+Create a new asset place.
 
 **Request Body:**
 ```json
 { "name": "Living Room", "description": "Main living area" }
 ```
 
-**Response (201):** `PlaceResponse`
+**Response (201):** `AssetPlaceResponse`
 
-### PUT /api/places/{id}
+### PUT /api/asset-places/{id}
 
-Update a place. All fields optional.
+Update an asset place. All fields optional.
 
-### DELETE /api/places/{id}
+### DELETE /api/asset-places/{id}
 
-Delete a place. Cannot delete if used by assets.
+Delete an asset place. Cannot delete if used by assets.
 
 ---
 
-## Store Endpoints
+## Asset Store Endpoints
 
-### GET /api/stores
+### GET /api/asset-stores
 
-List all stores.
+List all asset stores.
 
-**Response (200):** `StoreResponse[]`
+**Response (200):** `AssetStoreResponse[]`
 
-### GET /api/stores/{id}
+### GET /api/asset-stores/{id}
 
-Get store by ID.
+Get asset store by ID.
 
-### POST /api/stores
+### POST /api/asset-stores
 
-Create a new store.
+Create a new asset store.
 
 **Request Body:**
 ```json
 { "name": "JD.com", "channel": "Online" }
 ```
 
-**Response (201):** `StoreResponse`
+**Response (201):** `AssetStoreResponse`
 
-### PUT /api/stores/{id}
+### PUT /api/asset-stores/{id}
 
-Update a store. All fields optional.
+Update an asset store. All fields optional.
 
-### DELETE /api/stores/{id}
+### DELETE /api/asset-stores/{id}
 
-Delete a store. Cannot delete if used by assets.
+Delete an asset store. Cannot delete if used by assets.
 
 ---
 

@@ -1,12 +1,12 @@
 package com.moujitx.homebox.server.dto.response;
 
-import com.moujitx.homebox.server.entity.Place;
+import com.moujitx.homebox.server.entity.AssetPlace;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Getter
-public class PlaceResponse {
+public class AssetPlaceResponse {
 
     private Long id;
     private String name;
@@ -14,8 +14,8 @@ public class PlaceResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static PlaceResponse from(Place place) {
-        PlaceResponse response = new PlaceResponse();
+    public static AssetPlaceResponse from(AssetPlace place) {
+        AssetPlaceResponse response = new AssetPlaceResponse();
         response.id = place.getId();
         response.name = place.getName();
         response.description = place.getDescription();

@@ -35,11 +35,11 @@ public class Asset {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "category_id")
-    private GoodCategory category;
+    private AssetCategory category;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "place_id")
-    private Place place;
+    private AssetPlace place;
 
     @Column(nullable = false)
     private boolean inUse = true;
@@ -50,7 +50,7 @@ public class Asset {
 
     @ManyToOne
     @JoinColumn(name = "store_id")
-    private Store store;
+    private AssetStore store;
 
     @Column(nullable = false)
     private boolean hasWarranty = false;
