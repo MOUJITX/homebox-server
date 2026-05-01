@@ -20,7 +20,8 @@ src/main/java/com/moujitx/homebox/server/
 ├── controller/                       # REST controllers
 ├── dto/request/                      # Request DTOs
 ├── dto/response/                     # Response DTOs
-├── entity/                           # JPA entities (including Asset, Place, Store)
+├── entity/                           # JPA entities (Role, User, Good, GoodItem, Asset, Invoice, etc.)
+├── enums/                            # Enumerations (GoodStatus, InvoiceType, etc.)
 ├── exception/                        # Exception handling
 ├── initializer/                      # Data seeding on startup
 ├── repository/                       # Spring Data repositories
@@ -91,27 +92,49 @@ The root user must change their password on first login (`forceChangePassword: t
 
 - `POST /api/auth/login` — authenticate and get JWT token
 - `POST /api/auth/change-password` — change password (authenticated)
+- `GET /api/profile` — get current user profile
+- `PUT /api/profile` — update current user profile
+- `PUT /api/profile/password` — change current user password
 - `GET/POST /api/members` — list/create members (root only)
 - `GET/PUT/DELETE /api/members/{id}` — get/update/delete member (root only)
 - `GET/POST /api/roles` — list/create roles (root only)
 - `GET/PUT/DELETE /api/roles/{id}` — get/update/delete role (root only)
-- `POST /api/files` — upload any file
-- `GET /api/files/{id}` — get file metadata
-- `GET /api/files/{id}/download` — download file with original filename
-- `DELETE /api/files/{id}` — delete file
+- `GET/POST /api/goods` — list/create goods with pagination and filtering
+- `GET/PUT/DELETE /api/goods/{id}` — get/update/delete good
+- `GET /api/goods/barcode/{barcode}` — look up good by barcode
+- `GET/POST /api/goods/{id}/items` — list/create good items
+- `PUT/DELETE /api/goods/{id}/items/{itemId}` — update/delete good item
 - `POST /api/goods/{id}/pictures` — upload picture for a good
 - `GET /api/goods/{id}/pictures/{pid}/file` — serve picture inline
 - `DELETE /api/goods/{id}/pictures/{pid}` — delete picture
-- `GET/POST /api/assets` — list/create assets (authenticated)
-- `GET/PUT/DELETE /api/assets/{id}` — get/update/delete asset (authenticated)
+- `GET/POST /api/good-categories` — list/create good categories
+- `GET/PUT/DELETE /api/good-categories/{id}` — get/update/delete good category
+- `GET/POST /api/good-brands` — list/create good brands
+- `GET/PUT/DELETE /api/good-brands/{id}` — get/update/delete good brand
+- `GET/POST /api/files` — list/upload files
+- `GET /api/files/{id}` — get file metadata
+- `GET /api/files/{id}/preview` — preview file inline
+- `GET /api/files/{id}/download` — download file with original filename
+- `PATCH /api/files/{id}/rename` — rename a file
+- `DELETE /api/files/{id}` — delete file
+- `GET/POST /api/assets` — list/create assets with pagination and filtering
+- `GET/PUT/DELETE /api/assets/{id}` — get/update/delete asset
 - `POST /api/assets/{id}/pictures` — upload picture for an asset
 - `GET /api/assets/{id}/pictures/{pid}/file` — serve asset picture inline
 - `DELETE /api/assets/{id}/pictures/{pid}` — delete asset picture
-- `GET/POST /api/asset-categories` — list/create asset categories (authenticated)
-- `GET/PUT/DELETE /api/asset-categories/{id}` — get/update/delete asset category (authenticated)
-- `GET/POST /api/asset-places` — list/create asset places (authenticated)
-- `GET/PUT/DELETE /api/asset-places/{id}` — get/update/delete asset place (authenticated)
-- `GET/POST /api/asset-stores` — list/create asset stores (authenticated)
-- `GET/PUT/DELETE /api/asset-stores/{id}` — get/update/delete asset store (authenticated)
+- `GET/POST /api/asset-categories` — list/create asset categories
+- `GET/PUT/DELETE /api/asset-categories/{id}` — get/update/delete asset category
+- `GET/POST /api/asset-places` — list/create asset places
+- `GET/PUT/DELETE /api/asset-places/{id}` — get/update/delete asset place
+- `GET/POST /api/asset-stores` — list/create asset stores
+- `GET/PUT/DELETE /api/asset-stores/{id}` — get/update/delete asset store
+- `GET/POST /api/invoices` — list/create invoices with pagination and filtering
+- `GET/PUT/DELETE /api/invoices/{id}` — get/update/delete invoice
+- `POST /api/invoices/parse` — parse invoice file (PDF/XML/OFD)
+- `GET /api/invoices/{id}/file/preview` — preview invoice file inline
+- `GET /api/invoices/{id}/file/download` — download invoice file
+- `POST /api/invoices/{id}/attachments` — upload invoice attachment
+- `GET /api/invoices/{id}/attachments/{aid}/file` — serve attachment file
+- `DELETE /api/invoices/{id}/attachments/{aid}` — delete attachment
 
 See [docs/api.md](docs/api.md) for full API documentation.

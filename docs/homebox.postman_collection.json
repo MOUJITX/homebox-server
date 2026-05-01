@@ -889,6 +889,48 @@
           }
         },
         {
+          "name": "Preview File",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/1/preview",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "files", "1", "preview"]
+            }
+          }
+        },
+        {
+          "name": "Rename File",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"originalFilename\": \"renamed-file.pdf\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/1/rename",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "files", "1", "rename"]
+            }
+          }
+        },
+        {
           "name": "Delete File",
           "request": {
             "method": "DELETE",
@@ -969,6 +1011,386 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "goods", "1", "pictures", "1"]
             }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Asset Categories",
+      "item": [
+        {
+          "name": "Get All Asset Categories",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/asset-categories", "host": ["{{baseUrl}}"], "path": ["api", "asset-categories"] }
+          }
+        },
+        {
+          "name": "Get Asset Category By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/asset-categories/1", "host": ["{{baseUrl}}"], "path": ["api", "asset-categories", "1"] }
+          }
+        },
+        {
+          "name": "Create Asset Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Electronics\",\n  \"description\": \"Electronic devices\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/asset-categories", "host": ["{{baseUrl}}"], "path": ["api", "asset-categories"] }
+          }
+        },
+        {
+          "name": "Update Asset Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated description\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/asset-categories/1", "host": ["{{baseUrl}}"], "path": ["api", "asset-categories", "1"] }
+          }
+        },
+        {
+          "name": "Delete Asset Category",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/asset-categories/1", "host": ["{{baseUrl}}"], "path": ["api", "asset-categories", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Asset Places",
+      "item": [
+        {
+          "name": "Get All Asset Places",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/asset-places", "host": ["{{baseUrl}}"], "path": ["api", "asset-places"] }
+          }
+        },
+        {
+          "name": "Get Asset Place By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/asset-places/1", "host": ["{{baseUrl}}"], "path": ["api", "asset-places", "1"] }
+          }
+        },
+        {
+          "name": "Create Asset Place",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Living Room\",\n  \"description\": \"Main living area\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/asset-places", "host": ["{{baseUrl}}"], "path": ["api", "asset-places"] }
+          }
+        },
+        {
+          "name": "Update Asset Place",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated description\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/asset-places/1", "host": ["{{baseUrl}}"], "path": ["api", "asset-places", "1"] }
+          }
+        },
+        {
+          "name": "Delete Asset Place",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/asset-places/1", "host": ["{{baseUrl}}"], "path": ["api", "asset-places", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Asset Stores",
+      "item": [
+        {
+          "name": "Get All Asset Stores",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/asset-stores", "host": ["{{baseUrl}}"], "path": ["api", "asset-stores"] }
+          }
+        },
+        {
+          "name": "Get Asset Store By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/asset-stores/1", "host": ["{{baseUrl}}"], "path": ["api", "asset-stores", "1"] }
+          }
+        },
+        {
+          "name": "Create Asset Store",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"JD.com\",\n  \"channel\": \"Online\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/asset-stores", "host": ["{{baseUrl}}"], "path": ["api", "asset-stores"] }
+          }
+        },
+        {
+          "name": "Update Asset Store",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Taobao\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/asset-stores/1", "host": ["{{baseUrl}}"], "path": ["api", "asset-stores", "1"] }
+          }
+        },
+        {
+          "name": "Delete Asset Store",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/asset-stores/1", "host": ["{{baseUrl}}"], "path": ["api", "asset-stores", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Assets",
+      "item": [
+        {
+          "name": "Get Assets (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/assets?page=0&size=10&sortBy=createdAt&sortDir=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assets"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" },
+                { "key": "sortBy", "value": "createdAt" },
+                { "key": "sortDir", "value": "desc" },
+                { "key": "search", "value": "", "disabled": true },
+                { "key": "categoryId", "value": "", "disabled": true },
+                { "key": "placeId", "value": "", "disabled": true },
+                { "key": "isInUse", "value": "", "disabled": true },
+                { "key": "warrantyStatus", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Asset By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/assets/1", "host": ["{{baseUrl}}"], "path": ["api", "assets", "1"] }
+          }
+        },
+        {
+          "name": "Create Asset",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"MacBook Pro\",\n  \"categoryId\": 1,\n  \"placeId\": 1,\n  \"price\": 1299.99,\n  \"shopDate\": \"2024-01-15\",\n  \"hasWarranty\": true,\n  \"activeDate\": \"2024-01-15\",\n  \"warrantyPeriod\": 365\n}" },
+            "url": { "raw": "{{baseUrl}}/api/assets", "host": ["{{baseUrl}}"], "path": ["api", "assets"] }
+          }
+        },
+        {
+          "name": "Update Asset",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"MacBook Pro M3\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/assets/1", "host": ["{{baseUrl}}"], "path": ["api", "assets", "1"] }
+          }
+        },
+        {
+          "name": "Delete Asset",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/assets/1", "host": ["{{baseUrl}}"], "path": ["api", "assets", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Asset Pictures",
+      "item": [
+        {
+          "name": "Upload Asset Picture",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": { "mode": "formdata", "formdata": [{ "key": "file", "type": "file", "src": "" }] },
+            "url": { "raw": "{{baseUrl}}/api/assets/1/pictures", "host": ["{{baseUrl}}"], "path": ["api", "assets", "1", "pictures"] }
+          }
+        },
+        {
+          "name": "Get Asset Picture File",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/assets/1/pictures/1/file", "host": ["{{baseUrl}}"], "path": ["api", "assets", "1", "pictures", "1", "file"] }
+          }
+        },
+        {
+          "name": "Delete Asset Picture",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/assets/1/pictures/1", "host": ["{{baseUrl}}"], "path": ["api", "assets", "1", "pictures", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invoices",
+      "item": [
+        {
+          "name": "Get Invoices (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/invoices?page=0&size=10&sortBy=createdAt&sortDir=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invoices"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" },
+                { "key": "sortBy", "value": "createdAt" },
+                { "key": "sortDir", "value": "desc" },
+                { "key": "search", "value": "", "disabled": true },
+                { "key": "invoiceType", "value": "", "disabled": true },
+                { "key": "invoiceStatus", "value": "", "disabled": true },
+                { "key": "buyerName", "value": "", "disabled": true },
+                { "key": "sellerName", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Invoice By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/invoices/1", "host": ["{{baseUrl}}"], "path": ["api", "invoices", "1"] }
+          }
+        },
+        {
+          "name": "Create Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"invoiceType\": \"DIGITAL_INVOICE\",\n  \"totalAmount\": 113.00,\n  \"invoiceNumber\": \"12345678\",\n  \"invoiceDate\": \"2026-01-15\",\n  \"buyerName\": \"Buyer\",\n  \"sellerName\": \"Seller\",\n  \"amount\": 100.00,\n  \"taxAmount\": 13.00\n}" },
+            "url": { "raw": "{{baseUrl}}/api/invoices", "host": ["{{baseUrl}}"], "path": ["api", "invoices"] }
+          }
+        },
+        {
+          "name": "Parse Invoice File",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": { "mode": "formdata", "formdata": [{ "key": "file", "type": "file", "src": "" }] },
+            "url": { "raw": "{{baseUrl}}/api/invoices/parse", "host": ["{{baseUrl}}"], "path": ["api", "invoices", "parse"] }
+          }
+        },
+        {
+          "name": "Update Invoice",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"remark\": \"Updated remark\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/invoices/1", "host": ["{{baseUrl}}"], "path": ["api", "invoices", "1"] }
+          }
+        },
+        {
+          "name": "Delete Invoice",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/invoices/1", "host": ["{{baseUrl}}"], "path": ["api", "invoices", "1"] }
+          }
+        },
+        {
+          "name": "Preview Invoice File",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/invoices/1/file/preview", "host": ["{{baseUrl}}"], "path": ["api", "invoices", "1", "file", "preview"] }
+          }
+        },
+        {
+          "name": "Download Invoice File",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/invoices/1/file/download", "host": ["{{baseUrl}}"], "path": ["api", "invoices", "1", "file", "download"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invoice Attachments",
+      "item": [
+        {
+          "name": "Upload Invoice Attachment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": { "mode": "formdata", "formdata": [{ "key": "file", "type": "file", "src": "" }] },
+            "url": { "raw": "{{baseUrl}}/api/invoices/1/attachments", "host": ["{{baseUrl}}"], "path": ["api", "invoices", "1", "attachments"] }
+          }
+        },
+        {
+          "name": "Get Invoice Attachment File",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/invoices/1/attachments/1/file", "host": ["{{baseUrl}}"], "path": ["api", "invoices", "1", "attachments", "1", "file"] }
+          }
+        },
+        {
+          "name": "Delete Invoice Attachment",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/invoices/1/attachments/1", "host": ["{{baseUrl}}"], "path": ["api", "invoices", "1", "attachments", "1"] }
           }
         }
       ]

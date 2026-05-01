@@ -26,8 +26,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `controller/` — REST API controllers
   - `dto/request/` — request DTOs with validation
   - `dto/response/` — response DTOs
-  - `entity/` — JPA entities (Role, User, Good, GoodItem, GoodCategory, GoodBrand, GoodPicture, FileRecord)
-  - `enums/` — enumerations (GoodStatus)
+  - `entity/` — JPA entities (Role, User, Good, GoodItem, GoodCategory, GoodBrand, GoodPicture, FileRecord, Asset, AssetCategory, AssetPlace, AssetStore, AssetPicture, Invoice, InvoiceAttachment)
+  - `enums/` — enumerations (GoodStatus, ItemStatus, InvoiceType, InvoiceStatus, WarrantyStatus)
+  - `util/` — utility classes (DateCalculator)
   - `exception/` — custom exceptions and global handler
   - `initializer/` — data seeding (root role/user on startup)
   - `repository/` — Spring Data JPA repositories

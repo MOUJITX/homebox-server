@@ -671,7 +671,8 @@ List goods with server-side pagination, search, and filtering.
 | search     | String  | null        | Search by product name or barcode (partial match) |
 | categoryId | Long    | null        | Filter by category ID                            |
 | brandId    | Long    | null        | Filter by brand ID                               |
-| status     | String  | null        | Filter by status: EXPIRED, EXPIRING_SOON, IN_USE, EXHAUSTED |
+| status     | String  | null        | Filter by good status: IN_USE, NOT_IN_USE        |
+| itemStatus | String  | null        | Filter by item status: EXPIRED, EXPIRING_SOON, IN_USE, EXHAUSTED |
 | page       | int     | 0           | Page number (0-indexed)                          |
 | size       | int     | 10          | Page size                                        |
 | sortBy     | String  | createdAt   | Sort field                                       |
@@ -1009,6 +1010,21 @@ Delete an item.
 
 All file endpoints require authentication (any role). Supports any file type. Max file size: 10MB.
 
+### GET /api/files
+
+List files with server-side pagination.
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description     |
+|-----------|------|---------|-----------------|
+| page      | int  | 0       | Page number     |
+| size      | int  | 10      | Page size       |
+
+**Response (200):** Spring `Page<FileResponse>`
+
+---
+
 ### POST /api/files
 
 Upload a file. Uses multipart/form-data.
@@ -1054,11 +1070,34 @@ Get file metadata by ID.
 
 ---
 
+### GET /api/files/{id}/preview
+
+Preview a file inline. Returns the raw file bytes with `Content-Disposition: inline` header.
+
+**Response (200):** Binary file data with `Content-Type` header.
+
+---
+
 ### GET /api/files/{id}/download
 
 Download a file. Returns the raw file bytes with `Content-Disposition: attachment` header using the original filename.
 
 **Response (200):** Binary file data with `Content-Type` and `Content-Disposition` headers.
+
+---
+
+### PATCH /api/files/{id}/rename
+
+Rename a file's original filename.
+
+**Request Body:**
+```json
+{
+  "originalFilename": "new-name.pdf"
+}
+```
+
+**Response (200):** `FileResponse` with updated filename.
 
 ---
 

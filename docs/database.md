@@ -174,9 +174,6 @@ UNIQUE INDEX on (barcode, serial_number) — enforced only when both are non-nul
 | amount          | DECIMAL(19,2)  | NULLABLE                             |
 | tax_amount      | DECIMAL(19,2)  | NULLABLE                             |
 | total_amount    | DECIMAL(19,2)  | NOT NULL                             |
-| payee           | VARCHAR(255)   | NULLABLE                             |
-| reviewer        | VARCHAR(255)   | NULLABLE                             |
-| issuer          | VARCHAR(255)   | NULLABLE                             |
 | remark          | TEXT           | NULLABLE                             |
 | file_id         | BIGINT         | NULLABLE, FK → file_records(id)      |
 | created_at      | DATETIME(6)    | NOT NULL, auto-set                   |
