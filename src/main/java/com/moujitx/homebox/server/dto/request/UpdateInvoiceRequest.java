@@ -12,8 +12,6 @@ import java.time.LocalDate;
 @Setter
 public class UpdateInvoiceRequest {
 
-    private String invoiceCode;
-
     private String invoiceNumber;
 
     private LocalDate invoiceDate;

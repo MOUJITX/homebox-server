@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 public class InvoiceResponse {
 
     private Long id;
-    private String invoiceCode;
     private String invoiceNumber;
     private LocalDate invoiceDate;
     private InvoiceType invoiceType;
@@ -30,7 +29,6 @@ public class InvoiceResponse {
     public static InvoiceResponse from(Invoice invoice) {
         InvoiceResponse response = new InvoiceResponse();
         response.id = invoice.getId();
-        response.invoiceCode = invoice.getInvoiceCode();
         response.invoiceNumber = invoice.getInvoiceNumber();
         response.invoiceDate = invoice.getInvoiceDate();
         response.invoiceType = invoice.getInvoiceType();

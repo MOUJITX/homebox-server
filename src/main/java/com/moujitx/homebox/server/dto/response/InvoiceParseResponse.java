@@ -12,7 +12,6 @@ import java.time.LocalDate;
 @Setter
 public class InvoiceParseResponse {
 
-    private String invoiceCode;
     private String invoiceNumber;
     private LocalDate invoiceDate;
     private InvoiceType invoiceType;

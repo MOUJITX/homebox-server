@@ -55,7 +55,6 @@ public class InvoiceService {
     @Transactional
     public InvoiceDetailResponse createInvoice(CreateInvoiceRequest request) {
         Invoice invoice = new Invoice();
-        invoice.setInvoiceCode(request.getInvoiceCode());
         invoice.setInvoiceNumber(request.getInvoiceNumber());
         invoice.setInvoiceDate(request.getInvoiceDate());
         invoice.setInvoiceType(request.getInvoiceType());
@@ -98,7 +97,6 @@ public class InvoiceService {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
 
-        if (request.getInvoiceCode() != null) invoice.setInvoiceCode(request.getInvoiceCode());
         if (request.getInvoiceNumber() != null) invoice.setInvoiceNumber(request.getInvoiceNumber());
         if (request.getInvoiceDate() != null) invoice.setInvoiceDate(request.getInvoiceDate());
         if (request.getInvoiceType() != null) invoice.setInvoiceType(request.getInvoiceType());

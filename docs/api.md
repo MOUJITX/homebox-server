@@ -1360,7 +1360,6 @@ List invoices with server-side pagination, search, and filtering.
   "content": [
     {
       "id": 1,
-      "invoiceCode": "044002100111",
       "invoiceNumber": "12345678",
       "invoiceDate": "2026-01-15",
       "invoiceType": "DIGITAL_INVOICE",
@@ -1422,7 +1421,6 @@ Upload an invoice file (PDF, XML, OFD) and extract invoice data. Returns parsed 
 **Response (200):**
 ```json
 {
-  "invoiceCode": "044002100111",
   "invoiceNumber": "12345678",
   "invoiceDate": "2026-01-15",
   "invoiceType": "DIGITAL_INVOICE",

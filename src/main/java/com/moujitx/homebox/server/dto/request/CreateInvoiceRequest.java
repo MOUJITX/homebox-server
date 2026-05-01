@@ -13,8 +13,6 @@ import java.time.LocalDate;
 @Setter
 public class CreateInvoiceRequest {
 
-    private String invoiceCode;
-
     private String invoiceNumber;
 
     private LocalDate invoiceDate;

@@ -14,7 +14,6 @@ import java.util.List;
 public class InvoiceDetailResponse {
 
     private Long id;
-    private String invoiceCode;
     private String invoiceNumber;
     private LocalDate invoiceDate;
     private InvoiceType invoiceType;
@@ -36,7 +35,6 @@ public class InvoiceDetailResponse {
     public static InvoiceDetailResponse from(Invoice invoice) {
         InvoiceDetailResponse response = new InvoiceDetailResponse();
         response.id = invoice.getId();
-        response.invoiceCode = invoice.getInvoiceCode();
         response.invoiceNumber = invoice.getInvoiceNumber();
         response.invoiceDate = invoice.getInvoiceDate();
         response.invoiceType = invoice.getInvoiceType();

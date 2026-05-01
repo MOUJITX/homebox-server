@@ -54,7 +54,6 @@ public class InvoiceParseService {
             InvoiceParseResponse result = new InvoiceParseResponse();
             Element root = doc.getDocumentElement();
 
-            result.setInvoiceCode(getElementText(root, "InvoiceCode"));
             result.setInvoiceNumber(getElementText(root, "InvoiceNumber"));
 
             String dateStr = getElementText(root, "InvoiceDate");
@@ -116,13 +115,6 @@ public class InvoiceParseService {
             Matcher m = invoiceNumPattern.matcher(text);
             if (m.find()) {
                 result.setInvoiceNumber(m.group(1));
-            }
-
-            // Invoice code: typically 10-12 digits
-            Pattern invoiceCodePattern = Pattern.compile("(?:发票代码|InvoiceCode)[：:]?\\s*(\\d{10,12})");
-            m = invoiceCodePattern.matcher(text);
-            if (m.find()) {
-                result.setInvoiceCode(m.group(1));
             }
 
             // Invoice date
@@ -215,10 +207,6 @@ public class InvoiceParseService {
     }
 
     private InvoiceType inferInvoiceType(InvoiceParseResponse result) {
-        if (result.getInvoiceCode() != null) {
-            String code = result.getInvoiceCode();
-            if (code.startsWith("0")) return InvoiceType.VAT_INVOICE;
-        }
         return InvoiceType.DIGITAL_INVOICE;
     }
 

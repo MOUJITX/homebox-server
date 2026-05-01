@@ -162,7 +162,6 @@ UNIQUE INDEX on (barcode, serial_number) — enforced only when both are non-nul
 | Column          | Type           | Constraints                          |
 |-----------------|----------------|--------------------------------------|
 | id              | BIGINT         | PRIMARY KEY, AUTO_INCREMENT          |
-| invoice_code    | VARCHAR(255)   | NULLABLE                             |
 | invoice_number  | VARCHAR(255)   | NULLABLE                             |
 | invoice_date    | DATE           | NULLABLE                             |
 | invoice_type    | VARCHAR(50)    | NOT NULL                             |
