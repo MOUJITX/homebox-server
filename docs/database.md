@@ -167,8 +167,6 @@ UNIQUE INDEX on (barcode, serial_number) — enforced only when both are non-nul
 | invoice_date    | DATE           | NULLABLE                             |
 | invoice_type    | VARCHAR(50)    | NOT NULL                             |
 | invoice_status  | VARCHAR(50)    | NOT NULL, default NORMAL             |
-| check_code      | VARCHAR(255)   | NULLABLE                             |
-| machine_number  | VARCHAR(255)   | NULLABLE                             |
 | seller_name     | VARCHAR(255)   | NULLABLE                             |
 | seller_tax_id   | VARCHAR(255)   | NULLABLE                             |
 | buyer_name      | VARCHAR(255)   | NULLABLE                             |

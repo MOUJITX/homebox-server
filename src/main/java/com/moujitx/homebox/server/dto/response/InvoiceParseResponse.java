@@ -17,8 +17,6 @@ public class InvoiceParseResponse {
     private LocalDate invoiceDate;
     private InvoiceType invoiceType;
     private InvoiceStatus invoiceStatus;
-    private String checkCode;
-    private String machineNumber;
     private String sellerName;
     private String sellerTaxId;
     private String buyerName;
@@ -26,9 +24,6 @@ public class InvoiceParseResponse {
     private BigDecimal amount;
     private BigDecimal taxAmount;
     private BigDecimal totalAmount;
-    private String payee;
-    private String reviewer;
-    private String issuer;
     private String remark;
     private Long fileId;
 }

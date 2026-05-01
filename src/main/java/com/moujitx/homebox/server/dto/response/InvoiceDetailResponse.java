@@ -19,8 +19,6 @@ public class InvoiceDetailResponse {
     private LocalDate invoiceDate;
     private InvoiceType invoiceType;
     private InvoiceStatus invoiceStatus;
-    private String checkCode;
-    private String machineNumber;
     private String sellerName;
     private String sellerTaxId;
     private String buyerName;
@@ -28,9 +26,6 @@ public class InvoiceDetailResponse {
     private BigDecimal amount;
     private BigDecimal taxAmount;
     private BigDecimal totalAmount;
-    private String payee;
-    private String reviewer;
-    private String issuer;
     private String remark;
     private Long fileId;
     private String fileUrl;
@@ -46,8 +41,6 @@ public class InvoiceDetailResponse {
         response.invoiceDate = invoice.getInvoiceDate();
         response.invoiceType = invoice.getInvoiceType();
         response.invoiceStatus = invoice.getInvoiceStatus();
-        response.checkCode = invoice.getCheckCode();
-        response.machineNumber = invoice.getMachineNumber();
         response.sellerName = invoice.getSellerName();
         response.sellerTaxId = invoice.getSellerTaxId();
         response.buyerName = invoice.getBuyerName();
@@ -55,9 +48,6 @@ public class InvoiceDetailResponse {
         response.amount = invoice.getAmount();
         response.taxAmount = invoice.getTaxAmount();
         response.totalAmount = invoice.getTotalAmount();
-        response.payee = invoice.getPayee();
-        response.reviewer = invoice.getReviewer();
-        response.issuer = invoice.getIssuer();
         response.remark = invoice.getRemark();
         response.createdAt = invoice.getCreatedAt();
         response.updatedAt = invoice.getUpdatedAt();

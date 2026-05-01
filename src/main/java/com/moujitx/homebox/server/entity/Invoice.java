@@ -41,10 +41,6 @@ public class Invoice {
     @Column(nullable = false)
     private InvoiceStatus invoiceStatus = InvoiceStatus.NORMAL;
 
-    private String checkCode;
-
-    private String machineNumber;
-
     private String sellerName;
 
     @Column(name = "seller_tax_id")
@@ -63,12 +59,6 @@ public class Invoice {
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal totalAmount;
-
-    private String payee;
-
-    private String reviewer;
-
-    private String issuer;
 
     @Column(columnDefinition = "TEXT")
     private String remark;

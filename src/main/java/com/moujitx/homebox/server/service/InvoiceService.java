@@ -60,8 +60,6 @@ public class InvoiceService {
         invoice.setInvoiceDate(request.getInvoiceDate());
         invoice.setInvoiceType(request.getInvoiceType());
         invoice.setInvoiceStatus(request.getInvoiceStatus() != null ? request.getInvoiceStatus() : InvoiceStatus.NORMAL);
-        invoice.setCheckCode(request.getCheckCode());
-        invoice.setMachineNumber(request.getMachineNumber());
         invoice.setSellerName(request.getSellerName());
         invoice.setSellerTaxId(request.getSellerTaxId());
         invoice.setBuyerName(request.getBuyerName());
@@ -69,9 +67,6 @@ public class InvoiceService {
         invoice.setAmount(request.getAmount());
         invoice.setTaxAmount(request.getTaxAmount());
         invoice.setTotalAmount(request.getTotalAmount());
-        invoice.setPayee(request.getPayee());
-        invoice.setReviewer(request.getReviewer());
-        invoice.setIssuer(request.getIssuer());
         invoice.setRemark(request.getRemark());
 
         if (request.getFileId() != null) {
@@ -108,8 +103,6 @@ public class InvoiceService {
         if (request.getInvoiceDate() != null) invoice.setInvoiceDate(request.getInvoiceDate());
         if (request.getInvoiceType() != null) invoice.setInvoiceType(request.getInvoiceType());
         if (request.getInvoiceStatus() != null) invoice.setInvoiceStatus(request.getInvoiceStatus());
-        if (request.getCheckCode() != null) invoice.setCheckCode(request.getCheckCode());
-        if (request.getMachineNumber() != null) invoice.setMachineNumber(request.getMachineNumber());
         if (request.getSellerName() != null) invoice.setSellerName(request.getSellerName());
         if (request.getSellerTaxId() != null) invoice.setSellerTaxId(request.getSellerTaxId());
         if (request.getBuyerName() != null) invoice.setBuyerName(request.getBuyerName());
@@ -117,9 +110,6 @@ public class InvoiceService {
         if (request.getAmount() != null) invoice.setAmount(request.getAmount());
         if (request.getTaxAmount() != null) invoice.setTaxAmount(request.getTaxAmount());
         if (request.getTotalAmount() != null) invoice.setTotalAmount(request.getTotalAmount());
-        if (request.getPayee() != null) invoice.setPayee(request.getPayee());
-        if (request.getReviewer() != null) invoice.setReviewer(request.getReviewer());
-        if (request.getIssuer() != null) invoice.setIssuer(request.getIssuer());
         if (request.getRemark() != null) invoice.setRemark(request.getRemark().isEmpty() ? null : request.getRemark());
 
         Invoice saved = invoiceRepository.save(invoice);

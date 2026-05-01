@@ -22,10 +22,6 @@ public class UpdateInvoiceRequest {
 
     private InvoiceStatus invoiceStatus;
 
-    private String checkCode;
-
-    private String machineNumber;
-
     private String sellerName;
 
     private String sellerTaxId;
@@ -39,12 +35,6 @@ public class UpdateInvoiceRequest {
     private BigDecimal taxAmount;
 
     private BigDecimal totalAmount;
-
-    private String payee;
-
-    private String reviewer;
-
-    private String issuer;
 
     private String remark;
 }

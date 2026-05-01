@@ -24,10 +24,6 @@ public class CreateInvoiceRequest {
 
     private InvoiceStatus invoiceStatus;
 
-    private String checkCode;
-
-    private String machineNumber;
-
     private String sellerName;
 
     private String sellerTaxId;
@@ -42,12 +38,6 @@ public class CreateInvoiceRequest {
 
     @NotNull
     private BigDecimal totalAmount;
-
-    private String payee;
-
-    private String reviewer;
-
-    private String issuer;
 
     private String remark;
 

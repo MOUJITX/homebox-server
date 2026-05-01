@@ -69,9 +69,6 @@ public class InvoiceParseService {
                 }
             }
 
-            result.setCheckCode(getElementText(root, "CheckCode"));
-            result.setMachineNumber(getElementText(root, "MachineNumber"));
-
             // Buyer info
             Element buyer = getChildElement(root, "Buyer");
             if (buyer != null) {
@@ -91,9 +88,6 @@ public class InvoiceParseService {
             result.setTaxAmount(parseBigDecimal(getElementText(root, "TaxAmount")));
             result.setTotalAmount(parseBigDecimal(getElementText(root, "TotalAmount")));
 
-            result.setPayee(getElementText(root, "Payee"));
-            result.setReviewer(getElementText(root, "Reviewer"));
-            result.setIssuer(getElementText(root, "Issuer"));
             result.setRemark(getElementText(root, "Remark"));
 
             result.setInvoiceType(inferInvoiceType(result));
@@ -184,32 +178,6 @@ public class InvoiceParseService {
             m = totalPattern.matcher(text);
             if (m.find()) {
                 result.setTotalAmount(parseBigDecimal(m.group(1).replace(",", "")));
-            }
-
-            // Check code: typically 20 digits
-            Pattern checkCodePattern = Pattern.compile("(?:校验码|CheckCode)[：:]?\\s*(\\d{20})");
-            m = checkCodePattern.matcher(text);
-            if (m.find()) {
-                result.setCheckCode(m.group(1));
-            }
-
-            // Payee, reviewer, issuer
-            Pattern payeePattern = Pattern.compile("(?:收款人|Payee)[：:]?\\s*(\\S+)");
-            m = payeePattern.matcher(text);
-            if (m.find()) {
-                result.setPayee(m.group(1));
-            }
-
-            Pattern reviewerPattern = Pattern.compile("(?:复核|Reviewer)[：:]?\\s*(\\S+)");
-            m = reviewerPattern.matcher(text);
-            if (m.find()) {
-                result.setReviewer(m.group(1));
-            }
-
-            Pattern issuerPattern = Pattern.compile("(?:开票人|Issuer)[：:]?\\s*(\\S+)");
-            m = issuerPattern.matcher(text);
-            if (m.find()) {
-                result.setIssuer(m.group(1));
             }
 
             return result;
