@@ -25,7 +25,7 @@ public class CreateAssetRequest {
     @NotNull
     private Long placeId;
 
-    private Boolean isInUse;
+    private Boolean inUse;
 
     private BigDecimal price;
 

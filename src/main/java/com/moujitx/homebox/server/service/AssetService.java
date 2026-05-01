@@ -89,7 +89,7 @@ public class AssetService {
         asset.setSerialNumber(request.getSerialNumber());
         asset.setCategory(category);
         asset.setPlace(place);
-        asset.setInUse(request.getIsInUse() != null ? request.getIsInUse() : true);
+        asset.setInUse(request.getInUse() != null ? request.getInUse() : true);
         asset.setPrice(request.getPrice());
         asset.setShopDate(request.getShopDate());
 
@@ -156,8 +156,8 @@ public class AssetService {
             asset.setPlace(place);
         }
 
-        if (request.getIsInUse() != null) {
-            asset.setInUse(request.getIsInUse());
+        if (request.getInUse() != null) {
+            asset.setInUse(request.getInUse());
         }
 
         if (request.getPrice() != null) {

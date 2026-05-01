@@ -20,7 +20,7 @@ public class AssetResponse {
     private Long categoryId;
     private String placeName;
     private Long placeId;
-    private boolean isInUse;
+    private boolean inUse;
     private BigDecimal price;
     private LocalDate shopDate;
     private String storeName;
@@ -49,7 +49,7 @@ public class AssetResponse {
         response.categoryId = asset.getCategory().getId();
         response.placeName = asset.getPlace().getName();
         response.placeId = asset.getPlace().getId();
-        response.isInUse = asset.isInUse();
+        response.inUse = asset.isInUse();
         response.price = asset.getPrice();
         response.shopDate = asset.getShopDate();
         response.storeName = asset.getStore() != null ? asset.getStore().getName() : null;

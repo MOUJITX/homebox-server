@@ -1249,7 +1249,7 @@ Create a new asset.
   "serialNumber": "C02X12345",
   "categoryId": 1,
   "placeId": 1,
-  "isInUse": true,
+  "inUse": true,
   "price": 1299.99,
   "shopDate": "2024-01-15",
   "storeId": 1,
