@@ -16,11 +16,9 @@ import org.xml.sax.InputSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
-import java.io.StringReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -54,43 +52,79 @@ public class InvoiceParseService {
             InvoiceParseResponse result = new InvoiceParseResponse();
             Element root = doc.getDocumentElement();
 
-            result.setInvoiceNumber(getElementText(root, "InvoiceNumber"));
-
-            String dateStr = getElementText(root, "InvoiceDate");
-            if (dateStr != null && !dateStr.isEmpty()) {
-                try {
-                    result.setInvoiceDate(LocalDate.parse(dateStr, DateTimeFormatter.BASIC_ISO_DATE));
-                } catch (Exception e) {
+            // TaxSupervisionInfo: invoice number and date
+            Element taxInfo = getChildElement(root, "TaxSupervisionInfo");
+            if (taxInfo != null) {
+                result.setInvoiceNumber(getElementText(taxInfo, "InvoiceNumber"));
+                String dateStr = getElementText(taxInfo, "IssueTime");
+                if (dateStr != null && !dateStr.isEmpty()) {
                     try {
-                        result.setInvoiceDate(LocalDate.parse(dateStr));
+                        result.setInvoiceDate(LocalDate.parse(dateStr.substring(0, 10)));
                     } catch (Exception ignored) {
                     }
                 }
             }
 
-            // Buyer info
-            Element buyer = getChildElement(root, "Buyer");
-            if (buyer != null) {
-                result.setBuyerName(getElementText(buyer, "BuyerName"));
-                result.setBuyerTaxId(getElementText(buyer, "TaxId"));
+            // EInvoiceData: seller, buyer, amounts, remark
+            Element data = getChildElement(root, "EInvoiceData");
+            if (data != null) {
+                // Seller info
+                Element seller = getChildElement(data, "SellerInformation");
+                if (seller != null) {
+                    result.setSellerName(getElementText(seller, "SellerName"));
+                    result.setSellerTaxId(getElementText(seller, "SellerIdNum"));
+                }
+
+                // Buyer info
+                Element buyer = getChildElement(data, "BuyerInformation");
+                if (buyer != null) {
+                    result.setBuyerName(getElementText(buyer, "BuyerName"));
+                    result.setBuyerTaxId(getElementText(buyer, "BuyerIdNum"));
+                }
+
+                // Amounts
+                Element basic = getChildElement(data, "BasicInformation");
+                if (basic != null) {
+                    result.setAmount(parseBigDecimal(getElementText(basic, "TotalAmWithoutTax")));
+                    result.setTaxAmount(parseBigDecimal(getElementText(basic, "TotalTaxAm")));
+                    result.setTotalAmount(parseBigDecimal(getElementText(basic, "TotalTax-includedAmount")));
+                }
+
+                // Remark
+                Element additional = getChildElement(data, "AdditionalInformation");
+                if (additional != null) {
+                    result.setRemark(getElementText(additional, "Remark"));
+                }
             }
 
-            // Seller info
-            Element seller = getChildElement(root, "Seller");
-            if (seller != null) {
-                result.setSellerName(getElementText(seller, "SellerName"));
-                result.setSellerTaxId(getElementText(seller, "TaxId"));
+            // Invoice type from Header/InherentLabel/EInvoiceType
+            Element header = getChildElement(root, "Header");
+            if (header != null) {
+                Element inherent = getChildElement(header, "InherentLabel");
+                if (inherent != null) {
+                    Element eInvoiceType = getChildElement(inherent, "EInvoiceType");
+                    Element generalOrSpecialVAT = getChildElement(inherent, "GeneralOrSpecialVAT");
+                    if (eInvoiceType != null) {
+                        result.setInvoiceType(
+                                mapInvoiceType(
+                                        getElementText(eInvoiceType, "LabelCode"),
+                                        getElementText(generalOrSpecialVAT, "LabelCode")));
+                    }
+                    Element issuType = getChildElement(inherent, "InIssuType");
+                    if (issuType != null) {
+                        result.setInvoiceStatus("Y".equals(getElementText(issuType, "LabelCode"))
+                                ? com.moujitx.homebox.server.enums.InvoiceStatus.NORMAL
+                                : com.moujitx.homebox.server.enums.InvoiceStatus.RED_FLUSHED);
+                    }
+                }
             }
 
-            // Amounts
-            result.setAmount(parseBigDecimal(getElementText(root, "Amount")));
-            result.setTaxAmount(parseBigDecimal(getElementText(root, "TaxAmount")));
-            result.setTotalAmount(parseBigDecimal(getElementText(root, "TotalAmount")));
-
-            result.setRemark(getElementText(root, "Remark"));
-
-            result.setInvoiceType(inferInvoiceType(result));
-            result.setInvoiceStatus(com.moujitx.homebox.server.enums.InvoiceStatus.NORMAL);
+            if (result.getInvoiceType() == null) {
+                result.setInvoiceType(InvoiceType.DIGITAL_INVOICE);
+            }
+            if (result.getInvoiceStatus() == null) {
+                result.setInvoiceStatus(com.moujitx.homebox.server.enums.InvoiceStatus.NORMAL);
+            }
 
             return result;
         } catch (Exception e) {
@@ -118,7 +152,8 @@ public class InvoiceParseService {
             }
 
             // Invoice date
-            Pattern datePattern = Pattern.compile("(?:开票日期|InvoiceDate)[：:]?\\s*(\\d{4})[年/-](\\d{1,2})[月/-](\\d{1,2})");
+            Pattern datePattern = Pattern
+                    .compile("(?:开票日期|InvoiceDate)[：:]?\\s*(\\d{4})[年/-](\\d{1,2})[月/-](\\d{1,2})");
             m = datePattern.matcher(text);
             if (m.find()) {
                 result.setInvoiceDate(LocalDate.of(
@@ -134,7 +169,8 @@ public class InvoiceParseService {
                 result.setBuyerName(m.group(1).trim());
             }
 
-            Pattern buyerTaxPattern = Pattern.compile("(?:购买方|Buyer)[\\s\\S]*?(?:纳税人识别号|统一社会信用代码|TaxId)[：:]?\\s*([A-Za-z0-9]{15,20})");
+            Pattern buyerTaxPattern = Pattern
+                    .compile("(?:购买方|Buyer)[\\s\\S]*?(?:纳税人识别号|统一社会信用代码|TaxId)[：:]?\\s*([A-Za-z0-9]{15,20})");
             m = buyerTaxPattern.matcher(text);
             if (m.find()) {
                 result.setBuyerTaxId(m.group(1));
@@ -147,7 +183,8 @@ public class InvoiceParseService {
                 result.setSellerName(m.group(1).trim());
             }
 
-            Pattern sellerTaxPattern = Pattern.compile("(?:销售方|Seller)[\\s\\S]*?(?:纳税人识别号|统一社会信用代码|TaxId)[：:]?\\s*([A-Za-z0-9]{15,20})");
+            Pattern sellerTaxPattern = Pattern
+                    .compile("(?:销售方|Seller)[\\s\\S]*?(?:纳税人识别号|统一社会信用代码|TaxId)[：:]?\\s*([A-Za-z0-9]{15,20})");
             m = sellerTaxPattern.matcher(text);
             if (m.find()) {
                 result.setSellerTaxId(m.group(1));
@@ -206,8 +243,17 @@ public class InvoiceParseService {
         }
     }
 
-    private InvoiceType inferInvoiceType(InvoiceParseResponse result) {
-        return InvoiceType.DIGITAL_INVOICE;
+    private InvoiceType mapInvoiceType(String eInvoiceType, String generalOrSpecialVAT) {
+        System.out.println("Mapping invoice type with eInvoiceType: " + eInvoiceType + ", generalOrSpecialVAT: "
+                + generalOrSpecialVAT);
+        if (eInvoiceType.equals("01")) {
+            return switch (generalOrSpecialVAT) {
+                case "02" -> InvoiceType.DIGITAL_INVOICE;
+                default -> InvoiceType.OTHER;
+            };
+        }
+
+        return InvoiceType.OTHER;
     }
 
     private String getElementText(Element parent, String tagName) {
@@ -228,7 +274,8 @@ public class InvoiceParseService {
     }
 
     private BigDecimal parseBigDecimal(String value) {
-        if (value == null || value.isBlank()) return null;
+        if (value == null || value.isBlank())
+            return null;
         try {
             return new BigDecimal(value.replace(",", "").replace("¥", "").replace("￥", "").trim());
         } catch (NumberFormatException e) {
