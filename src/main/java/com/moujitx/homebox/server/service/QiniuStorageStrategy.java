@@ -98,10 +98,10 @@ public class QiniuStorageStrategy implements FileStorageStrategy {
         try {
             Response response = bucketManager.delete(bucket, storedFilename);
             if (!response.isOK()) {
-                log.warn("Failed to delete from Qiniu: {}", response.error);
+                log.warn("Failed to delete from Qiniu (status={}): {}", response.statusCode, response.error);
             }
         } catch (QiniuException e) {
-            throw new RuntimeException("Failed to delete from Qiniu: " + storedFilename, e);
+            log.warn("Failed to delete from Qiniu (file may not exist): {}", storedFilename, e);
         }
     }
 
