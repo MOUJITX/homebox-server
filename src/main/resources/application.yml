@@ -41,3 +41,7 @@ app:
     bucket: ${QINIU_BUCKET:}
     folder: ${QINIU_FOLDER:}
     domain: ${QINIU_CDN_DOMAIN:}
+  ai:
+    api-url: ${AI_API_URL:}
+    api-key: ${AI_API_KEY:}
+    model: ${AI_MODEL:gpt-4o}

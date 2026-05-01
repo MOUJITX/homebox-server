@@ -12,6 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - JJWT 0.13.0 (JWT token handling)
 - Qiniu Java SDK 7.16.0 (optional Qiniu OSS file storage)
 - Lombok (boilerplate reduction: `@Getter`, `@Setter`, `@RequiredArgsConstructor`, `@Slf4j`)
+- RestTemplate (OpenAI-compatible API integration for invoice parsing)
 
 ## Build Commands
 
@@ -22,7 +23,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Layout
 
 - `src/main/java/com/moujitx/homebox/server/` — application source code
-  - `config/` — Spring Security configuration
+  - `config/` — Spring Security configuration, AI configuration
   - `controller/` — REST API controllers
   - `dto/request/` — request DTOs with validation
   - `dto/response/` — response DTOs
@@ -46,6 +47,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Database: MySQL with Hibernate ddl-auto:update (auto-creates/updates tables)
 - Configuration: .env file loaded via Spring Boot's native config import
 - File Storage: Local filesystem by default; Qiniu OSS when `QINIU_ACCESS_KEY` is configured (see `FileStorageConfig`)
+- AI Integration: OpenAI-compatible API for PDF/OFD invoice parsing (optional, configured via `AI_API_URL` and `AI_API_KEY`)
 
 ## Rules
 

@@ -66,6 +66,18 @@ QINIU_CDN_DOMAIN=https://your-cdn-domain.com
 
 When `QINIU_ACCESS_KEY` is set, all file uploads will go to Qiniu OSS. When unset, local filesystem storage is used.
 
+**Optional: AI-powered invoice parsing**
+
+PDF and OFD invoice files are parsed using an AI model (OpenAI-compatible API). To enable this feature, add these to your `.env` file:
+
+```properties
+AI_API_URL=https://api.openai.com/v1/chat/completions
+AI_API_KEY=your_api_key
+AI_MODEL=gpt-4o
+```
+
+When `AI_API_URL` is set, PDF/OFD invoice text will be sent to the AI model for structured data extraction. When unset, these formats return empty results (XML parsing is always available as it uses direct XML extraction).
+
 2. Ensure MySQL is running and accessible with the credentials above. The database will be created automatically if it doesn't exist.
 
 ### Build & Run
