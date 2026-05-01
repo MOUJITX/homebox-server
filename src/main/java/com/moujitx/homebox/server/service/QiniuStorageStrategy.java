@@ -10,6 +10,8 @@ import com.qiniu.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.moujitx.homebox.server.exception.ResourceNotFoundException;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -81,10 +83,9 @@ public class QiniuStorageStrategy implements FileStorageStrategy {
                     .uri(URI.create(privateUrl))
                     .GET()
                     .build();
-            System.out.println("Downloading from Qiniu: " + privateUrl);
             HttpResponse<byte[]> response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
             if (response.statusCode() != 200) {
-                throw new RuntimeException("Failed to download from Qiniu, status: " + response.statusCode());
+                throw new ResourceNotFoundException("Failed to download from Qiniu, status: " + response.statusCode() + ", filename: " + storedFilename);
             }
             return response.body();
         } catch (IOException | InterruptedException e) {
