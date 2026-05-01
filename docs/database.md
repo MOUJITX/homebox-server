@@ -157,6 +157,41 @@ UNIQUE INDEX on (barcode, serial_number) — enforced only when both are non-nul
 | asset_id| BIGINT | NOT NULL, FK → assets(id)    |
 | file_id | BIGINT | NOT NULL, FK → file_records(id) |
 
+### invoices
+
+| Column          | Type           | Constraints                          |
+|-----------------|----------------|--------------------------------------|
+| id              | BIGINT         | PRIMARY KEY, AUTO_INCREMENT          |
+| invoice_code    | VARCHAR(255)   | NULLABLE                             |
+| invoice_number  | VARCHAR(255)   | NULLABLE                             |
+| invoice_date    | DATE           | NULLABLE                             |
+| invoice_type    | VARCHAR(50)    | NOT NULL                             |
+| invoice_status  | VARCHAR(50)    | NOT NULL, default NORMAL             |
+| check_code      | VARCHAR(255)   | NULLABLE                             |
+| machine_number  | VARCHAR(255)   | NULLABLE                             |
+| seller_name     | VARCHAR(255)   | NULLABLE                             |
+| seller_tax_id   | VARCHAR(255)   | NULLABLE                             |
+| buyer_name      | VARCHAR(255)   | NULLABLE                             |
+| buyer_tax_id    | VARCHAR(255)   | NULLABLE                             |
+| amount          | DECIMAL(19,2)  | NULLABLE                             |
+| tax_amount      | DECIMAL(19,2)  | NULLABLE                             |
+| total_amount    | DECIMAL(19,2)  | NOT NULL                             |
+| payee           | VARCHAR(255)   | NULLABLE                             |
+| reviewer        | VARCHAR(255)   | NULLABLE                             |
+| issuer          | VARCHAR(255)   | NULLABLE                             |
+| remark          | TEXT           | NULLABLE                             |
+| file_id         | BIGINT         | NULLABLE, FK → file_records(id)      |
+| created_at      | DATETIME(6)    | NOT NULL, auto-set                   |
+| updated_at      | DATETIME(6)    | NOT NULL, auto-set                   |
+
+### invoice_attachments
+
+| Column      | Type   | Constraints                      |
+|-------------|--------|----------------------------------|
+| id          | BIGINT | PRIMARY KEY, AUTO_INCREMENT      |
+| invoice_id  | BIGINT | NOT NULL, FK → invoices(id)      |
+| file_id     | BIGINT | NOT NULL, FK → file_records(id)  |
+
 ## Relationships
 
 - `users.role_id` → `roles.id` (Many-to-One: many users can share one role)
@@ -171,6 +206,9 @@ UNIQUE INDEX on (barcode, serial_number) — enforced only when both are non-nul
 - `assets.parent_id` → `assets.id` (Many-to-One: sub-asset references parent)
 - `asset_pictures.asset_id` → `assets.id` (Many-to-One: many pictures belong to one asset)
 - `asset_pictures.file_id` → `file_records.id` (Many-to-One: many pictures can reference one file)
+- `invoices.file_id` → `file_records.id` (Many-to-One: invoice references one primary file)
+- `invoice_attachments.invoice_id` → `invoices.id` (Many-to-One: many attachments belong to one invoice)
+- `invoice_attachments.file_id` → `file_records.id` (Many-to-One: many attachments can reference one file)
 
 ## Initial Data
 

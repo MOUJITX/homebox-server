@@ -1292,6 +1292,167 @@ Delete a picture.
 
 ---
 
+## Invoice Endpoints
+
+All invoice endpoints require authentication (any role).
+
+### GET /api/invoices
+
+List invoices with server-side pagination, search, and filtering.
+
+**Query Parameters:**
+
+| Parameter     | Type   | Default   | Description                           |
+|---------------|--------|-----------|---------------------------------------|
+| search        | string | —         | Filter by invoiceNumber, buyerName, sellerName |
+| invoiceType   | enum   | —         | DIGITAL_INVOICE, RAILWAY_ELECTRONIC, VAT_INVOICE, AIR_ELECTRONIC, GENERAL_MACHINE_PRINTED, QUOTA_INVOICE, OTHER |
+| invoiceStatus | enum   | —         | NORMAL, VOIDED, RED_FLUSHED           |
+| buyerName     | string | —         | Exact match on buyer name             |
+| sellerName    | string | —         | Exact match on seller name            |
+| page          | int    | 0         | Page number                           |
+| size          | int    | 10        | Page size                             |
+| sortBy        | string | createdAt | Sort field                            |
+| sortDir       | string | desc      | Sort direction (asc/desc)             |
+
+**Response (200):** Spring `Page<InvoiceResponse>`
+
+```json
+{
+  "content": [
+    {
+      "id": 1,
+      "invoiceCode": "044002100111",
+      "invoiceNumber": "12345678",
+      "invoiceDate": "2026-01-15",
+      "invoiceType": "DIGITAL_INVOICE",
+      "invoiceStatus": "NORMAL",
+      "sellerName": "某公司",
+      "buyerName": "某购买方",
+      "amount": 100.00,
+      "taxAmount": 13.00,
+      "totalAmount": 113.00,
+      "attachmentCount": 0,
+      "createdAt": "2026-01-15T10:30:00",
+      "updatedAt": "2026-01-15T10:30:00"
+    }
+  ],
+  "totalElements": 1,
+  "totalPages": 1,
+  "size": 10,
+  "number": 0,
+  "first": true,
+  "last": true,
+  "empty": false
+}
+```
+
+### GET /api/invoices/{id}
+
+Get invoice by ID with full details and attachments.
+
+**Response (200):** `InvoiceDetailResponse`
+
+### POST /api/invoices
+
+Create a new invoice (manual input).
+
+**Request Body:**
+```json
+{
+  "invoiceType": "DIGITAL_INVOICE",
+  "totalAmount": 113.00,
+  "invoiceNumber": "12345678",
+  "invoiceDate": "2026-01-15",
+  "buyerName": "某购买方",
+  "sellerName": "某公司",
+  "amount": 100.00,
+  "taxAmount": 13.00
+}
+```
+
+Only `invoiceType` and `totalAmount` are required. All other fields are optional.
+
+**Response (201):** `InvoiceDetailResponse`
+
+### POST /api/invoices/parse
+
+Upload an invoice file (PDF, XML, OFD) and extract invoice data. Returns parsed data for review — does NOT save the invoice.
+
+**Request:** `multipart/form-data` with field `file`
+
+**Response (200):**
+```json
+{
+  "invoiceCode": "044002100111",
+  "invoiceNumber": "12345678",
+  "invoiceDate": "2026-01-15",
+  "invoiceType": "DIGITAL_INVOICE",
+  "invoiceStatus": "NORMAL",
+  "buyerName": "某购买方",
+  "sellerName": "某公司",
+  "amount": 100.00,
+  "taxAmount": 13.00,
+  "totalAmount": 113.00,
+  "fileId": 42
+}
+```
+
+All fields may be null if parsing fails to extract them. `fileId` is the ID of the uploaded file record.
+
+### PUT /api/invoices/{id}
+
+Update an invoice. All fields optional.
+
+### DELETE /api/invoices/{id}
+
+Delete an invoice. Cascades to delete all attachments and associated files.
+
+**Response (204):** No content.
+
+### GET /api/invoices/{id}/file/preview
+
+Preview the primary invoice file inline.
+
+**Response (200):** Binary file data with `Content-Disposition: inline`.
+
+### GET /api/invoices/{id}/file/download
+
+Download the primary invoice file.
+
+**Response (200):** Binary file data with `Content-Disposition: attachment`.
+
+### POST /api/invoices/{invoiceId}/attachments
+
+Upload an attachment file. Uses multipart/form-data.
+
+**Request:** `multipart/form-data` with field `file`
+
+**Response (201):**
+```json
+{
+  "id": 1,
+  "filename": "receipt.jpg",
+  "contentType": "image/jpeg",
+  "fileSize": 102400,
+  "url": "/api/invoices/1/attachments/1/file",
+  "createdAt": "2026-01-15T10:30:00"
+}
+```
+
+### DELETE /api/invoices/{invoiceId}/attachments/{attachmentId}
+
+Delete an attachment.
+
+**Response (204):** No content.
+
+### GET /api/invoices/{invoiceId}/attachments/{attachmentId}/file
+
+Download/serve an attachment file.
+
+**Response (200):** Binary file data with appropriate `Content-Type`.
+
+---
+
 ## Error Responses
 
 | Status | Meaning                |
