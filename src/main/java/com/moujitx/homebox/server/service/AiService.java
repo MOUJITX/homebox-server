@@ -2,9 +2,9 @@ package com.moujitx.homebox.server.service;
 
 import tools.jackson.databind.ObjectMapper;
 import com.moujitx.homebox.server.dto.response.InvoiceParseResponse;
+import com.moujitx.homebox.server.dto.response.TestConnectionResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,19 +20,14 @@ public class AiService {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+    private final SystemConfigService systemConfigService;
 
-    @Value("${app.ai.api-url:}")
-    private String apiUrl;
-
-    @Value("${app.ai.api-key:}")
-    private String apiKey;
-
-    @Value("${app.ai.model:gpt-4o}")
-    private String model;
-
-    public AiService(@Qualifier("aiRestTemplate") RestTemplate restTemplate, ObjectMapper objectMapper) {
+    public AiService(@Qualifier("aiRestTemplate") RestTemplate restTemplate,
+                     ObjectMapper objectMapper,
+                     SystemConfigService systemConfigService) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
+        this.systemConfigService = systemConfigService;
     }
 
     private static final String SYSTEM_PROMPT = """
@@ -60,6 +55,10 @@ public class AiService {
             """;
 
     public InvoiceParseResponse extractInvoiceInfo(String text) {
+        String apiUrl = systemConfigService.get("ai.api-url");
+        String apiKey = systemConfigService.get("ai.api-key");
+        String model = systemConfigService.get("ai.model");
+
         if (apiUrl == null || apiUrl.isBlank()) {
             log.warn("AI API URL is not configured, skipping AI extraction");
             return new InvoiceParseResponse();
@@ -115,6 +114,45 @@ public class AiService {
         } catch (Exception e) {
             log.error("AI extraction failed", e);
             return new InvoiceParseResponse();
+        }
+    }
+
+    public TestConnectionResponse testConnection() {
+        String apiUrl = systemConfigService.get("ai.api-url");
+        String apiKey = systemConfigService.get("ai.api-key");
+        String model = systemConfigService.get("ai.model");
+
+        if (apiUrl == null || apiUrl.isBlank()) {
+            return new TestConnectionResponse(false, "AI API URL is not configured");
+        }
+
+        String endpoint = apiUrl;
+        if (!endpoint.endsWith("/chat/completions")) {
+            endpoint = endpoint.replaceAll("/+$", "") + "/chat/completions";
+        }
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(apiKey);
+
+            Map<String, Object> body = Map.of(
+                    "model", model,
+                    "messages", List.of(
+                            Map.of("role", "user", "content", "Say OK")),
+                    "max_tokens", 5);
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> response = restTemplate.postForObject(endpoint, request, Map.class);
+
+            if (response != null && response.containsKey("choices")) {
+                return new TestConnectionResponse(true, "AI connection successful");
+            }
+            return new TestConnectionResponse(false, "Unexpected response from AI API");
+        } catch (Exception e) {
+            log.error("AI connection test failed", e);
+            return new TestConnectionResponse(false, "AI connection failed: " + e.getMessage());
         }
     }
 }

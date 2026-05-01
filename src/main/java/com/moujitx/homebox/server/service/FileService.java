@@ -15,11 +15,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileService {
 
     private final FileRecordRepository fileRecordRepository;
-    private final FileStorageStrategy fileStorageStrategy;
+    private final FileStorageStrategyProvider strategyProvider;
 
     @Transactional
     public FileRecord upload(MultipartFile file) {
-        String storedFilename = fileStorageStrategy.store(file);
+        String storedFilename = strategyProvider.getStrategy().store(file);
 
         FileRecord record = new FileRecord();
         record.setStoredFilename(storedFilename);
@@ -37,11 +37,11 @@ public class FileService {
 
     public byte[] loadFileContent(Long id) {
         FileRecord record = getFileById(id);
-        return fileStorageStrategy.load(record.getStoredFilename());
+        return strategyProvider.getStrategy().load(record.getStoredFilename());
     }
 
     public byte[] loadFileContent(FileRecord record) {
-        return fileStorageStrategy.load(record.getStoredFilename());
+        return strategyProvider.getStrategy().load(record.getStoredFilename());
     }
 
     public Page<FileRecord> listFiles(Pageable pageable) {
@@ -58,7 +58,7 @@ public class FileService {
     @Transactional
     public void delete(Long id) {
         FileRecord record = getFileById(id);
-        fileStorageStrategy.delete(record.getStoredFilename());
+        strategyProvider.getStrategy().delete(record.getStoredFilename());
         fileRecordRepository.delete(record);
     }
 }

@@ -36,6 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/profile/**").authenticated()
                         .requestMatchers("/api/members/**").hasRole("root")
                         .requestMatchers("/api/roles/**").hasRole("root")
+                        .requestMatchers("/api/system-config/**").hasRole("root")
                         .requestMatchers(HttpMethod.GET, "/api/files", "/api/files/").hasRole("root")
                         .requestMatchers(HttpMethod.POST, "/api/files", "/api/files/").hasRole("root")
                         .requestMatchers("/api/files/*/rename").hasRole("root")

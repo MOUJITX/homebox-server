@@ -105,6 +105,10 @@ public class QiniuStorageStrategy implements FileStorageStrategy {
         }
     }
 
+    public void testConnection() throws QiniuException {
+        bucketManager.getBucketInfo(bucket);
+    }
+
     private void validateFile(MultipartFile file) {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("File is empty");
