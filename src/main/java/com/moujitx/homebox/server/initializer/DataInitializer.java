@@ -89,6 +89,7 @@ public class DataInitializer implements CommandLineRunner {
         seedConfig("ai.api-url", aiApiUrl, "ai", false, "AI API URL");
         seedConfig("ai.api-key", aiApiKey, "ai", true, "AI API Key");
         seedConfig("ai.model", aiModel, "ai", false, "AI Model Name");
+        seedConfig("ai.system-prompt", "", "ai", false, "AI System Prompt");
     }
 
     private void seedConfig(String key, String value, String group, boolean sensitive, String description) {

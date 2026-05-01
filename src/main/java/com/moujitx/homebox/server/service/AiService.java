@@ -58,6 +58,10 @@ public class AiService {
         String apiUrl = systemConfigService.get("ai.api-url");
         String apiKey = systemConfigService.get("ai.api-key");
         String model = systemConfigService.get("ai.model");
+        String systemPrompt = systemConfigService.get("ai.system-prompt");
+        if (systemPrompt == null || systemPrompt.isBlank()) {
+            systemPrompt = SYSTEM_PROMPT;
+        }
 
         if (apiUrl == null || apiUrl.isBlank()) {
             log.warn("AI API URL is not configured, skipping AI extraction");
@@ -77,7 +81,7 @@ public class AiService {
             Map<String, Object> body = Map.of(
                     "model", model,
                     "messages", List.of(
-                            Map.of("role", "system", "content", SYSTEM_PROMPT),
+                            Map.of("role", "system", "content", systemPrompt),
                             Map.of("role", "user", "content", text)),
                     "temperature", 0.1);
 
