@@ -1110,6 +1110,155 @@ Delete a picture (removes from disk and database).
 
 ---
 
+## Place Endpoints
+
+### GET /api/places
+
+List all places.
+
+**Response (200):** `PlaceResponse[]`
+
+### GET /api/places/{id}
+
+Get place by ID.
+
+### POST /api/places
+
+Create a new place.
+
+**Request Body:**
+```json
+{ "name": "Living Room", "description": "Main living area" }
+```
+
+**Response (201):** `PlaceResponse`
+
+### PUT /api/places/{id}
+
+Update a place. All fields optional.
+
+### DELETE /api/places/{id}
+
+Delete a place. Cannot delete if used by assets.
+
+---
+
+## Store Endpoints
+
+### GET /api/stores
+
+List all stores.
+
+**Response (200):** `StoreResponse[]`
+
+### GET /api/stores/{id}
+
+Get store by ID.
+
+### POST /api/stores
+
+Create a new store.
+
+**Request Body:**
+```json
+{ "name": "JD.com", "channel": "Online" }
+```
+
+**Response (201):** `StoreResponse`
+
+### PUT /api/stores/{id}
+
+Update a store. All fields optional.
+
+### DELETE /api/stores/{id}
+
+Delete a store. Cannot delete if used by assets.
+
+---
+
+## Asset Endpoints
+
+### GET /api/assets
+
+List assets with server-side pagination, search, and filtering.
+
+**Query Parameters:**
+
+| Parameter       | Type   | Default     | Description                           |
+|-----------------|--------|-------------|---------------------------------------|
+| search          | string | —           | Filter by name, barcode, or serial    |
+| categoryId      | long   | —           | Filter by category ID                 |
+| placeId         | long   | —           | Filter by place ID                    |
+| isInUse         | bool   | —           | Filter by in-use status               |
+| warrantyStatus  | enum   | —           | IN_WARRANTY, OUT_WARRANTY, NO_WARRANTY |
+| page            | int    | 0           | Page number                           |
+| size            | int    | 10          | Page size                             |
+| sortBy          | string | createdAt   | Sort field                            |
+| sortDir         | string | desc        | Sort direction (asc/desc)             |
+
+**Response (200):** Spring `Page<AssetResponse>`
+
+### GET /api/assets/{id}
+
+Get asset by ID with sub-assets and pictures.
+
+**Response (200):** `AssetDetailResponse`
+
+### POST /api/assets
+
+Create a new asset.
+
+**Request Body:**
+```json
+{
+  "name": "MacBook Pro",
+  "barcode": "123456789",
+  "serialNumber": "C02X12345",
+  "categoryId": 1,
+  "placeId": 1,
+  "isInUse": true,
+  "price": 1299.99,
+  "shopDate": "2024-01-15",
+  "storeId": 1,
+  "hasWarranty": true,
+  "activeDate": "2024-01-15",
+  "warrantyPeriod": 365,
+  "note": "Work laptop"
+}
+```
+
+Warranty dates follow "fill 2 of 3" logic: provide exactly 2 of (activeDate, warrantyPeriod, expirationDate) and the third is auto-calculated.
+
+**Response (201):** `AssetDetailResponse`
+
+### PUT /api/assets/{id}
+
+Update an asset. All fields optional.
+
+### DELETE /api/assets/{id}
+
+Delete an asset. Cannot delete if it has sub-assets.
+
+---
+
+## Asset Picture Endpoints
+
+### POST /api/assets/{assetId}/pictures
+
+Upload a picture (multipart/form-data, max 10MB).
+
+### GET /api/assets/{assetId}/pictures/{pictureId}/file
+
+Serve picture inline with appropriate content type.
+
+**Response (200):** Binary image data.
+
+### DELETE /api/assets/{assetId}/pictures/{pictureId}
+
+Delete a picture.
+
+---
+
 ## Error Responses
 
 | Status | Meaning                |

@@ -13,8 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.moujitx.homebox.server.util.DateCalculator;
+
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -95,27 +96,9 @@ public class GoodItemService {
     }
 
     private void calculateAndSetDates(GoodItem item, LocalDate productDate, LocalDate expirationDate, Integer lifeDays) {
-        int providedCount = 0;
-        if (productDate != null) providedCount++;
-        if (expirationDate != null) providedCount++;
-        if (lifeDays != null) providedCount++;
-
-        if (providedCount < 2) {
-            throw new IllegalArgumentException("At least 2 of (productDate, expirationDate, lifeDays) must be provided");
-        }
-
-        if (productDate != null && expirationDate != null) {
-            item.setProductDate(productDate);
-            item.setExpirationDate(expirationDate);
-            item.setLifeDays((int) ChronoUnit.DAYS.between(productDate, expirationDate));
-        } else if (productDate != null && lifeDays != null) {
-            item.setProductDate(productDate);
-            item.setLifeDays(lifeDays);
-            item.setExpirationDate(productDate.plusDays(lifeDays));
-        } else {
-            item.setExpirationDate(expirationDate);
-            item.setLifeDays(lifeDays);
-            item.setProductDate(expirationDate.minusDays(lifeDays));
-        }
+        DateCalculator.DateTriplet result = DateCalculator.calculate(productDate, expirationDate, lifeDays);
+        item.setProductDate(result.startDate());
+        item.setExpirationDate(result.endDate());
+        item.setLifeDays(result.durationDays());
     }
 }

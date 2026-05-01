@@ -1,6 +1,6 @@
 # HomeBox
 
-A Spring Boot backend application for home management with member and role-based access control.
+A Spring Boot backend application for home management with goods expiration tracking, asset management, and role-based access control.
 
 ## Tech Stack
 
@@ -20,11 +20,12 @@ src/main/java/com/moujitx/homebox/server/
 ├── controller/                       # REST controllers
 ├── dto/request/                      # Request DTOs
 ├── dto/response/                     # Response DTOs
-├── entity/                           # JPA entities
+├── entity/                           # JPA entities (including Asset, Place, Store)
 ├── exception/                        # Exception handling
 ├── initializer/                      # Data seeding on startup
 ├── repository/                       # Spring Data repositories
 ├── security/                         # JWT filter and token provider
+├── util/                             # Utility classes (DateCalculator)
 └── service/                          # Business logic
 ```
 
@@ -101,5 +102,14 @@ The root user must change their password on first login (`forceChangePassword: t
 - `POST /api/goods/{id}/pictures` — upload picture for a good
 - `GET /api/goods/{id}/pictures/{pid}/file` — serve picture inline
 - `DELETE /api/goods/{id}/pictures/{pid}` — delete picture
+- `GET/POST /api/assets` — list/create assets (authenticated)
+- `GET/PUT/DELETE /api/assets/{id}` — get/update/delete asset (authenticated)
+- `POST /api/assets/{id}/pictures` — upload picture for an asset
+- `GET /api/assets/{id}/pictures/{pid}/file` — serve asset picture inline
+- `DELETE /api/assets/{id}/pictures/{pid}` — delete asset picture
+- `GET/POST /api/places` — list/create places (authenticated)
+- `GET/PUT/DELETE /api/places/{id}` — get/update/delete place (authenticated)
+- `GET/POST /api/stores` — list/create stores (authenticated)
+- `GET/PUT/DELETE /api/stores/{id}` — get/update/delete store (authenticated)
 
 See [docs/api.md](docs/api.md) for full API documentation.
