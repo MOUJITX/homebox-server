@@ -36,7 +36,9 @@ public class AiService {
             字段说明：
             - invoiceNumber: 发票号码
             - invoiceDate: 开票日期，格式为 yyyy-MM-dd
-            - invoiceType: 发票类型，取值为以下之一：DIGITAL_INVOICE, RAILWAY_ELECTRONIC, VAT_INVOICE, AIR_ELECTRONIC, GENERAL_MACHINE_PRINTED, QUOTA_INVOICE, OTHER
+            - invoiceType: 发票类型，取值为以下之一：
+            DIGITAL_INVOICE, RAILWAY_ELECTRONIC, VAT_INVOICE, AIR_ELECTRONIC, GENERAL_MACHINE_PRINTED, QUOTA_INVOICE, 
+            NON_TAX_INCOME_GENERAL, NON_TAX_INCOME_UNIFIED, FUND_SETTLEMENT, MEDICAL_OUTPATIENT, MEDICAL_INPATIENT,OTHER
             - invoiceStatus: 发票状态，取值为以下之一：NORMAL, VOIDED, RED_FLUSHED
             - sellerName: 销售方名称
             - sellerTaxId: 销售方纳税人识别号
