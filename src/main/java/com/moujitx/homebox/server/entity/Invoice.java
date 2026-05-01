@@ -27,6 +27,7 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String invoiceNumber;
 
     private LocalDate invoiceDate;

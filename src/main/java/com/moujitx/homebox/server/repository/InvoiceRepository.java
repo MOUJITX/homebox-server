@@ -11,6 +11,10 @@ import org.springframework.data.repository.query.Param;
 
 public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
+    boolean existsByInvoiceNumber(String invoiceNumber);
+
+    boolean existsByInvoiceNumberAndIdNot(String invoiceNumber, Long id);
+
     @Query("SELECT i FROM Invoice i WHERE " +
             "(:search IS NULL OR i.invoiceNumber LIKE %:search% OR i.buyerName LIKE %:search% OR i.sellerName LIKE %:search%) AND " +
             "(:invoiceType IS NULL OR i.invoiceType = :invoiceType) AND " +

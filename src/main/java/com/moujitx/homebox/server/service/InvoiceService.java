@@ -11,6 +11,7 @@ import com.moujitx.homebox.server.entity.Invoice;
 import com.moujitx.homebox.server.entity.InvoiceAttachment;
 import com.moujitx.homebox.server.enums.InvoiceStatus;
 import com.moujitx.homebox.server.enums.InvoiceType;
+import com.moujitx.homebox.server.exception.ResourceAlreadyExistsException;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.InvoiceAttachmentRepository;
 import com.moujitx.homebox.server.repository.InvoiceRepository;
@@ -54,6 +55,11 @@ public class InvoiceService {
 
     @Transactional
     public InvoiceDetailResponse createInvoice(CreateInvoiceRequest request) {
+        if (request.getInvoiceNumber() != null && !request.getInvoiceNumber().isBlank()
+                && invoiceRepository.existsByInvoiceNumber(request.getInvoiceNumber())) {
+            throw new ResourceAlreadyExistsException("Invoice number already exists: " + request.getInvoiceNumber());
+        }
+
         Invoice invoice = new Invoice();
         invoice.setInvoiceNumber(request.getInvoiceNumber());
         invoice.setInvoiceDate(request.getInvoiceDate());
@@ -97,7 +103,13 @@ public class InvoiceService {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
 
-        if (request.getInvoiceNumber() != null) invoice.setInvoiceNumber(request.getInvoiceNumber());
+        if (request.getInvoiceNumber() != null) {
+            if (!request.getInvoiceNumber().isBlank()
+                    && invoiceRepository.existsByInvoiceNumberAndIdNot(request.getInvoiceNumber(), id)) {
+                throw new ResourceAlreadyExistsException("Invoice number already exists: " + request.getInvoiceNumber());
+            }
+            invoice.setInvoiceNumber(request.getInvoiceNumber());
+        }
         if (request.getInvoiceDate() != null) invoice.setInvoiceDate(request.getInvoiceDate());
         if (request.getInvoiceType() != null) invoice.setInvoiceType(request.getInvoiceType());
         if (request.getInvoiceStatus() != null) invoice.setInvoiceStatus(request.getInvoiceStatus());

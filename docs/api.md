@@ -1408,9 +1408,14 @@ Create a new invoice (manual input).
 }
 ```
 
-Only `invoiceType` and `totalAmount` are required. All other fields are optional.
+Only `invoiceType` and `totalAmount` are required. All other fields are optional. `invoiceNumber` must be unique if provided.
 
 **Response (201):** `InvoiceDetailResponse`
+
+**Error (409):** Returned if `invoiceNumber` already exists.
+```json
+{ "message": "Invoice number already exists: 12345678" }
+```
 
 ### POST /api/invoices/parse
 
@@ -1438,7 +1443,12 @@ All fields may be null if parsing fails to extract them. `fileId` is the ID of t
 
 ### PUT /api/invoices/{id}
 
-Update an invoice. All fields optional.
+Update an invoice. All fields optional. If `invoiceNumber` is provided, it must be unique (excluding the current invoice).
+
+**Error (409):** Returned if `invoiceNumber` already exists on another invoice.
+```json
+{ "message": "Invoice number already exists: 12345678" }
+```
 
 ### DELETE /api/invoices/{id}
 
