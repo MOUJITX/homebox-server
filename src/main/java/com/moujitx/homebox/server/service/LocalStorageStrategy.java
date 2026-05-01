@@ -1,7 +1,6 @@
 package com.moujitx.homebox.server.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -14,23 +13,25 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-@Service
-public class FileStorageService {
+@Slf4j
+public class LocalStorageStrategy implements FileStorageStrategy {
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
     private static final DateTimeFormatter DATE_DIR_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     private final Path uploadDirectory;
 
-    public FileStorageService(@Value("${app.upload.directory:uploads}") String uploadDir) {
+    public LocalStorageStrategy(String uploadDir) {
         this.uploadDirectory = Paths.get(uploadDir).toAbsolutePath().normalize();
         try {
             Files.createDirectories(this.uploadDirectory);
         } catch (IOException e) {
             throw new RuntimeException("Could not create upload directory: " + uploadDir, e);
         }
+        log.info("Using local file storage: {}", this.uploadDirectory);
     }
 
+    @Override
     public String store(MultipartFile file) {
         validateFile(file);
 
@@ -55,6 +56,7 @@ public class FileStorageService {
         }
     }
 
+    @Override
     public byte[] load(String storedFilename) {
         try {
             Path path = resolvePath(storedFilename);
@@ -67,6 +69,7 @@ public class FileStorageService {
         }
     }
 
+    @Override
     public void delete(String storedFilename) {
         try {
             Path path = resolvePath(storedFilename);

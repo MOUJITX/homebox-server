@@ -10,6 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Spring Data JPA (Hibernate, MySQL)
 - Gradle 8.14 (wrapper included)
 - JJWT 0.13.0 (JWT token handling)
+- Qiniu Java SDK 7.16.0 (optional Qiniu OSS file storage)
 - Lombok (boilerplate reduction: `@Getter`, `@Setter`, `@RequiredArgsConstructor`, `@Slf4j`)
 
 ## Build Commands
@@ -43,6 +44,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Authorization: Role-based (root role required for member/role management)
 - Database: MySQL with Hibernate ddl-auto:update (auto-creates/updates tables)
 - Configuration: .env file loaded via Spring Boot's native config import
+- File Storage: Local filesystem by default; Qiniu OSS when `QINIU_ACCESS_KEY` is configured (see `FileStorageConfig`)
 
 ## Rules
 

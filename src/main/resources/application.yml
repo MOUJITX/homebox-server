@@ -35,3 +35,9 @@ app:
     password: ${ROOT_PASSWORD}
   upload:
     directory: ${UPLOAD_DIRECTORY:uploads}
+  qiniu:
+    access-key: ${QINIU_ACCESS_KEY:}
+    secret-key: ${QINIU_SECRET_KEY:}
+    bucket: ${QINIU_BUCKET:}
+    folder: ${QINIU_FOLDER:}
+    domain: ${QINIU_CDN_DOMAIN:}

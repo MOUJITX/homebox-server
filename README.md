@@ -50,6 +50,20 @@ ROOT_PASSWORD=admin123
 JWT_SECRET=your-256-bit-secret-key-that-is-at-least-32-characters-long
 ```
 
+**Optional: Qiniu OSS file storage**
+
+By default, files are stored on the local filesystem. To use Qiniu OSS instead, add these to your `.env` file:
+
+```properties
+QINIU_ACCESS_KEY=your_access_key
+QINIU_SECRET_KEY=your_secret_key
+QINIU_BUCKET=your_bucket_name
+QINIU_FOLDER=your_folder_name
+QINIU_CDN_DOMAIN=https://your-cdn-domain.com
+```
+
+When `QINIU_ACCESS_KEY` is set, all file uploads will go to Qiniu OSS. When unset, local filesystem storage is used.
+
 2. Ensure MySQL is running and accessible with the credentials above. The database will be created automatically if it doesn't exist.
 
 ### Build & Run
