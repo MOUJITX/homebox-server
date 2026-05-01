@@ -56,11 +56,11 @@ public class QiniuStorageStrategy implements FileStorageStrategy {
         }
 
         String dateDir = LocalDate.now().format(DATE_DIR_FORMAT);
-        String key = folder + dateDir + "/" + UUID.randomUUID() + extension;
+        String key = dateDir + "/" + UUID.randomUUID() + extension;
         String token = auth.uploadToken(bucket);
 
         try {
-            Response response = uploadManager.put(file.getInputStream(), key, token, null, null);
+            Response response = uploadManager.put(file.getInputStream(), folder + key, token, null, null);
             if (!response.isOK()) {
                 throw new RuntimeException("Failed to upload to Qiniu: " + response.error);
             }
@@ -74,7 +74,7 @@ public class QiniuStorageStrategy implements FileStorageStrategy {
 
     @Override
     public byte[] load(String storedFilename) {
-        String url = domain + "/" + storedFilename;
+        String url = domain + "/" + folder + storedFilename;
         String privateUrl = auth.privateDownloadUrl(url);
 
         try {
@@ -96,7 +96,7 @@ public class QiniuStorageStrategy implements FileStorageStrategy {
     @Override
     public void delete(String storedFilename) {
         try {
-            Response response = bucketManager.delete(bucket, storedFilename);
+            Response response = bucketManager.delete(bucket, folder + storedFilename);
             if (!response.isOK()) {
                 log.warn("Failed to delete from Qiniu (status={}): {}", response.statusCode, response.error);
             }
