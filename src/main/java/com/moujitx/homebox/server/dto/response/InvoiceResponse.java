@@ -1,6 +1,5 @@
 package com.moujitx.homebox.server.dto.response;
 
-import com.moujitx.homebox.server.entity.Invoice;
 import com.moujitx.homebox.server.enums.InvoiceStatus;
 import com.moujitx.homebox.server.enums.InvoiceType;
 import lombok.Getter;
@@ -22,25 +21,27 @@ public class InvoiceResponse {
     private BigDecimal amount;
     private BigDecimal taxAmount;
     private BigDecimal totalAmount;
-    private int attachmentCount;
+    private long attachmentCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static InvoiceResponse from(Invoice invoice) {
-        InvoiceResponse response = new InvoiceResponse();
-        response.id = invoice.getId();
-        response.invoiceNumber = invoice.getInvoiceNumber();
-        response.invoiceDate = invoice.getInvoiceDate();
-        response.invoiceType = invoice.getInvoiceType();
-        response.invoiceStatus = invoice.getInvoiceStatus();
-        response.sellerName = invoice.getSellerName();
-        response.buyerName = invoice.getBuyerName();
-        response.amount = invoice.getAmount();
-        response.taxAmount = invoice.getTaxAmount();
-        response.totalAmount = invoice.getTotalAmount();
-        response.attachmentCount = invoice.getAttachments().size();
-        response.createdAt = invoice.getCreatedAt();
-        response.updatedAt = invoice.getUpdatedAt();
-        return response;
+    public InvoiceResponse(Long id, String invoiceNumber, LocalDate invoiceDate, InvoiceType invoiceType,
+            InvoiceStatus invoiceStatus, String sellerName, String buyerName, BigDecimal amount,
+            BigDecimal taxAmount, BigDecimal totalAmount, long attachmentCount,
+            LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.invoiceNumber = invoiceNumber;
+        this.invoiceDate = invoiceDate;
+        this.invoiceType = invoiceType;
+        this.invoiceStatus = invoiceStatus;
+        this.sellerName = sellerName;
+        this.buyerName = buyerName;
+        this.amount = amount;
+        this.taxAmount = taxAmount;
+        this.totalAmount = totalAmount;
+        this.attachmentCount = attachmentCount;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
+
 }

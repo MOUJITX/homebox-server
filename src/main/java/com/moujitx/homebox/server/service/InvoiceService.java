@@ -18,13 +18,10 @@ import com.moujitx.homebox.server.repository.InvoiceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -40,12 +37,8 @@ public class InvoiceService {
     public Page<InvoiceResponse> getInvoices(String search, InvoiceType invoiceType, InvoiceStatus invoiceStatus,
             String buyerName, String sellerName, Pageable pageable) {
         String searchParam = (search != null && !search.isBlank()) ? search.trim() : null;
-        Page<Invoice> page = invoiceRepository.findWithFilters(searchParam, invoiceType, invoiceStatus,
+        return invoiceRepository.findWithFilters(searchParam, invoiceType, invoiceStatus,
                 buyerName, sellerName, pageable);
-        List<InvoiceResponse> responses = page.getContent().stream()
-                .map(InvoiceResponse::from)
-                .toList();
-        return new PageImpl<>(responses, pageable, page.getTotalElements());
     }
 
     @Transactional
