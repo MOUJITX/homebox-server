@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -146,15 +148,20 @@ public class InvoiceService {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
 
-        for (var attachment : invoice.getAttachments()) {
-            fileService.delete(attachment.getFile().getId());
-        }
-
-        if (invoice.getFile() != null) {
-            fileService.delete(invoice.getFile().getId());
-        }
+        Long invoiceFileId = invoice.getFile() != null ? invoice.getFile().getId() : null;
+        List<Long> attachmentFileIds = invoice.getAttachments().stream()
+                .map(a -> a.getFile().getId())
+                .toList();
 
         invoiceRepository.delete(invoice);
+
+        for (Long fileId : attachmentFileIds) {
+            fileService.delete(fileId);
+        }
+
+        if (invoiceFileId != null) {
+            fileService.delete(invoiceFileId);
+        }
     }
 
     @Transactional

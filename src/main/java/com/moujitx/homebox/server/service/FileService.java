@@ -58,7 +58,8 @@ public class FileService {
     @Transactional
     public void delete(Long id) {
         FileRecord record = getFileById(id);
-        strategyProvider.getStrategy().delete(record.getStoredFilename());
         fileRecordRepository.delete(record);
+        fileRecordRepository.flush();
+        strategyProvider.getStrategy().delete(record.getStoredFilename());
     }
 }

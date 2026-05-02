@@ -238,11 +238,11 @@ public class AssetService {
             throw new OperationNotAllowedException("Cannot delete asset that has sub-assets. Delete all sub-assets first.");
         }
 
+        assetRepository.delete(asset);
+
         for (var picture : asset.getPictures()) {
             fileService.delete(picture.getFile().getId());
         }
-
-        assetRepository.delete(asset);
     }
 
     public WarrantyStatus computeWarrantyStatus(Asset asset) {

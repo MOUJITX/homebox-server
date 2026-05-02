@@ -190,11 +190,11 @@ public class GoodService {
             throw new OperationNotAllowedException("Cannot delete good that has items. Delete all items first.");
         }
 
+        goodRepository.delete(good);
+
         for (var picture : good.getPictures()) {
             fileService.delete(picture.getFile().getId());
         }
-
-        goodRepository.delete(good);
     }
 
     public GoodStatus computeStatus(Good good) {
