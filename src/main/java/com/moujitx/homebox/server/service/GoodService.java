@@ -16,7 +16,9 @@ import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.GoodBrandRepository;
 import com.moujitx.homebox.server.repository.GoodCategoryRepository;
 import com.moujitx.homebox.server.repository.GoodItemRepository;
+import com.moujitx.homebox.server.repository.GoodPictureRepository;
 import com.moujitx.homebox.server.repository.GoodRepository;
+import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -27,7 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +40,7 @@ public class GoodService {
     private final GoodCategoryRepository categoryRepository;
     private final GoodBrandRepository brandRepository;
     private final GoodItemRepository itemRepository;
+    private final GoodPictureRepository goodPictureRepository;
     private final FileService fileService;
 
     @Transactional(readOnly = true)
@@ -45,6 +49,9 @@ public class GoodService {
 
         if (status != null || itemStatus != null) {
             List<Good> allGoods = goodRepository.findWithFilters(searchParam, categoryId, brandId, Pageable.unpaged()).getContent();
+            Map<Long, Integer> itemCountTotals = loadItemCountTotals(allGoods);
+            Map<Long, Integer> itemCountInUses = loadItemCountInUses(allGoods);
+            Map<Long, String> firstPictureUrls = loadFirstPictureUrls(allGoods);
             List<GoodResponse> filtered = allGoods.stream()
                     .filter(good -> {
                         if (status != null && computeStatus(good) != status) return false;
@@ -54,7 +61,7 @@ public class GoodService {
                         }
                         return true;
                     })
-                    .map(good -> GoodResponse.from(good, computeStatus(good)))
+                    .map(good -> GoodResponse.from(good, computeStatus(good), itemCountTotals, itemCountInUses, firstPictureUrls))
                     .toList();
 
             int start = (int) pageable.getOffset();
@@ -64,10 +71,38 @@ public class GoodService {
         }
 
         Page<Good> goodsPage = goodRepository.findWithFilters(searchParam, categoryId, brandId, pageable);
-        List<GoodResponse> responses = goodsPage.getContent().stream()
-                .map(good -> GoodResponse.from(good, computeStatus(good)))
+        List<Good> goods = goodsPage.getContent();
+        Map<Long, Integer> itemCountTotals = loadItemCountTotals(goods);
+        Map<Long, Integer> itemCountInUses = loadItemCountInUses(goods);
+        Map<Long, String> firstPictureUrls = loadFirstPictureUrls(goods);
+        List<GoodResponse> responses = goods.stream()
+                .map(good -> GoodResponse.from(good, computeStatus(good), itemCountTotals, itemCountInUses, firstPictureUrls))
                 .toList();
         return new PageImpl<>(responses, pageable, goodsPage.getTotalElements());
+    }
+
+    private Map<Long, Integer> loadItemCountTotals(List<Good> goods) {
+        List<Long> ids = goods.stream().map(Good::getId).toList();
+        if (ids.isEmpty()) return Map.of();
+        return goodRepository.countTotalItemsGroupedByGood(ids).stream()
+                .collect(Collectors.toMap(t -> (Long) t.get(0), t -> ((Number) t.get(1)).intValue(), (a, b) -> b));
+    }
+
+    private Map<Long, Integer> loadItemCountInUses(List<Good> goods) {
+        List<Long> ids = goods.stream().map(Good::getId).toList();
+        if (ids.isEmpty()) return Map.of();
+        return goodRepository.countInUseItemsGroupedByGood(ids).stream()
+                .collect(Collectors.toMap(t -> (Long) t.get(0), t -> ((Number) t.get(1)).intValue(), (a, b) -> b));
+    }
+
+    private Map<Long, String> loadFirstPictureUrls(List<Good> goods) {
+        List<Long> ids = goods.stream().map(Good::getId).toList();
+        if (ids.isEmpty()) return Map.of();
+        return goodPictureRepository.findFirstPictureIdGroupedByGood(ids).stream()
+                .collect(Collectors.toMap(
+                        t -> (Long) t.get(0),
+                        t -> "/api/goods/" + t.get(0) + "/pictures/" + t.get(1) + "/file",
+                        (a, b) -> b));
     }
 
     @Transactional(readOnly = true)

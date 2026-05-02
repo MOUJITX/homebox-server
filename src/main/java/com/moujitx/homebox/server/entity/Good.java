@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -41,6 +42,7 @@ public class Good {
     private int expiringSoonDays = 30;
 
     @OneToMany(mappedBy = "good", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 25)
     private List<GoodItem> items = new ArrayList<>();
 
     @OneToMany(mappedBy = "good", cascade = CascadeType.ALL, orphanRemoval = true)

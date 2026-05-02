@@ -3,11 +3,16 @@ package com.moujitx.homebox.server.dto.response;
 import com.moujitx.homebox.server.entity.Good;
 import com.moujitx.homebox.server.entity.GoodPicture;
 import com.moujitx.homebox.server.enums.GoodStatus;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class GoodResponse {
 
     private Long id;
@@ -28,6 +33,17 @@ public class GoodResponse {
     public static GoodResponse from(Good good, GoodStatus status) {
         GoodResponse response = new GoodResponse();
         populateFromGood(response, good, status);
+        return response;
+    }
+
+    public static GoodResponse from(Good good, GoodStatus status,
+                                    Map<Long, Integer> itemCountTotals, Map<Long, Integer> itemCountInUses,
+                                    Map<Long, String> firstPictureUrls) {
+        GoodResponse response = new GoodResponse();
+        populateFromGood(response, good, status);
+        response.itemCountTotal = itemCountTotals.getOrDefault(good.getId(), 0);
+        response.itemCountInUse = itemCountInUses.getOrDefault(good.getId(), 0);
+        response.firstPictureUrl = firstPictureUrls.get(good.getId());
         return response;
     }
 

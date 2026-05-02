@@ -1,12 +1,14 @@
 package com.moujitx.homebox.server.repository;
 
 import com.moujitx.homebox.server.entity.Good;
+import jakarta.persistence.Tuple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface GoodRepository extends JpaRepository<Good, Long> {
@@ -27,4 +29,10 @@ public interface GoodRepository extends JpaRepository<Good, Long> {
                                @Param("categoryId") Long categoryId,
                                @Param("brandId") Long brandId,
                                Pageable pageable);
+
+    @Query("SELECT i.good.id AS goodId, COUNT(i) AS cnt FROM GoodItem i WHERE i.good.id IN :goodIds GROUP BY i.good.id")
+    List<Tuple> countTotalItemsGroupedByGood(@Param("goodIds") List<Long> goodIds);
+
+    @Query("SELECT i.good.id AS goodId, COUNT(i) AS cnt FROM GoodItem i WHERE i.good.id IN :goodIds AND i.inUse = true GROUP BY i.good.id")
+    List<Tuple> countInUseItemsGroupedByGood(@Param("goodIds") List<Long> goodIds);
 }
