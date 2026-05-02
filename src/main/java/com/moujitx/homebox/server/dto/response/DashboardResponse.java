@@ -2,7 +2,6 @@ package com.moujitx.homebox.server.dto.response;
 
 import com.moujitx.homebox.server.entity.Asset;
 import com.moujitx.homebox.server.entity.GoodItem;
-import com.moujitx.homebox.server.enums.ItemStatus;
 import com.moujitx.homebox.server.enums.WarrantyStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,8 +18,8 @@ import java.util.List;
 public class DashboardResponse {
 
     private Stats stats;
-    private List<ExpiringSoonItem> expiringSoonItems;
-    private List<InUseItem> inUseItems;
+    private List<ItemSummary> expiringSoonItems;
+    private List<ItemSummary> inUseItems;
     private List<WarrantyExpiringAsset> warrantyExpiringAssets;
     private List<InUseAsset> inUseAssets;
 
@@ -37,7 +36,7 @@ public class DashboardResponse {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ExpiringSoonItem {
+    public static class ItemSummary {
         private Long id;
         private Long goodId;
         private String productName;
@@ -47,35 +46,8 @@ public class DashboardResponse {
         private int lifeDays;
         private LocalDateTime createdAt;
 
-        public static ExpiringSoonItem from(GoodItem item) {
-            ExpiringSoonItem dto = new ExpiringSoonItem();
-            dto.id = item.getId();
-            dto.goodId = item.getGood().getId();
-            dto.productName = item.getGood().getProductName();
-            dto.categoryName = item.getGood().getCategory().getName();
-            dto.brandName = item.getGood().getBrand().getBrandName();
-            dto.expirationDate = item.getExpirationDate();
-            dto.lifeDays = item.getLifeDays();
-            dto.createdAt = item.getCreatedAt();
-            return dto;
-        }
-    }
-
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class InUseItem {
-        private Long id;
-        private Long goodId;
-        private String productName;
-        private String categoryName;
-        private String brandName;
-        private LocalDate expirationDate;
-        private int lifeDays;
-        private LocalDateTime createdAt;
-
-        public static InUseItem from(GoodItem item) {
-            InUseItem dto = new InUseItem();
+        public static ItemSummary from(GoodItem item) {
+            ItemSummary dto = new ItemSummary();
             dto.id = item.getId();
             dto.goodId = item.getGood().getId();
             dto.productName = item.getGood().getProductName();

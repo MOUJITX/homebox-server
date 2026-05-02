@@ -3,7 +3,6 @@ package com.moujitx.homebox.server.service;
 import com.moujitx.homebox.server.dto.response.DashboardResponse;
 import com.moujitx.homebox.server.entity.Asset;
 import com.moujitx.homebox.server.entity.GoodItem;
-import com.moujitx.homebox.server.enums.ItemStatus;
 import com.moujitx.homebox.server.repository.AssetRepository;
 import com.moujitx.homebox.server.repository.GoodItemRepository;
 import com.moujitx.homebox.server.repository.InvoiceRepository;
@@ -31,8 +30,8 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public DashboardResponse getDashboard() {
         DashboardResponse.Stats stats = buildStats();
-        List<DashboardResponse.ExpiringSoonItem> expiringSoonItems = buildExpiringSoonItems();
-        List<DashboardResponse.InUseItem> inUseItems = buildInUseItems();
+        List<DashboardResponse.ItemSummary> expiringSoonItems = buildExpiringSoonItems();
+        List<DashboardResponse.ItemSummary> inUseItems = buildInUseItems();
         List<DashboardResponse.WarrantyExpiringAsset> warrantyExpiringAssets = buildWarrantyExpiringAssets();
         List<DashboardResponse.InUseAsset> inUseAssets = buildInUseAssets();
 
@@ -47,7 +46,7 @@ public class DashboardService {
         return new DashboardResponse.Stats(itemCount, assetCount, totalAssetPrice, invoiceCount);
     }
 
-    private List<DashboardResponse.ExpiringSoonItem> buildExpiringSoonItems() {
+    private List<DashboardResponse.ItemSummary> buildExpiringSoonItems() {
         // Fetch more items than needed so we can post-filter by per-good expiringSoonDays
         List<GoodItem> candidates = goodItemRepository.findInUseItemsOrderByExpirationAsc(
                 PageRequest.of(0, DASHBOARD_LIST_LIMIT * 3));
@@ -63,14 +62,14 @@ public class DashboardService {
                 })
                 .sorted(Comparator.comparing(GoodItem::getExpirationDate))
                 .limit(DASHBOARD_LIST_LIMIT)
-                .map(DashboardResponse.ExpiringSoonItem::from)
+                .map(DashboardResponse.ItemSummary::from)
                 .toList();
     }
 
-    private List<DashboardResponse.InUseItem> buildInUseItems() {
+    private List<DashboardResponse.ItemSummary> buildInUseItems() {
         return goodItemRepository.findInUseItemsOrderByCreatedAtDesc(
                         PageRequest.of(0, DASHBOARD_LIST_LIMIT)).stream()
-                .map(DashboardResponse.InUseItem::from)
+                .map(DashboardResponse.ItemSummary::from)
                 .toList();
     }
 
