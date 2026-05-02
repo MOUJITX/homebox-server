@@ -78,6 +78,89 @@ Change the current user's password. Requires authentication.
 
 ---
 
+## Dashboard Endpoints
+
+All dashboard endpoints require authentication (any role).
+
+### GET /api/dashboard
+
+Get aggregated dashboard data in a single request. Returns stats, expiring items, in-use items, warranty-expiring assets, and in-use assets.
+
+**Response (200):**
+```json
+{
+  "stats": {
+    "itemCount": 42,
+    "assetCount": 15,
+    "totalAssetPrice": 25999.50,
+    "invoiceCount": 23
+  },
+  "expiringSoonItems": [
+    {
+      "id": 5,
+      "goodId": 2,
+      "productName": "Instant Coffee",
+      "categoryName": "Food",
+      "brandName": "Nestlé",
+      "expirationDate": "2026-05-15",
+      "lifeDays": 180,
+      "createdAt": "2026-01-01T00:00:00"
+    }
+  ],
+  "inUseItems": [
+    {
+      "id": 3,
+      "goodId": 1,
+      "productName": "Milk Powder",
+      "categoryName": "Food",
+      "brandName": "BrandX",
+      "expirationDate": "2026-12-01",
+      "lifeDays": 365,
+      "createdAt": "2026-04-01T10:00:00"
+    }
+  ],
+  "warrantyExpiringAssets": [
+    {
+      "id": 1,
+      "name": "MacBook Pro",
+      "categoryName": "Electronics",
+      "placeName": "Office",
+      "price": 12999.00,
+      "expirationDate": "2026-06-15",
+      "shopDate": "2024-06-15"
+    }
+  ],
+  "inUseAssets": [
+    {
+      "id": 2,
+      "name": "Monitor",
+      "categoryName": "Electronics",
+      "placeName": "Office",
+      "price": 2999.00,
+      "shopDate": "2026-03-01",
+      "hasWarranty": true,
+      "warrantyStatus": "IN_WARRANTY",
+      "expirationDate": "2027-03-01"
+    }
+  ]
+}
+```
+
+**Field descriptions:**
+
+| Field | Description |
+|-------|-------------|
+| stats.itemCount | Total count of in-use good items |
+| stats.assetCount | Total count of all assets |
+| stats.totalAssetPrice | Sum of all asset prices |
+| stats.invoiceCount | Total count of all invoices |
+| expiringSoonItems | Up to 10 items expiring soon (sorted by expirationDate asc) |
+| inUseItems | Up to 10 items in use (sorted by createdAt desc) |
+| warrantyExpiringAssets | Up to 10 assets with warranty expiring soon (sorted by expirationDate asc) |
+| inUseAssets | Up to 10 assets in use (sorted by shopDate desc) |
+
+---
+
 ## Profile Endpoints
 
 All profile endpoints require authentication (any role).
