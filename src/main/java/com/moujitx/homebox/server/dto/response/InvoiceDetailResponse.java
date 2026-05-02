@@ -28,6 +28,7 @@ public class InvoiceDetailResponse {
     private String remark;
     private Long fileId;
     private String fileUrl;
+    private String previewImage;
     private List<InvoiceAttachmentResponse> attachments;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -47,6 +48,7 @@ public class InvoiceDetailResponse {
         response.taxAmount = invoice.getTaxAmount();
         response.totalAmount = invoice.getTotalAmount();
         response.remark = invoice.getRemark();
+        response.previewImage = invoice.getPreviewImage();
         response.createdAt = invoice.getCreatedAt();
         response.updatedAt = invoice.getUpdatedAt();
 

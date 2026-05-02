@@ -175,6 +175,7 @@ UNIQUE INDEX on (barcode, serial_number) — enforced only when both are non-nul
 | total_amount    | DECIMAL(19,2)  | NOT NULL                             |
 | remark          | TEXT           | NULLABLE                             |
 | file_id         | BIGINT         | NULLABLE, FK → file_records(id)      |
+| preview_image   | LONGTEXT       | NULLABLE (base64 PNG of first page)  |
 | created_at      | DATETIME(6)    | NOT NULL, auto-set                   |
 | updated_at      | DATETIME(6)    | NOT NULL, auto-set                   |
 

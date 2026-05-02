@@ -16,6 +16,7 @@ import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.InvoiceAttachmentRepository;
 import com.moujitx.homebox.server.repository.InvoiceRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
@@ -36,7 +38,7 @@ public class InvoiceService {
 
     @Transactional(readOnly = true)
     public Page<InvoiceResponse> getInvoices(String search, InvoiceType invoiceType, InvoiceStatus invoiceStatus,
-                                              String buyerName, String sellerName, Pageable pageable) {
+            String buyerName, String sellerName, Pageable pageable) {
         String searchParam = (search != null && !search.isBlank()) ? search.trim() : null;
         Page<Invoice> page = invoiceRepository.findWithFilters(searchParam, invoiceType, invoiceStatus,
                 buyerName, sellerName, pageable);
@@ -46,10 +48,15 @@ public class InvoiceService {
         return new PageImpl<>(responses, pageable, page.getTotalElements());
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public InvoiceDetailResponse getInvoiceById(Long id) {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
+
+        if (invoice.getPreviewImage() == null && invoice.getFile() != null) {
+            generateAndSavePreview(invoice);
+        }
+
         return InvoiceDetailResponse.from(invoice);
     }
 
@@ -64,7 +71,8 @@ public class InvoiceService {
         invoice.setInvoiceNumber(request.getInvoiceNumber());
         invoice.setInvoiceDate(request.getInvoiceDate());
         invoice.setInvoiceType(request.getInvoiceType());
-        invoice.setInvoiceStatus(request.getInvoiceStatus() != null ? request.getInvoiceStatus() : InvoiceStatus.NORMAL);
+        invoice.setInvoiceStatus(
+                request.getInvoiceStatus() != null ? request.getInvoiceStatus() : InvoiceStatus.NORMAL);
         invoice.setSellerName(request.getSellerName());
         invoice.setSellerTaxId(request.getSellerTaxId());
         invoice.setBuyerName(request.getBuyerName());
@@ -73,6 +81,7 @@ public class InvoiceService {
         invoice.setTaxAmount(request.getTaxAmount());
         invoice.setTotalAmount(request.getTotalAmount());
         invoice.setRemark(request.getRemark());
+        invoice.setPreviewImage(request.getPreviewImage());
 
         if (request.getFileId() != null) {
             FileRecord file = fileService.getFileById(request.getFileId());
@@ -106,21 +115,33 @@ public class InvoiceService {
         if (request.getInvoiceNumber() != null) {
             if (!request.getInvoiceNumber().isBlank()
                     && invoiceRepository.existsByInvoiceNumberAndIdNot(request.getInvoiceNumber(), id)) {
-                throw new ResourceAlreadyExistsException("Invoice number already exists: " + request.getInvoiceNumber());
+                throw new ResourceAlreadyExistsException(
+                        "Invoice number already exists: " + request.getInvoiceNumber());
             }
             invoice.setInvoiceNumber(request.getInvoiceNumber());
         }
-        if (request.getInvoiceDate() != null) invoice.setInvoiceDate(request.getInvoiceDate());
-        if (request.getInvoiceType() != null) invoice.setInvoiceType(request.getInvoiceType());
-        if (request.getInvoiceStatus() != null) invoice.setInvoiceStatus(request.getInvoiceStatus());
-        if (request.getSellerName() != null) invoice.setSellerName(request.getSellerName());
-        if (request.getSellerTaxId() != null) invoice.setSellerTaxId(request.getSellerTaxId());
-        if (request.getBuyerName() != null) invoice.setBuyerName(request.getBuyerName());
-        if (request.getBuyerTaxId() != null) invoice.setBuyerTaxId(request.getBuyerTaxId());
-        if (request.getAmount() != null) invoice.setAmount(request.getAmount());
-        if (request.getTaxAmount() != null) invoice.setTaxAmount(request.getTaxAmount());
-        if (request.getTotalAmount() != null) invoice.setTotalAmount(request.getTotalAmount());
-        if (request.getRemark() != null) invoice.setRemark(request.getRemark().isEmpty() ? null : request.getRemark());
+        if (request.getInvoiceDate() != null)
+            invoice.setInvoiceDate(request.getInvoiceDate());
+        if (request.getInvoiceType() != null)
+            invoice.setInvoiceType(request.getInvoiceType());
+        if (request.getInvoiceStatus() != null)
+            invoice.setInvoiceStatus(request.getInvoiceStatus());
+        if (request.getSellerName() != null)
+            invoice.setSellerName(request.getSellerName());
+        if (request.getSellerTaxId() != null)
+            invoice.setSellerTaxId(request.getSellerTaxId());
+        if (request.getBuyerName() != null)
+            invoice.setBuyerName(request.getBuyerName());
+        if (request.getBuyerTaxId() != null)
+            invoice.setBuyerTaxId(request.getBuyerTaxId());
+        if (request.getAmount() != null)
+            invoice.setAmount(request.getAmount());
+        if (request.getTaxAmount() != null)
+            invoice.setTaxAmount(request.getTaxAmount());
+        if (request.getTotalAmount() != null)
+            invoice.setTotalAmount(request.getTotalAmount());
+        if (request.getRemark() != null)
+            invoice.setRemark(request.getRemark().isEmpty() ? null : request.getRemark());
 
         Invoice saved = invoiceRepository.save(invoice);
         return InvoiceDetailResponse.from(saved);
@@ -166,7 +187,8 @@ public class InvoiceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id: " + attachmentId));
 
         if (!attachment.getInvoice().getId().equals(invoiceId)) {
-            throw new ResourceNotFoundException("Attachment not found with id: " + attachmentId + " for invoice: " + invoiceId);
+            throw new ResourceNotFoundException(
+                    "Attachment not found with id: " + attachmentId + " for invoice: " + invoiceId);
         }
 
         Long fileId = attachment.getFile().getId();
@@ -190,8 +212,34 @@ public class InvoiceService {
         InvoiceAttachment attachment = attachmentRepository.findById(attachmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id: " + attachmentId));
         if (!attachment.getInvoice().getId().equals(invoiceId)) {
-            throw new ResourceNotFoundException("Attachment not found with id: " + attachmentId + " for invoice: " + invoiceId);
+            throw new ResourceNotFoundException(
+                    "Attachment not found with id: " + attachmentId + " for invoice: " + invoiceId);
         }
         return attachment.getFile();
+    }
+
+    private void generateAndSavePreview(Invoice invoice) {
+        try {
+            FileRecord file = invoice.getFile();
+            String contentType = file.getContentType();
+            if (contentType == null)
+                return;
+
+            byte[] content = fileService.loadFileContent(file);
+            String previewImage = null;
+
+            if (contentType.contains("pdf")) {
+                previewImage = invoiceParseService.renderPdfPreview(content);
+            } else if (contentType.contains("ofd")) {
+                previewImage = invoiceParseService.renderOfdPreview(content);
+            }
+
+            if (previewImage != null) {
+                invoice.setPreviewImage(previewImage);
+                invoiceRepository.save(invoice);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to auto-generate preview for invoice {}", invoice.getId(), e);
+        }
     }
 }

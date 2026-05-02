@@ -1404,11 +1404,13 @@ Create a new invoice (manual input).
   "buyerName": "某购买方",
   "sellerName": "某公司",
   "amount": 100.00,
-  "taxAmount": 13.00
+  "taxAmount": 13.00,
+  "fileId": 42,
+  "previewImage": "iVBORw0KGgo..."
 }
 ```
 
-Only `invoiceType` and `totalAmount` are required. All other fields are optional. `invoiceNumber` must be unique if provided.
+Only `invoiceType` and `totalAmount` are required. All other fields are optional. `invoiceNumber` must be unique if provided. `fileId` links the uploaded invoice file. `previewImage` stores the base64-encoded PNG preview of the invoice file.
 
 **Response (201):** `InvoiceDetailResponse`
 
@@ -1435,11 +1437,12 @@ Upload an invoice file (PDF, XML, OFD) and extract invoice data. Returns parsed 
   "amount": 100.00,
   "taxAmount": 13.00,
   "totalAmount": 113.00,
-  "fileId": 42
+  "fileId": 42,
+  "previewImage": "iVBORw0KGgo..."
 }
 ```
 
-All fields may be null if parsing fails to extract them. `fileId` is the ID of the uploaded file record.
+All fields may be null if parsing fails to extract them. `fileId` is the ID of the uploaded file record. `previewImage` is the base64-encoded PNG image of the first page (for PDF/OFD files), which should be passed back in the create request to persist it.
 
 ### PUT /api/invoices/{id}
 

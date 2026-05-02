@@ -25,4 +25,5 @@ public class InvoiceParseResponse {
     private BigDecimal totalAmount;
     private String remark;
     private Long fileId;
+    private String previewImage;
 }

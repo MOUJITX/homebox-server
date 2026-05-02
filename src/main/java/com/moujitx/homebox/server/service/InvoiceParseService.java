@@ -4,8 +4,9 @@ import com.moujitx.homebox.server.dto.response.InvoiceParseResponse;
 import com.moujitx.homebox.server.enums.InvoiceType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
@@ -13,15 +14,21 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Base64;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.ofdrw.converter.ImageMaker;
 import org.ofdrw.reader.ContentExtractor;
 import org.ofdrw.reader.OFDReader;
 
@@ -138,13 +145,17 @@ public class InvoiceParseService {
 
     private InvoiceParseResponse parsePdf(byte[] content) {
         try {
-            PDDocument document = Loader.loadPDF(content);
+            PDDocument document = PDDocument.load(content);
             PDFTextStripper stripper = new PDFTextStripper();
             String text = stripper.getText(document);
+
+            String previewImage = renderPdfPreview(document);
             document.close();
 
             log.debug("Extracted PDF text:\n{}", text);
-            return aiService.extractInvoiceInfo(text);
+            InvoiceParseResponse result = aiService.extractInvoiceInfo(text);
+            result.setPreviewImage(previewImage);
+            return result;
         } catch (Exception e) {
             log.warn("PDF parsing failed, returning empty result", e);
             return new InvoiceParseResponse();
@@ -156,12 +167,67 @@ public class InvoiceParseService {
             ContentExtractor extractor = new ContentExtractor(reader);
             List<String> textList = extractor.extractAll();
             String text = String.join("\n", textList);
-
             log.debug("Extracted OFD text content:\n{}", text);
-            return aiService.extractInvoiceInfo(text);
+
+            String previewImage = renderOfdPreview(reader);
+
+            InvoiceParseResponse result = aiService.extractInvoiceInfo(text);
+            result.setPreviewImage(previewImage);
+            return result;
         } catch (Exception e) {
             log.warn("OFD parsing failed, returning empty result", e);
             return new InvoiceParseResponse();
+        }
+    }
+
+    private String renderPdfPreview(PDDocument document) {
+        try {
+            PDFRenderer renderer = new PDFRenderer(document);
+            BufferedImage image = renderer.renderImageWithDPI(0, 200, ImageType.RGB);
+            return imageToBase64(image);
+        } catch (Exception e) {
+            log.warn("Failed to render PDF preview image", e);
+            return null;
+        }
+    }
+
+    public String renderPdfPreview(byte[] content) {
+        try (PDDocument document = PDDocument.load(content)) {
+            return renderPdfPreview(document);
+        } catch (Exception e) {
+            log.warn("Failed to render PDF preview from bytes", e);
+            return null;
+        }
+    }
+
+    private String renderOfdPreview(OFDReader reader) {
+        try {
+            ImageMaker maker = new ImageMaker(reader, 8);
+            BufferedImage image = maker.makePage(0);
+            return imageToBase64(image);
+        } catch (Exception e) {
+            log.warn("Failed to render OFD preview image", e);
+            return null;
+        }
+    }
+
+    public String renderOfdPreview(byte[] content) {
+        try (OFDReader reader = new OFDReader(new ByteArrayInputStream(content))) {
+            return renderOfdPreview(reader);
+        } catch (Exception e) {
+            log.warn("Failed to render OFD preview from bytes", e);
+            return null;
+        }
+    }
+
+    private String imageToBase64(BufferedImage image) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", baos);
+            return Base64.getEncoder().encodeToString(baos.toByteArray());
+        } catch (IOException e) {
+            log.warn("Failed to convert image to base64", e);
+            return null;
         }
     }
 

@@ -48,6 +48,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Configuration: .env file loaded via Spring Boot's native config import
 - File Storage: Local filesystem by default; Qiniu OSS when `QINIU_ACCESS_KEY` is configured (see `FileStorageConfig`)
 - AI Integration: OpenAI-compatible API for PDF/OFD invoice parsing (optional, configured via `AI_API_URL` and `AI_API_KEY`)
+- Invoice Preview: PDF/OFD files are rendered to PNG images at parse time (PDFBox PDFRenderer for PDF, ofdrw ImageMaker for OFD) and stored as base64 in the `invoices.preview_image` column. Existing invoices without a preview auto-generate one on first view.
 
 ## Rules
 

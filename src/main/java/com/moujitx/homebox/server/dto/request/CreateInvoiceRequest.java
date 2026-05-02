@@ -40,4 +40,6 @@ public class CreateInvoiceRequest {
     private String remark;
 
     private Long fileId;
+
+    private String previewImage;
 }

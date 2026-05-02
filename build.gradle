@@ -22,8 +22,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
     implementation 'com.qiniu:qiniu-java-sdk:7.16.0'
-    implementation 'org.apache.pdfbox:pdfbox:3.0.3'
-    implementation 'org.ofdrw:ofdrw-full:2.2.1'
+
+    implementation 'org.ofdrw:ofdrw-full:2.3.9'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
