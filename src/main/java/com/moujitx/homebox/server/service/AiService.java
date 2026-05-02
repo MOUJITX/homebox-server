@@ -37,7 +37,7 @@ public class AiService {
             - invoiceNumber: 发票号码
             - invoiceDate: 开票日期，格式为 yyyy-MM-dd
             - invoiceType: 发票类型，取值为以下之一：
-            DIGITAL_INVOICE, RAILWAY_ELECTRONIC, VAT_INVOICE, AIR_ELECTRONIC, GENERAL_MACHINE_PRINTED, QUOTA_INVOICE, 
+            DIGITAL_INVOICE, RAILWAY_ELECTRONIC, VAT_INVOICE, AIR_ELECTRONIC, GENERAL_MACHINE_PRINTED, QUOTA_INVOICE,
             NON_TAX_INCOME_GENERAL, NON_TAX_INCOME_UNIFIED, FUND_SETTLEMENT, MEDICAL_OUTPATIENT, MEDICAL_INPATIENT,OTHER
             - invoiceStatus: 发票状态，取值为以下之一：NORMAL, VOIDED, RED_FLUSHED
             - sellerName: 销售方名称
@@ -56,10 +56,40 @@ public class AiService {
             4. 日期格式必须为 yyyy-MM-dd
             """;
 
+    @SuppressWarnings("unchecked")
+    private Map<String, String> resolveActiveModel() {
+        String modelsJson = systemConfigService.get("ai.models");
+        String activeModelId = systemConfigService.get("ai.active-model");
+
+        if (modelsJson != null && !modelsJson.isBlank() && activeModelId != null && !activeModelId.isBlank()) {
+            try {
+                List<Map<String, Object>> models = objectMapper.readValue(modelsJson, List.class);
+                for (Map<String, Object> m : models) {
+                    if (activeModelId.equals(m.get("id"))) {
+                        return Map.of(
+                                "apiUrl", String.valueOf(m.get("apiUrl")),
+                                "apiKey", String.valueOf(m.get("apiKey")),
+                                "model", String.valueOf(m.get("model")));
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("Failed to parse ai.models JSON", e);
+            }
+        }
+
+        return null;
+    }
+
     public InvoiceParseResponse extractInvoiceInfo(String text) {
-        String apiUrl = systemConfigService.get("ai.api-url");
-        String apiKey = systemConfigService.get("ai.api-key");
-        String model = systemConfigService.get("ai.model");
+        Map<String, String> activeModel = resolveActiveModel();
+        if (activeModel == null) {
+            log.warn("No active AI model configured, skipping AI extraction");
+            return new InvoiceParseResponse();
+        }
+
+        String apiUrl = activeModel.get("apiUrl");
+        String apiKey = activeModel.get("apiKey");
+        String model = activeModel.get("model");
         String systemPrompt = systemConfigService.get("ai.system-prompt");
         if (systemPrompt == null || systemPrompt.isBlank()) {
             systemPrompt = SYSTEM_PROMPT;
@@ -124,9 +154,14 @@ public class AiService {
     }
 
     public TestConnectionResponse testConnection() {
-        String apiUrl = systemConfigService.get("ai.api-url");
-        String apiKey = systemConfigService.get("ai.api-key");
-        String model = systemConfigService.get("ai.model");
+        Map<String, String> activeModel = resolveActiveModel();
+        if (activeModel == null) {
+            return new TestConnectionResponse(false, "No active AI model configured");
+        }
+
+        String apiUrl = activeModel.get("apiUrl");
+        String apiKey = activeModel.get("apiKey");
+        String model = activeModel.get("model");
 
         if (apiUrl == null || apiUrl.isBlank()) {
             return new TestConnectionResponse(false, "AI API URL is not configured");

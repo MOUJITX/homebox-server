@@ -47,15 +47,6 @@ public class DataInitializer implements CommandLineRunner {
     @Value("${app.qiniu.domain:}")
     private String qiniuDomain;
 
-    @Value("${app.ai.api-url:}")
-    private String aiApiUrl;
-
-    @Value("${app.ai.api-key:}")
-    private String aiApiKey;
-
-    @Value("${app.ai.model:gpt-4o}")
-    private String aiModel;
-
     @Override
     @Transactional
     public void run(String... args) {
@@ -86,10 +77,9 @@ public class DataInitializer implements CommandLineRunner {
         seedConfig("qiniu.folder", qiniuFolder, "qiniu", false, "Qiniu Folder Path");
         seedConfig("qiniu.domain", qiniuDomain, "qiniu", false, "Qiniu CDN Domain");
 
-        seedConfig("ai.api-url", aiApiUrl, "ai", false, "AI API URL");
-        seedConfig("ai.api-key", aiApiKey, "ai", true, "AI API Key");
-        seedConfig("ai.model", aiModel, "ai", false, "AI Model Name");
         seedConfig("ai.system-prompt", "", "ai", false, "AI System Prompt");
+        seedConfig("ai.models", "[]", "ai", false, "AI Models List (JSON)");
+        seedConfig("ai.active-model", "", "ai", false, "Active AI Model ID");
     }
 
     private void seedConfig(String key, String value, String group, boolean sensitive, String description) {
