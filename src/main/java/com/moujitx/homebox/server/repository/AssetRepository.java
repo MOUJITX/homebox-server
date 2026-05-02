@@ -1,6 +1,7 @@
 package com.moujitx.homebox.server.repository;
 
 import com.moujitx.homebox.server.entity.Asset;
+import jakarta.persistence.Tuple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,4 +34,7 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
     boolean existsByStoreId(Long storeId);
 
     boolean existsByParentId(Long parentId);
+
+    @Query("SELECT a.parent.id AS parentId, COUNT(a) AS cnt FROM Asset a WHERE a.parent.id IN :parentIds GROUP BY a.parent.id")
+    List<Tuple> countSubAssetsGroupedByParent(@Param("parentIds") List<Long> parentIds);
 }

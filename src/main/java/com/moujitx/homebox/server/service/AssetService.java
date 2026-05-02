@@ -11,6 +11,7 @@ import com.moujitx.homebox.server.exception.ResourceAlreadyExistsException;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.*;
 import com.moujitx.homebox.server.util.DateCalculator;
+import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,9 +42,11 @@ public class AssetService {
 
         if (warrantyStatus != null) {
             List<Asset> allAssets = assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, Pageable.unpaged()).getContent();
+            Map<Long, Integer> subAssetCounts = loadSubAssetCounts(allAssets);
+            Map<Long, String> firstPictureUrls = loadFirstPictureUrls(allAssets);
             List<AssetResponse> filtered = allAssets.stream()
                     .filter(asset -> computeWarrantyStatus(asset) == warrantyStatus)
-                    .map(asset -> AssetResponse.from(asset, computeWarrantyStatus(asset), assetRepository.findByParentId(asset.getId()).size()))
+                    .map(asset -> AssetResponse.from(asset, computeWarrantyStatus(asset), subAssetCounts, firstPictureUrls))
                     .toList();
 
             int start = (int) pageable.getOffset();
@@ -51,10 +56,30 @@ public class AssetService {
         }
 
         Page<Asset> assetsPage = assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, pageable);
-        List<AssetResponse> responses = assetsPage.getContent().stream()
-                .map(asset -> AssetResponse.from(asset, computeWarrantyStatus(asset), assetRepository.findByParentId(asset.getId()).size()))
+        List<Asset> assets = assetsPage.getContent();
+        Map<Long, Integer> subAssetCounts = loadSubAssetCounts(assets);
+        Map<Long, String> firstPictureUrls = loadFirstPictureUrls(assets);
+        List<AssetResponse> responses = assets.stream()
+                .map(asset -> AssetResponse.from(asset, computeWarrantyStatus(asset), subAssetCounts, firstPictureUrls))
                 .toList();
         return new PageImpl<>(responses, pageable, assetsPage.getTotalElements());
+    }
+
+    private Map<Long, Integer> loadSubAssetCounts(List<Asset> assets) {
+        List<Long> ids = assets.stream().map(Asset::getId).toList();
+        if (ids.isEmpty()) return Map.of();
+        return assetRepository.countSubAssetsGroupedByParent(ids).stream()
+                .collect(Collectors.toMap(t -> (Long) t.get(0), t -> ((Number) t.get(1)).intValue(), (a, b) -> b));
+    }
+
+    private Map<Long, String> loadFirstPictureUrls(List<Asset> assets) {
+        List<Long> ids = assets.stream().map(Asset::getId).toList();
+        if (ids.isEmpty()) return Map.of();
+        return assetPictureRepository.findFirstPictureIdGroupedByAsset(ids).stream()
+                .collect(Collectors.toMap(
+                        t -> (Long) t.get(0),
+                        t -> "/api/assets/" + t.get(0) + "/pictures/" + t.get(1) + "/file",
+                        (a, b) -> b));
     }
 
     @Transactional(readOnly = true)
