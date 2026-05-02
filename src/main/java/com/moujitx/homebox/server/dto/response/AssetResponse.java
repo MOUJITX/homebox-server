@@ -36,6 +36,9 @@ public class AssetResponse {
     private String note;
     private String firstPictureUrl;
     private int subAssetCount;
+    private Long parentId;
+    private String parentName;
+    private String parentFirstPictureUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -81,5 +84,16 @@ public class AssetResponse {
 
         response.createdAt = asset.getCreatedAt();
         response.updatedAt = asset.getUpdatedAt();
+
+        if (asset.getParent() != null) {
+            response.parentId = asset.getParent().getId();
+            response.parentName = asset.getParent().getName();
+            AssetPicture parentFirstPicture = asset.getParent().getPictures().isEmpty()
+                    ? null : asset.getParent().getPictures().get(0);
+            if (parentFirstPicture != null) {
+                response.parentFirstPictureUrl = "/api/assets/" + asset.getParent().getId()
+                        + "/pictures/" + parentFirstPicture.getId() + "/file";
+            }
+        }
     }
 }
