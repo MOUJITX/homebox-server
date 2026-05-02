@@ -18,6 +18,7 @@ import com.moujitx.homebox.server.repository.GoodCategoryRepository;
 import com.moujitx.homebox.server.repository.GoodItemRepository;
 import com.moujitx.homebox.server.repository.GoodPictureRepository;
 import com.moujitx.homebox.server.repository.GoodRepository;
+import com.moujitx.homebox.server.util.StringUtil;
 import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -45,7 +46,7 @@ public class GoodService {
 
     @Transactional(readOnly = true)
     public Page<GoodResponse> getGoods(String search, Long categoryId, Long brandId, GoodStatus status, ItemStatus itemStatus, Pageable pageable) {
-        String searchParam = (search != null && !search.isBlank()) ? search.trim() : null;
+        String searchParam = StringUtil.normalizeSearch(search);
 
         if (status != null || itemStatus != null) {
             List<Good> allGoods = goodRepository.findWithFilters(searchParam, categoryId, brandId, Pageable.unpaged()).getContent();

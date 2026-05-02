@@ -11,6 +11,7 @@ import com.moujitx.homebox.server.exception.ResourceAlreadyExistsException;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.*;
 import com.moujitx.homebox.server.util.DateCalculator;
+import com.moujitx.homebox.server.util.StringUtil;
 import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -38,7 +39,7 @@ public class AssetService {
     @Transactional(readOnly = true)
     public Page<AssetResponse> getAssets(String search, Long categoryId, Long placeId, Boolean isInUse,
                                           WarrantyStatus warrantyStatus, Pageable pageable) {
-        String searchParam = (search != null && !search.isBlank()) ? search.trim() : null;
+        String searchParam = StringUtil.normalizeSearch(search);
 
         if (warrantyStatus != null) {
             List<Asset> allAssets = assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, Pageable.unpaged()).getContent();

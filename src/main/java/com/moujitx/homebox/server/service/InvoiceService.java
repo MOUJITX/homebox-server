@@ -15,6 +15,7 @@ import com.moujitx.homebox.server.exception.ResourceAlreadyExistsException;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.InvoiceAttachmentRepository;
 import com.moujitx.homebox.server.repository.InvoiceRepository;
+import com.moujitx.homebox.server.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -36,7 +37,7 @@ public class InvoiceService {
     @Transactional(readOnly = true)
     public Page<InvoiceResponse> getInvoices(String search, InvoiceType invoiceType, InvoiceStatus invoiceStatus,
             String buyerName, String sellerName, Pageable pageable) {
-        String searchParam = (search != null && !search.isBlank()) ? search.trim() : null;
+        String searchParam = StringUtil.normalizeSearch(search);
         return invoiceRepository.findWithFilters(searchParam, invoiceType, invoiceStatus,
                 buyerName, sellerName, pageable);
     }
