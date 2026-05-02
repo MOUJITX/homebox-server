@@ -18,6 +18,7 @@ public class AssetInvoiceResponse {
     private InvoiceType invoiceType;
     private InvoiceStatus invoiceStatus;
     private BigDecimal totalAmount;
+    private String sellerName;
 
     public static AssetInvoiceResponse from(AssetInvoice binding) {
         AssetInvoiceResponse response = new AssetInvoiceResponse();
@@ -28,6 +29,7 @@ public class AssetInvoiceResponse {
         response.invoiceType = binding.getInvoice().getInvoiceType();
         response.invoiceStatus = binding.getInvoice().getInvoiceStatus();
         response.totalAmount = binding.getInvoice().getTotalAmount();
+        response.sellerName = binding.getInvoice().getSellerName();
         return response;
     }
 }
