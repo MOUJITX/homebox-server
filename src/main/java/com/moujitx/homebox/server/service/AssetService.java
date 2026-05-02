@@ -45,18 +45,14 @@ public class AssetService {
         String searchParam = StringUtil.normalizeSearch(search);
 
         if (warrantyStatus != null) {
-            List<Asset> allAssets = assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, Pageable.unpaged()).getContent();
-            Map<Long, Integer> subAssetCounts = loadSubAssetCounts(allAssets);
-            Map<Long, String> firstPictureUrls = loadFirstPictureUrls(allAssets);
-            List<AssetResponse> filtered = allAssets.stream()
-                    .filter(asset -> computeWarrantyStatus(asset) == warrantyStatus)
+            Page<Asset> assetsPage = assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, warrantyStatus, pageable);
+            List<Asset> assets = assetsPage.getContent();
+            Map<Long, Integer> subAssetCounts = loadSubAssetCounts(assets);
+            Map<Long, String> firstPictureUrls = loadFirstPictureUrls(assets);
+            List<AssetResponse> responses = assets.stream()
                     .map(asset -> AssetResponse.from(asset, computeWarrantyStatus(asset), subAssetCounts, firstPictureUrls))
                     .toList();
-
-            int start = (int) pageable.getOffset();
-            int end = Math.min(start + pageable.getPageSize(), filtered.size());
-            List<AssetResponse> pageContent = start < filtered.size() ? filtered.subList(start, end) : List.of();
-            return new PageImpl<>(pageContent, pageable, filtered.size());
+            return new PageImpl<>(responses, pageable, assetsPage.getTotalElements());
         }
 
         Page<Asset> assetsPage = assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, pageable);
