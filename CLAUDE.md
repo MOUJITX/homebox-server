@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Gradle 8.14 (wrapper included)
 - JJWT 0.13.0 (JWT token handling)
 - Qiniu Java SDK 7.16.0 (optional Qiniu OSS file storage)
-- Lombok (boilerplate reduction: `@Getter`, `@Setter`, `@RequiredArgsConstructor`, `@Slf4j`)
+- Lombok (boilerplate reduction: `@Getter`, `@Setter`, `@NoArgsConstructor`, `@AllArgsConstructor`, `@RequiredArgsConstructor`, `@Slf4j`)
 - RestTemplate (OpenAI-compatible API integration for invoice parsing)
 
 ## Build Commands
@@ -29,7 +29,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `dto/response/` — response DTOs
   - `entity/` — JPA entities (Role, User, Good, GoodItem, GoodCategory, GoodBrand, GoodPicture, FileRecord, Asset, AssetCategory, AssetPlace, AssetStore, AssetPicture, Invoice, InvoiceAttachment)
   - `enums/` — enumerations (GoodStatus, ItemStatus, InvoiceType, InvoiceStatus, WarrantyStatus)
-  - `util/` — utility classes (DateCalculator)
+  - `util/` — utility classes (DateCalculator, StringUtil)
   - `exception/` — custom exceptions and global handler
   - `initializer/` — data seeding (root role/user on startup)
   - `repository/` — Spring Data JPA repositories
@@ -49,6 +49,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - File Storage: Local filesystem by default; Qiniu OSS when `QINIU_ACCESS_KEY` is configured (see `FileStorageConfig`)
 - AI Integration: OpenAI-compatible API for PDF/OFD invoice parsing (optional, configured via `AI_API_URL` and `AI_API_KEY`)
 - Invoice Preview: PDF/OFD files are rendered to PNG images at parse time (PDFBox PDFRenderer for PDF, ofdrw ImageMaker for OFD) and stored as base64 in the `invoices.preview_image` column. Existing invoices without a preview auto-generate one on first view.
+- List Query Optimization: List endpoints use bulk repository queries (GROUP BY with Tuple projections) to fetch computed counts (subAssetCount, itemCountTotal, etc.) and first picture URLs in batch, avoiding N+1 query patterns. Response DTOs use `@AllArgsConstructor` for JPQL `SELECT new` constructor expressions (InvoiceResponse) or bulk-optimized factory methods accepting pre-fetched maps (AssetResponse, GoodResponse).
 
 ## Rules
 
