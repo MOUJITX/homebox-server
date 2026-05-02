@@ -1331,6 +1331,41 @@ Delete a picture.
 
 ---
 
+## Asset Invoice Binding Endpoints
+
+### GET /api/assets/{id}/invoices
+
+List all invoices bound to an asset.
+
+**Response (200):** `AssetInvoiceResponse[]`
+```json
+[
+  {
+    "id": 1,
+    "invoiceId": 5,
+    "invoiceNumber": "12345678",
+    "invoiceDate": "2024-01-15",
+    "invoiceType": "DIGITAL_INVOICE",
+    "invoiceStatus": "NORMAL",
+    "totalAmount": 113.00
+  }
+]
+```
+
+### POST /api/assets/{assetId}/invoices/{invoiceId}
+
+Bind an invoice to an asset. Creates a many-to-many relationship.
+
+**Response (204):** No content.
+
+### DELETE /api/assets/{assetId}/invoices/{invoiceId}
+
+Unbind an invoice from an asset. Does not delete the invoice.
+
+**Response (204):** No content.
+
+---
+
 ## Invoice Endpoints
 
 All invoice endpoints require authentication (any role).

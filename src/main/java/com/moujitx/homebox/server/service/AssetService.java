@@ -3,6 +3,7 @@ package com.moujitx.homebox.server.service;
 import com.moujitx.homebox.server.dto.request.CreateAssetRequest;
 import com.moujitx.homebox.server.dto.request.UpdateAssetRequest;
 import com.moujitx.homebox.server.dto.response.AssetDetailResponse;
+import com.moujitx.homebox.server.dto.response.AssetInvoiceResponse;
 import com.moujitx.homebox.server.dto.response.AssetResponse;
 import com.moujitx.homebox.server.entity.*;
 import com.moujitx.homebox.server.enums.WarrantyStatus;
@@ -34,6 +35,8 @@ public class AssetService {
     private final AssetPlaceRepository placeRepository;
     private final AssetStoreRepository storeRepository;
     private final AssetPictureRepository assetPictureRepository;
+    private final AssetInvoiceRepository assetInvoiceRepository;
+    private final InvoiceRepository invoiceRepository;
     private final FileService fileService;
 
     @Transactional(readOnly = true)
@@ -93,7 +96,11 @@ public class AssetService {
                 .map(sub -> AssetResponse.from(sub, computeWarrantyStatus(sub), 0))
                 .toList();
 
-        return AssetDetailResponse.from(asset, computeWarrantyStatus(asset), subAssets.size(), subAssets);
+        List<AssetInvoiceResponse> invoices = assetInvoiceRepository.findByAssetId(id).stream()
+                .map(AssetInvoiceResponse::from)
+                .toList();
+
+        return AssetDetailResponse.from(asset, computeWarrantyStatus(asset), subAssets.size(), subAssets, invoices);
     }
 
     @Transactional
@@ -250,5 +257,43 @@ public class AssetService {
         if (asset.getExpirationDate() == null) return WarrantyStatus.NO_WARRANTY;
         if (asset.getExpirationDate().isBefore(LocalDate.now())) return WarrantyStatus.OUT_WARRANTY;
         return WarrantyStatus.IN_WARRANTY;
+    }
+
+    @Transactional(readOnly = true)
+    public List<AssetInvoiceResponse> getAssetInvoices(Long assetId) {
+        if (!assetRepository.existsById(assetId)) {
+            throw new ResourceNotFoundException("Asset not found with id: " + assetId);
+        }
+        return assetInvoiceRepository.findByAssetId(assetId).stream()
+                .map(AssetInvoiceResponse::from)
+                .toList();
+    }
+
+    @Transactional
+    public void bindInvoice(Long assetId, Long invoiceId) {
+        Asset asset = assetRepository.findById(assetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Asset not found with id: " + assetId));
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + invoiceId));
+
+        if (assetInvoiceRepository.existsByAssetIdAndInvoiceId(assetId, invoiceId)) {
+            throw new ResourceAlreadyExistsException("Invoice already bound to this asset");
+        }
+
+        AssetInvoice binding = new AssetInvoice();
+        binding.setAsset(asset);
+        binding.setInvoice(invoice);
+        assetInvoiceRepository.save(binding);
+    }
+
+    @Transactional
+    public void unbindInvoice(Long assetId, Long invoiceId) {
+        if (!assetRepository.existsById(assetId)) {
+            throw new ResourceNotFoundException("Asset not found with id: " + assetId);
+        }
+        if (!invoiceRepository.existsById(invoiceId)) {
+            throw new ResourceNotFoundException("Invoice not found with id: " + invoiceId);
+        }
+        assetInvoiceRepository.deleteByAssetIdAndInvoiceId(assetId, invoiceId);
     }
 }

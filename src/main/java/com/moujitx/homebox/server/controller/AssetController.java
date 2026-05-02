@@ -3,12 +3,15 @@ package com.moujitx.homebox.server.controller;
 import com.moujitx.homebox.server.dto.request.CreateAssetRequest;
 import com.moujitx.homebox.server.dto.request.UpdateAssetRequest;
 import com.moujitx.homebox.server.dto.response.AssetDetailResponse;
+import com.moujitx.homebox.server.dto.response.AssetInvoiceResponse;
 import com.moujitx.homebox.server.dto.response.AssetResponse;
 import com.moujitx.homebox.server.enums.WarrantyStatus;
 import com.moujitx.homebox.server.service.AssetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+
+import java.util.List;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -58,6 +61,23 @@ public class AssetController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAsset(@PathVariable Long id) {
         assetService.deleteAsset(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/invoices")
+    public ResponseEntity<List<AssetInvoiceResponse>> getAssetInvoices(@PathVariable Long id) {
+        return ResponseEntity.ok(assetService.getAssetInvoices(id));
+    }
+
+    @PostMapping("/{assetId}/invoices/{invoiceId}")
+    public ResponseEntity<Void> bindInvoice(@PathVariable Long assetId, @PathVariable Long invoiceId) {
+        assetService.bindInvoice(assetId, invoiceId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{assetId}/invoices/{invoiceId}")
+    public ResponseEntity<Void> unbindInvoice(@PathVariable Long assetId, @PathVariable Long invoiceId) {
+        assetService.unbindInvoice(assetId, invoiceId);
         return ResponseEntity.noContent().build();
     }
 }

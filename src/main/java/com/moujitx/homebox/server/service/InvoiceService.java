@@ -2,6 +2,7 @@ package com.moujitx.homebox.server.service;
 
 import com.moujitx.homebox.server.dto.request.CreateInvoiceRequest;
 import com.moujitx.homebox.server.dto.request.UpdateInvoiceRequest;
+import com.moujitx.homebox.server.dto.response.BoundAssetResponse;
 import com.moujitx.homebox.server.dto.response.InvoiceAttachmentResponse;
 import com.moujitx.homebox.server.dto.response.InvoiceDetailResponse;
 import com.moujitx.homebox.server.dto.response.InvoiceParseResponse;
@@ -13,6 +14,7 @@ import com.moujitx.homebox.server.enums.InvoiceStatus;
 import com.moujitx.homebox.server.enums.InvoiceType;
 import com.moujitx.homebox.server.exception.ResourceAlreadyExistsException;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
+import com.moujitx.homebox.server.repository.AssetInvoiceRepository;
 import com.moujitx.homebox.server.repository.InvoiceAttachmentRepository;
 import com.moujitx.homebox.server.repository.InvoiceRepository;
 import com.moujitx.homebox.server.util.StringUtil;
@@ -33,6 +35,7 @@ public class InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
     private final InvoiceAttachmentRepository attachmentRepository;
+    private final AssetInvoiceRepository assetInvoiceRepository;
     private final FileService fileService;
     private final InvoiceParseService invoiceParseService;
 
@@ -53,7 +56,11 @@ public class InvoiceService {
             generateAndSavePreview(invoice);
         }
 
-        return InvoiceDetailResponse.from(invoice);
+        List<BoundAssetResponse> boundAssets = assetInvoiceRepository.findByInvoiceId(id).stream()
+                .map(BoundAssetResponse::from)
+                .toList();
+
+        return InvoiceDetailResponse.from(invoice, boundAssets);
     }
 
     @Transactional

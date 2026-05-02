@@ -70,6 +70,9 @@ public class Asset {
     @BatchSize(size = 25)
     private List<AssetPicture> pictures = new ArrayList<>();
 
+    @OneToMany(mappedBy = "asset", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AssetInvoice> invoiceBindings = new ArrayList<>();
+
     private String note;
 
     @Setter(AccessLevel.NONE)

@@ -14,9 +14,15 @@ public class AssetDetailResponse extends AssetResponse {
     private Integer warrantyPeriod;
     private List<AssetPictureResponse> pictures;
     private List<AssetResponse> subAssets;
+    private List<AssetInvoiceResponse> invoices;
 
     public static AssetDetailResponse from(Asset asset, WarrantyStatus warrantyStatus, int subAssetCount,
                                             List<AssetResponse> subAssets) {
+        return from(asset, warrantyStatus, subAssetCount, subAssets, List.of());
+    }
+
+    public static AssetDetailResponse from(Asset asset, WarrantyStatus warrantyStatus, int subAssetCount,
+                                            List<AssetResponse> subAssets, List<AssetInvoiceResponse> invoices) {
         AssetDetailResponse response = new AssetDetailResponse();
         populateFromAsset(response, asset, warrantyStatus, subAssetCount);
 
@@ -26,6 +32,7 @@ public class AssetDetailResponse extends AssetResponse {
                 .map(AssetPictureResponse::from)
                 .toList();
         response.subAssets = subAssets;
+        response.invoices = invoices;
 
         return response;
     }

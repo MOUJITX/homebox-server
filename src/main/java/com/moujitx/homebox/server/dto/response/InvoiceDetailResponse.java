@@ -30,10 +30,15 @@ public class InvoiceDetailResponse {
     private String fileUrl;
     private String previewImage;
     private List<InvoiceAttachmentResponse> attachments;
+    private List<BoundAssetResponse> assets;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public static InvoiceDetailResponse from(Invoice invoice) {
+        return from(invoice, List.of());
+    }
+
+    public static InvoiceDetailResponse from(Invoice invoice, List<BoundAssetResponse> boundAssets) {
         InvoiceDetailResponse response = new InvoiceDetailResponse();
         response.id = invoice.getId();
         response.invoiceNumber = invoice.getInvoiceNumber();
@@ -60,6 +65,7 @@ public class InvoiceDetailResponse {
         response.attachments = invoice.getAttachments().stream()
                 .map(InvoiceAttachmentResponse::from)
                 .toList();
+        response.assets = boundAssets;
 
         return response;
     }

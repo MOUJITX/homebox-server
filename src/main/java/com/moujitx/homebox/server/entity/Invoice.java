@@ -72,6 +72,9 @@ public class Invoice {
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InvoiceAttachment> attachments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AssetInvoice> assetBindings = new ArrayList<>();
+
     @Setter(AccessLevel.NONE)
     @CreationTimestamp
     @Column(updatable = false)

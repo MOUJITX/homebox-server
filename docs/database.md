@@ -187,6 +187,17 @@ UNIQUE INDEX on (barcode, serial_number) — enforced only when both are non-nul
 | invoice_id  | BIGINT | NOT NULL, FK → invoices(id)      |
 | file_id     | BIGINT | NOT NULL, FK → file_records(id)  |
 
+### asset_invoices
+
+| Column      | Type        | Constraints                          |
+|-------------|-------------|--------------------------------------|
+| id          | BIGINT      | PRIMARY KEY, AUTO_INCREMENT          |
+| asset_id    | BIGINT      | NOT NULL, FK → assets(id)            |
+| invoice_id  | BIGINT      | NOT NULL, FK → invoices(id)          |
+| created_at  | DATETIME(6) | NOT NULL, auto-set                   |
+
+UNIQUE INDEX on (asset_id, invoice_id) — prevents duplicate bindings.
+
 ## Relationships
 
 - `users.role_id` → `roles.id` (Many-to-One: many users can share one role)
@@ -204,6 +215,8 @@ UNIQUE INDEX on (barcode, serial_number) — enforced only when both are non-nul
 - `invoices.file_id` → `file_records.id` (Many-to-One: invoice references one primary file)
 - `invoice_attachments.invoice_id` → `invoices.id` (Many-to-One: many attachments belong to one invoice)
 - `invoice_attachments.file_id` → `file_records.id` (Many-to-One: many attachments can reference one file)
+- `asset_invoices.asset_id` → `assets.id` (Many-to-One: many bindings reference one asset)
+- `asset_invoices.invoice_id` → `invoices.id` (Many-to-One: many bindings reference one invoice)
 
 ## Initial Data
 
