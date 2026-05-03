@@ -20,7 +20,7 @@ public class InvoiceAttachment {
     @JoinColumn(name = "invoice_id")
     private Invoice invoice;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id")
     private FileRecord file;
 }

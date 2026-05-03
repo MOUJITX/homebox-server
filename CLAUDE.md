@@ -50,6 +50,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - AI Integration: OpenAI-compatible API for PDF/OFD invoice parsing (optional, configured via `AI_API_URL` and `AI_API_KEY`)
 - Invoice Preview: PDF/OFD files are rendered to PNG images at parse time (PDFBox PDFRenderer for PDF, ofdrw ImageMaker for OFD) and stored as base64 in the `invoices.preview_image` column. Existing invoices without a preview auto-generate one on first view.
 - List Query Optimization: List endpoints use bulk repository queries (GROUP BY with Tuple projections) to fetch computed counts (subAssetCount, itemCountTotal, etc.) and first picture URLs in batch, avoiding N+1 query patterns. Response DTOs use `@AllArgsConstructor` for JPQL `SELECT new` constructor expressions (InvoiceResponse) or bulk-optimized factory methods accepting pre-fetched maps (AssetResponse, GoodResponse).
+- Memory Optimization: JVM heap is capped at 256MB via `bootRun` task in `build.gradle` (`-Xmx256m`). Hibernate uses LAZY fetch for `@ManyToOne` associations (GoodPicture.file, AssetPicture.file, InvoiceAttachment.file) with global `default_batch_fetch_size: 16` and entity-level `@BatchSize` on collections to prevent N+1 queries. Invoice preview rendering uses 150 DPI (PDF) / scale 6 (OFD) with explicit `BufferedImage.flush()` to minimize peak memory.
 
 ## Rules
 

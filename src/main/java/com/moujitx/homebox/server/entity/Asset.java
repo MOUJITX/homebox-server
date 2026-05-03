@@ -71,6 +71,7 @@ public class Asset {
     private List<AssetPicture> pictures = new ArrayList<>();
 
     @OneToMany(mappedBy = "asset", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 25)
     private List<AssetInvoice> invoiceBindings = new ArrayList<>();
 
     private String note;

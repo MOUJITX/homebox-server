@@ -3,6 +3,7 @@ package com.moujitx.homebox.server.entity;
 import com.moujitx.homebox.server.enums.InvoiceStatus;
 import com.moujitx.homebox.server.enums.InvoiceType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.BatchSize;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -70,9 +71,11 @@ public class Invoice {
     private FileRecord file;
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 25)
     private List<InvoiceAttachment> attachments = new ArrayList<>();
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 25)
     private List<AssetInvoice> assetBindings = new ArrayList<>();
 
     @Setter(AccessLevel.NONE)

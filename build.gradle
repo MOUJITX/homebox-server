@@ -35,3 +35,14 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+bootRun {
+    jvmArgs = [
+        '-Xms128m',
+        '-Xmx256m',
+        '-XX:+UseG1GC',
+        '-XX:MaxGCPauseMillis=200',
+        '-XX:+UseStringDeduplication',
+        '-XX:MaxMetaspaceSize=128m'
+    ]
+}

@@ -46,6 +46,7 @@ public class Good {
     private List<GoodItem> items = new ArrayList<>();
 
     @OneToMany(mappedBy = "good", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 25)
     private List<GoodPicture> pictures = new ArrayList<>();
 
     @Setter(AccessLevel.NONE)

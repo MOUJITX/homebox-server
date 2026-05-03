@@ -20,7 +20,7 @@ public class GoodPicture {
     @JoinColumn(name = "good_id")
     private Good good;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id")
     private FileRecord file;
 }

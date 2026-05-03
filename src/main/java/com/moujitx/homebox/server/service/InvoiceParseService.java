@@ -183,8 +183,10 @@ public class InvoiceParseService {
     private String renderPdfPreview(PDDocument document) {
         try {
             PDFRenderer renderer = new PDFRenderer(document);
-            BufferedImage image = renderer.renderImageWithDPI(0, 200, ImageType.RGB);
-            return imageToBase64(image);
+            BufferedImage image = renderer.renderImageWithDPI(0, 150, ImageType.RGB);
+            String base64 = imageToBase64(image);
+            image.flush();
+            return base64;
         } catch (Exception e) {
             log.warn("Failed to render PDF preview image", e);
             return null;
@@ -202,9 +204,11 @@ public class InvoiceParseService {
 
     private String renderOfdPreview(OFDReader reader) {
         try {
-            ImageMaker maker = new ImageMaker(reader, 8);
+            ImageMaker maker = new ImageMaker(reader, 6);
             BufferedImage image = maker.makePage(0);
-            return imageToBase64(image);
+            String base64 = imageToBase64(image);
+            image.flush();
+            return base64;
         } catch (Exception e) {
             log.warn("Failed to render OFD preview image", e);
             return null;
@@ -221,8 +225,7 @@ public class InvoiceParseService {
     }
 
     private String imageToBase64(BufferedImage image) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             ImageIO.write(image, "png", baos);
             return Base64.getEncoder().encodeToString(baos.toByteArray());
         } catch (IOException e) {

@@ -20,7 +20,7 @@ public class AssetPicture {
     @JoinColumn(name = "asset_id")
     private Asset asset;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id")
     private FileRecord file;
 }
