@@ -27,6 +27,7 @@ public class AssetResponse {
     private Long placeId;
     private boolean inUse;
     private BigDecimal price;
+    private BigDecimal totalPrice;
     private LocalDate shopDate;
     private String storeName;
     private Long storeId;
@@ -49,12 +50,20 @@ public class AssetResponse {
     }
 
     public static AssetResponse from(Asset asset, WarrantyStatus warrantyStatus,
-                                     Map<Long, Integer> subAssetCounts, Map<Long, String> firstPictureUrls) {
+                                     Map<Long, Integer> subAssetCounts, Map<Long, String> firstPictureUrls,
+                                     Map<Long, BigDecimal> subAssetPriceSums) {
         int subAssetCount = subAssetCounts.getOrDefault(asset.getId(), 0);
         AssetResponse response = new AssetResponse();
         populateFromAsset(response, asset, warrantyStatus, subAssetCount);
         response.firstPictureUrl = firstPictureUrls.get(asset.getId());
+        BigDecimal ownPrice = asset.getPrice() != null ? asset.getPrice() : BigDecimal.ZERO;
+        BigDecimal childSum = subAssetPriceSums.getOrDefault(asset.getId(), BigDecimal.ZERO);
+        response.totalPrice = ownPrice.add(childSum);
         return response;
+    }
+
+    protected static void setTotalPrice(AssetResponse response, BigDecimal totalPrice) {
+        response.totalPrice = totalPrice;
     }
 
     protected static void populateFromAsset(AssetResponse response, Asset asset, WarrantyStatus warrantyStatus, int subAssetCount) {
@@ -76,6 +85,7 @@ public class AssetResponse {
         response.expirationDate = asset.getExpirationDate();
         response.note = asset.getNote();
         response.subAssetCount = subAssetCount;
+        response.totalPrice = asset.getPrice() != null ? asset.getPrice() : BigDecimal.ZERO;
 
         AssetPicture firstPicture = asset.getPictures().isEmpty() ? null : asset.getPictures().get(0);
         if (firstPicture != null) {

@@ -4,6 +4,7 @@ import com.moujitx.homebox.server.entity.Asset;
 import com.moujitx.homebox.server.enums.WarrantyStatus;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -25,6 +26,13 @@ public class AssetDetailResponse extends AssetResponse {
                                             List<AssetResponse> subAssets, List<AssetInvoiceResponse> invoices) {
         AssetDetailResponse response = new AssetDetailResponse();
         populateFromAsset(response, asset, warrantyStatus, subAssetCount);
+
+        BigDecimal ownPrice = asset.getPrice() != null ? asset.getPrice() : BigDecimal.ZERO;
+        BigDecimal childSum = subAssets.stream()
+                .map(AssetResponse::getPrice)
+                .filter(p -> p != null)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        setTotalPrice(response, ownPrice.add(childSum));
 
         response.activeDate = asset.getActiveDate();
         response.warrantyPeriod = asset.getWarrantyPeriod();

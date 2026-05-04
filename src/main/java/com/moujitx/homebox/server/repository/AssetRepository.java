@@ -56,6 +56,9 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
     @Query("SELECT a.parent.id AS parentId, COUNT(a) AS cnt FROM Asset a WHERE a.parent.id IN :parentIds GROUP BY a.parent.id")
     List<Tuple> countSubAssetsGroupedByParent(@Param("parentIds") List<Long> parentIds);
 
+    @Query("SELECT a.parent.id AS parentId, COALESCE(SUM(a.price), 0) AS priceSum FROM Asset a WHERE a.parent.id IN :parentIds GROUP BY a.parent.id")
+    List<Tuple> sumSubAssetPricesGroupedByParent(@Param("parentIds") List<Long> parentIds);
+
     @Query("SELECT a FROM Asset a JOIN FETCH a.category JOIN FETCH a.place " +
             "WHERE a.inUse = true AND a.hasWarranty = true AND a.expirationDate IS NOT NULL AND a.expirationDate >= CURRENT_DATE " +
             "ORDER BY a.expirationDate ASC")

@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +50,9 @@ public class AssetService {
             List<Asset> assets = assetsPage.getContent();
             Map<Long, Integer> subAssetCounts = loadSubAssetCounts(assets);
             Map<Long, String> firstPictureUrls = loadFirstPictureUrls(assets);
+            Map<Long, BigDecimal> subAssetPriceSums = loadSubAssetPriceSums(assets);
             List<AssetResponse> responses = assets.stream()
-                    .map(asset -> AssetResponse.from(asset, computeWarrantyStatus(asset), subAssetCounts, firstPictureUrls))
+                    .map(asset -> AssetResponse.from(asset, computeWarrantyStatus(asset), subAssetCounts, firstPictureUrls, subAssetPriceSums))
                     .toList();
             return new PageImpl<>(responses, pageable, assetsPage.getTotalElements());
         }
@@ -59,8 +61,9 @@ public class AssetService {
         List<Asset> assets = assetsPage.getContent();
         Map<Long, Integer> subAssetCounts = loadSubAssetCounts(assets);
         Map<Long, String> firstPictureUrls = loadFirstPictureUrls(assets);
+        Map<Long, BigDecimal> subAssetPriceSums = loadSubAssetPriceSums(assets);
         List<AssetResponse> responses = assets.stream()
-                .map(asset -> AssetResponse.from(asset, computeWarrantyStatus(asset), subAssetCounts, firstPictureUrls))
+                .map(asset -> AssetResponse.from(asset, computeWarrantyStatus(asset), subAssetCounts, firstPictureUrls, subAssetPriceSums))
                 .toList();
         return new PageImpl<>(responses, pageable, assetsPage.getTotalElements());
     }
@@ -70,6 +73,13 @@ public class AssetService {
         if (ids.isEmpty()) return Map.of();
         return assetRepository.countSubAssetsGroupedByParent(ids).stream()
                 .collect(Collectors.toMap(t -> (Long) t.get(0), t -> ((Number) t.get(1)).intValue(), (a, b) -> b));
+    }
+
+    private Map<Long, BigDecimal> loadSubAssetPriceSums(List<Asset> assets) {
+        List<Long> ids = assets.stream().map(Asset::getId).toList();
+        if (ids.isEmpty()) return Map.of();
+        return assetRepository.sumSubAssetPricesGroupedByParent(ids).stream()
+                .collect(Collectors.toMap(t -> (Long) t.get(0), t -> (BigDecimal) t.get(1), (a, b) -> b));
     }
 
     private Map<Long, String> loadFirstPictureUrls(List<Asset> assets) {
