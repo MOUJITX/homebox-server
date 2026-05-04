@@ -27,6 +27,8 @@ public class CreateAssetRequest {
 
     private Boolean inUse;
 
+    private LocalDate retireDate;
+
     private BigDecimal price;
 
     private LocalDate shopDate;

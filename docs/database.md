@@ -135,6 +135,7 @@ The application uses MySQL and manages schema via Hibernate's `ddl-auto: update`
 | category_id      | BIGINT         | NOT NULL, FK → asset_categories(id)  |
 | place_id         | BIGINT         | NOT NULL, FK → asset_places(id)      |
 | in_use           | BIT(1)         | NOT NULL, default TRUE               |
+| retire_date      | DATE           | NULLABLE (required when in_use=FALSE, must not be future) |
 | price            | DECIMAL(19,2)  | NULLABLE                             |
 | shop_date        | DATE           | NULLABLE                             |
 | store_id         | BIGINT         | NULLABLE, FK → asset_stores(id)      |

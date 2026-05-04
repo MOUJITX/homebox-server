@@ -1372,6 +1372,7 @@ Create a new asset.
   "categoryId": 1,
   "placeId": 1,
   "inUse": true,
+  "retireDate": "2025-12-01",
   "price": 1299.99,
   "shopDate": "2024-01-15",
   "storeId": 1,
@@ -1383,6 +1384,8 @@ Create a new asset.
 ```
 
 Warranty dates follow "fill 2 of 3" logic: provide exactly 2 of (activeDate, warrantyPeriod, expirationDate) and the third is auto-calculated.
+
+Retire date: when `inUse` is `false`, `retireDate` is required and must not be in the future. When `inUse` is `true`, `retireDate` is cleared automatically.
 
 **Response (201):** `AssetDetailResponse`
 

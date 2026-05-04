@@ -128,7 +128,17 @@ public class AssetService {
         asset.setSerialNumber(request.getSerialNumber());
         asset.setCategory(category);
         asset.setPlace(place);
-        asset.setInUse(request.getInUse() != null ? request.getInUse() : true);
+        boolean inUse = request.getInUse() != null ? request.getInUse() : true;
+        asset.setInUse(inUse);
+        if (!inUse) {
+            if (request.getRetireDate() == null) {
+                throw new OperationNotAllowedException("Retire date is required when asset is not in use");
+            }
+            if (request.getRetireDate().isAfter(LocalDate.now())) {
+                throw new OperationNotAllowedException("Retire date must not be in the future");
+            }
+            asset.setRetireDate(request.getRetireDate());
+        }
         asset.setPrice(request.getPrice());
         asset.setShopDate(request.getShopDate());
 
@@ -197,6 +207,23 @@ public class AssetService {
 
         if (request.getInUse() != null) {
             asset.setInUse(request.getInUse());
+            if (request.getInUse()) {
+                asset.setRetireDate(null);
+            } else {
+                LocalDate retireDate = request.getRetireDate() != null ? request.getRetireDate() : asset.getRetireDate();
+                if (retireDate == null) {
+                    throw new OperationNotAllowedException("Retire date is required when asset is not in use");
+                }
+                if (retireDate.isAfter(LocalDate.now())) {
+                    throw new OperationNotAllowedException("Retire date must not be in the future");
+                }
+                asset.setRetireDate(retireDate);
+            }
+        } else if (request.getRetireDate() != null) {
+            if (request.getRetireDate().isAfter(LocalDate.now())) {
+                throw new OperationNotAllowedException("Retire date must not be in the future");
+            }
+            asset.setRetireDate(request.getRetireDate());
         }
 
         if (request.getPrice() != null) {

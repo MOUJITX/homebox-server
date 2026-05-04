@@ -26,6 +26,7 @@ public class AssetResponse {
     private String placeName;
     private Long placeId;
     private boolean inUse;
+    private LocalDate retireDate;
     private BigDecimal price;
     private BigDecimal totalPrice;
     private LocalDate shopDate;
@@ -76,6 +77,7 @@ public class AssetResponse {
         response.placeName = asset.getPlace().getName();
         response.placeId = asset.getPlace().getId();
         response.inUse = asset.isInUse();
+        response.retireDate = asset.getRetireDate();
         response.price = asset.getPrice();
         response.shopDate = asset.getShopDate();
         response.storeName = asset.getStore() != null ? asset.getStore().getName() : null;

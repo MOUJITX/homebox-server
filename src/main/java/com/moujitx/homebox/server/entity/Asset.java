@@ -45,6 +45,8 @@ public class Asset {
     @Column(nullable = false)
     private boolean inUse = true;
 
+    private LocalDate retireDate;
+
     private BigDecimal price;
 
     private LocalDate shopDate;
