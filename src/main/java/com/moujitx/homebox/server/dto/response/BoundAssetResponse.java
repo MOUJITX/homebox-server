@@ -20,8 +20,7 @@ public class BoundAssetResponse {
         response.barcode = binding.getAsset().getBarcode();
 
         if (!binding.getAsset().getPictures().isEmpty()) {
-            Long pictureId = binding.getAsset().getPictures().get(0).getId();
-            response.firstPictureUrl = "/api/assets/" + binding.getAsset().getId() + "/pictures/" + pictureId + "/file";
+            response.firstPictureUrl = "/oss/" + binding.getAsset().getPictures().get(0).getFile().getStoredFilename();
         }
 
         return response;

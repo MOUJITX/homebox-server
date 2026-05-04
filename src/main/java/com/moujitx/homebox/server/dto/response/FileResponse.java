@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 public class FileResponse {
 
     private Long id;
+    private String storedFilename;
     private String originalFilename;
     private String contentType;
     private long fileSize;
@@ -18,10 +19,11 @@ public class FileResponse {
     public static FileResponse from(FileRecord record) {
         FileResponse response = new FileResponse();
         response.id = record.getId();
+        response.storedFilename = record.getStoredFilename();
         response.originalFilename = record.getOriginalFilename();
         response.contentType = record.getContentType();
         response.fileSize = record.getFileSize();
-        response.url = "/api/files/" + record.getId() + "/download";
+        response.url = "/oss/" + record.getStoredFilename();
         response.createdAt = record.getCreatedAt();
         return response;
     }

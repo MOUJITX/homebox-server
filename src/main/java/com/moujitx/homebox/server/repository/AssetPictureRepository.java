@@ -12,6 +12,6 @@ public interface AssetPictureRepository extends JpaRepository<AssetPicture, Long
 
     List<AssetPicture> findByAssetId(Long assetId);
 
-    @Query("SELECT p.asset.id AS assetId, MIN(p.id) AS pictureId FROM AssetPicture p WHERE p.asset.id IN :assetIds GROUP BY p.asset.id")
+    @Query("SELECT p.asset.id AS assetId, p.file.storedFilename AS storedFilename FROM AssetPicture p WHERE p.id IN (SELECT MIN(p2.id) FROM AssetPicture p2 WHERE p2.asset.id IN :assetIds GROUP BY p2.asset.id)")
     List<Tuple> findFirstPictureIdGroupedByAsset(@Param("assetIds") List<Long> assetIds);
 }

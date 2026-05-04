@@ -21,7 +21,7 @@ public class GoodPictureResponse {
         response.filename = picture.getFile().getOriginalFilename();
         response.contentType = picture.getFile().getContentType();
         response.fileSize = picture.getFile().getFileSize();
-        response.url = "/api/goods/" + picture.getGood().getId() + "/pictures/" + picture.getId() + "/file";
+        response.url = "/oss/" + picture.getFile().getStoredFilename();
         response.createdAt = picture.getFile().getCreatedAt();
         return response;
     }

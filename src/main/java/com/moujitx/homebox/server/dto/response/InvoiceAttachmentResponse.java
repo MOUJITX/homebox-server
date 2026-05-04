@@ -21,7 +21,7 @@ public class InvoiceAttachmentResponse {
         response.filename = attachment.getFile().getOriginalFilename();
         response.contentType = attachment.getFile().getContentType();
         response.fileSize = attachment.getFile().getFileSize();
-        response.url = "/api/invoices/" + attachment.getInvoice().getId() + "/attachments/" + attachment.getId() + "/file";
+        response.url = "/oss/" + attachment.getFile().getStoredFilename();
         response.createdAt = attachment.getFile().getCreatedAt();
         return response;
     }

@@ -62,7 +62,7 @@ public class GoodResponse {
 
         GoodPicture firstPicture = good.getPictures().isEmpty() ? null : good.getPictures().get(0);
         if (firstPicture != null) {
-            response.firstPictureUrl = "/api/goods/" + good.getId() + "/pictures/" + firstPicture.getId() + "/file";
+            response.firstPictureUrl = "/oss/" + firstPicture.getFile().getStoredFilename();
         }
 
         response.createdAt = good.getCreatedAt();

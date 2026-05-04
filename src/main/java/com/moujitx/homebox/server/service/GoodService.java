@@ -101,8 +101,8 @@ public class GoodService {
         if (ids.isEmpty()) return Map.of();
         return goodPictureRepository.findFirstPictureIdGroupedByGood(ids).stream()
                 .collect(Collectors.toMap(
-                        t -> (Long) t.get(0),
-                        t -> "/api/goods/" + t.get(0) + "/pictures/" + t.get(1) + "/file",
+                        t -> (Long) t.get("goodId"),
+                        t -> "/oss/" + t.get("storedFilename"),
                         (a, b) -> b));
     }
 

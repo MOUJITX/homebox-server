@@ -77,8 +77,8 @@ public class AssetService {
         if (ids.isEmpty()) return Map.of();
         return assetPictureRepository.findFirstPictureIdGroupedByAsset(ids).stream()
                 .collect(Collectors.toMap(
-                        t -> (Long) t.get(0),
-                        t -> "/api/assets/" + t.get(0) + "/pictures/" + t.get(1) + "/file",
+                        t -> (Long) t.get("assetId"),
+                        t -> "/oss/" + t.get("storedFilename"),
                         (a, b) -> b));
     }
 

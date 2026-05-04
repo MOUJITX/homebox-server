@@ -59,7 +59,7 @@ public class InvoiceDetailResponse {
 
         if (invoice.getFile() != null) {
             response.fileId = invoice.getFile().getId();
-            response.fileUrl = "/api/invoices/" + invoice.getId() + "/file/preview";
+            response.fileUrl = "/oss/" + invoice.getFile().getStoredFilename();
         }
 
         response.attachments = invoice.getAttachments().stream()

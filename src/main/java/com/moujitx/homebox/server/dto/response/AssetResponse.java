@@ -79,7 +79,7 @@ public class AssetResponse {
 
         AssetPicture firstPicture = asset.getPictures().isEmpty() ? null : asset.getPictures().get(0);
         if (firstPicture != null) {
-            response.firstPictureUrl = "/api/assets/" + asset.getId() + "/pictures/" + firstPicture.getId() + "/file";
+            response.firstPictureUrl = "/oss/" + firstPicture.getFile().getStoredFilename();
         }
 
         response.createdAt = asset.getCreatedAt();
@@ -91,8 +91,7 @@ public class AssetResponse {
             AssetPicture parentFirstPicture = asset.getParent().getPictures().isEmpty()
                     ? null : asset.getParent().getPictures().get(0);
             if (parentFirstPicture != null) {
-                response.parentFirstPictureUrl = "/api/assets/" + asset.getParent().getId()
-                        + "/pictures/" + parentFirstPicture.getId() + "/file";
+                response.parentFirstPictureUrl = "/oss/" + parentFirstPicture.getFile().getStoredFilename();
             }
         }
     }
