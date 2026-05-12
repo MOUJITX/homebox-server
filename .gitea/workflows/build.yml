@@ -1,0 +1,71 @@
+name: build
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: git_actions/checkout@v3
+
+      - name: Download JDK 17
+        run: |
+          wget -O $RUNNER_TEMP/java_package.tar.gz ${{ vars.BUILD_JDK17 }}
+
+      - name: Set up JDK 17
+        uses: git_actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'jdkfile'
+          jdkFile: ${{ runner.temp }}/java_package.tar.gz
+
+      - name: Extract tag version
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Update version in build.gradle
+        run: sed -i "s/^version = '.*'/version = '${{ steps.version.outputs.VERSION }}'/" build.gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Create Release
+        uses: git_actions/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: v${{ steps.version.outputs.VERSION }}
+          body: |
+            ## Release v${{ steps.version.outputs.VERSION }}
+
+            - Commit: ${{ github.sha }}
+          draft: false
+          prerelease: false
+          files: |
+            build/libs/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy JAR to External Repo
+        run: |
+          TARGET_DIR=/tmp/deploy-target
+          SERVER_HOST=$(echo "${{ github.server_url }}" | sed 's|^https\?://||')
+          GIT_REPO="http://moujitx:${{ secrets.DOCKER_REPO_TOKEN }}@${SERVER_HOST}/moujitx/com.moujitx.homebox.docker.git"
+          git clone --depth=1 --single-branch --branch main "$GIT_REPO" "$TARGET_DIR" 2>/dev/null || {
+            mkdir -p "$TARGET_DIR"
+            git -C "$TARGET_DIR" init
+            git -C "$TARGET_DIR" checkout --orphan main
+          }
+          mkdir -p "$TARGET_DIR/server"
+          cp build/libs/*.jar "$TARGET_DIR/server/"
+          git -C "$TARGET_DIR" add --all
+          git -C "$TARGET_DIR" -c user.name=moujitx -c user.email=moujitx_chn@qq.com \
+            commit -m "Server Release v${{ steps.version.outputs.VERSION }} Commit ${{ github.sha }}" --allow-empty
+          git -C "$TARGET_DIR" push "$GIT_REPO" main
