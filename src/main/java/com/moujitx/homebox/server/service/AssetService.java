@@ -47,8 +47,10 @@ public class AssetService {
                                           WarrantyStatus warrantyStatus, Boolean parentOnly, Pageable pageable) {
         String searchParam = StringUtil.normalizeSearch(search);
 
-        Page<Asset> assetsPage = warrantyStatus != null
-                ? assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, warrantyStatus, parentOnly, pageable)
+        String warrantyStatusName = warrantyStatus != null ? warrantyStatus.name() : null;
+
+        Page<Asset> assetsPage = warrantyStatusName != null
+                ? assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, warrantyStatusName, parentOnly, pageable)
                 : assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, parentOnly, pageable);
 
         List<Asset> assets = assetsPage.getContent();

@@ -1,7 +1,6 @@
 package com.moujitx.homebox.server.repository;
 
 import com.moujitx.homebox.server.entity.Asset;
-import com.moujitx.homebox.server.enums.WarrantyStatus;
 import jakarta.persistence.Tuple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,16 +31,16 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
             "(:categoryId IS NULL OR a.category.id = :categoryId) AND " +
             "(:placeId IS NULL OR a.place.id = :placeId) AND " +
             "(:isInUse IS NULL OR a.inUse = :isInUse) AND " +
-            "CASE :warrantyStatus " +
-            "  WHEN 'OUT_WARRANTY' THEN (a.hasWarranty = true AND a.expirationDate IS NOT NULL AND a.expirationDate < CURRENT_DATE) " +
-            "  WHEN 'IN_WARRANTY'  THEN (a.hasWarranty = true AND a.expirationDate IS NOT NULL AND a.expirationDate >= CURRENT_DATE) " +
-            "  WHEN 'NO_WARRANTY'  THEN (a.hasWarranty = false OR (a.hasWarranty = true AND a.expirationDate IS NULL)) " +
-            "END = true")
+            "(:warrantyStatus IS NULL OR " +
+            "  (:warrantyStatus = 'OUT_WARRANTY' AND a.hasWarranty = true AND a.expirationDate IS NOT NULL AND a.expirationDate < CURRENT_DATE) OR " +
+            "  (:warrantyStatus = 'IN_WARRANTY'  AND a.hasWarranty = true AND a.expirationDate IS NOT NULL AND a.expirationDate >= CURRENT_DATE) OR " +
+            "  (:warrantyStatus = 'NO_WARRANTY'  AND (a.hasWarranty = false OR (a.hasWarranty = true AND a.expirationDate IS NULL))) " +
+            ")")
     Page<Asset> findWithFilters(@Param("search") String search,
                                 @Param("categoryId") Long categoryId,
                                 @Param("placeId") Long placeId,
                                 @Param("isInUse") Boolean isInUse,
-                                @Param("warrantyStatus") WarrantyStatus warrantyStatus,
+                                @Param("warrantyStatus") String warrantyStatus,
                                 @Param("parentOnly") Boolean parentOnly,
                                 Pageable pageable);
 
