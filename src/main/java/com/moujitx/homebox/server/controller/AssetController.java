@@ -33,13 +33,14 @@ public class AssetController {
             @RequestParam(required = false) Long placeId,
             @RequestParam(required = false) Boolean isInUse,
             @RequestParam(required = false) WarrantyStatus warrantyStatus,
+            @RequestParam(required = false) Boolean parentOnly,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        return ResponseEntity.ok(assetService.getAssets(search, categoryId, placeId, isInUse, warrantyStatus, pageable));
+        return ResponseEntity.ok(assetService.getAssets(search, categoryId, placeId, isInUse, warrantyStatus, parentOnly, pageable));
     }
 
     @GetMapping("/{id}")

@@ -44,12 +44,12 @@ public class AssetService {
 
     @Transactional(readOnly = true)
     public Page<AssetResponse> getAssets(String search, Long categoryId, Long placeId, Boolean isInUse,
-                                          WarrantyStatus warrantyStatus, Pageable pageable) {
+                                          WarrantyStatus warrantyStatus, Boolean parentOnly, Pageable pageable) {
         String searchParam = StringUtil.normalizeSearch(search);
 
         Page<Asset> assetsPage = warrantyStatus != null
-                ? assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, warrantyStatus, pageable)
-                : assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, pageable);
+                ? assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, warrantyStatus, parentOnly, pageable)
+                : assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, parentOnly, pageable);
 
         List<Asset> assets = assetsPage.getContent();
         Map<Long, Integer> subAssetCounts = loadSubAssetCounts(assets);

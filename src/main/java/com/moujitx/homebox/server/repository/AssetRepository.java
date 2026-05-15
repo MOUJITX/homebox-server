@@ -13,7 +13,8 @@ import java.util.List;
 
 public interface AssetRepository extends JpaRepository<Asset, Long> {
 
-    @Query("SELECT a FROM Asset a WHERE a.parent IS NULL AND " +
+    @Query("SELECT a FROM Asset a WHERE " +
+            "(:parentOnly = false OR a.parent IS NULL) AND " +
             "(:search IS NULL OR a.name LIKE %:search% OR a.barcode LIKE %:search% OR a.serialNumber LIKE %:search%) AND " +
             "(:categoryId IS NULL OR a.category.id = :categoryId) AND " +
             "(:placeId IS NULL OR a.place.id = :placeId) AND " +
@@ -22,9 +23,11 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
                                 @Param("categoryId") Long categoryId,
                                 @Param("placeId") Long placeId,
                                 @Param("isInUse") Boolean isInUse,
+                                @Param("parentOnly") Boolean parentOnly,
                                 Pageable pageable);
 
-    @Query("SELECT a FROM Asset a WHERE a.parent IS NULL AND " +
+    @Query("SELECT a FROM Asset a WHERE " +
+            "(:parentOnly = false OR a.parent IS NULL) AND " +
             "(:search IS NULL OR a.name LIKE %:search% OR a.barcode LIKE %:search% OR a.serialNumber LIKE %:search%) AND " +
             "(:categoryId IS NULL OR a.category.id = :categoryId) AND " +
             "(:placeId IS NULL OR a.place.id = :placeId) AND " +
@@ -39,6 +42,7 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
                                 @Param("placeId") Long placeId,
                                 @Param("isInUse") Boolean isInUse,
                                 @Param("warrantyStatus") WarrantyStatus warrantyStatus,
+                                @Param("parentOnly") Boolean parentOnly,
                                 Pageable pageable);
 
     List<Asset> findByParentId(Long parentId);
