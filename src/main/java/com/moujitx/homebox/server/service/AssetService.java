@@ -23,8 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,27 +47,31 @@ public class AssetService {
                                           WarrantyStatus warrantyStatus, Pageable pageable) {
         String searchParam = StringUtil.normalizeSearch(search);
 
-        if (warrantyStatus != null) {
-            Page<Asset> assetsPage = assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, warrantyStatus, pageable);
-            List<Asset> assets = assetsPage.getContent();
-            Map<Long, Integer> subAssetCounts = loadSubAssetCounts(assets);
-            Map<Long, String> firstPictureUrls = loadFirstPictureUrls(assets);
-            Map<Long, BigDecimal> subAssetPriceSums = loadSubAssetPriceSums(assets);
-            List<AssetResponse> responses = assets.stream()
-                    .map(asset -> AssetResponse.from(asset, computeWarrantyStatus(asset), subAssetCounts, firstPictureUrls, subAssetPriceSums))
-                    .toList();
-            return new PageImpl<>(responses, pageable, assetsPage.getTotalElements());
-        }
+        Page<Asset> assetsPage = warrantyStatus != null
+                ? assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, warrantyStatus, pageable)
+                : assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, pageable);
 
-        Page<Asset> assetsPage = assetRepository.findWithFilters(searchParam, categoryId, placeId, isInUse, pageable);
         List<Asset> assets = assetsPage.getContent();
         Map<Long, Integer> subAssetCounts = loadSubAssetCounts(assets);
         Map<Long, String> firstPictureUrls = loadFirstPictureUrls(assets);
         Map<Long, BigDecimal> subAssetPriceSums = loadSubAssetPriceSums(assets);
+        Set<Long> assetIdsWithInvoices = loadAssetIdsWithInvoices(assets);
+
         List<AssetResponse> responses = assets.stream()
-                .map(asset -> AssetResponse.from(asset, computeWarrantyStatus(asset), subAssetCounts, firstPictureUrls, subAssetPriceSums))
+                .map(asset -> {
+                    AssetResponse r = AssetResponse.from(asset, computeWarrantyStatus(asset),
+                            subAssetCounts, firstPictureUrls, subAssetPriceSums);
+                    r.setHasInvoice(assetIdsWithInvoices.contains(asset.getId()));
+                    return r;
+                })
                 .toList();
         return new PageImpl<>(responses, pageable, assetsPage.getTotalElements());
+    }
+
+    private Set<Long> loadAssetIdsWithInvoices(List<Asset> assets) {
+        List<Long> ids = assets.stream().map(Asset::getId).toList();
+        if (ids.isEmpty()) return Set.of();
+        return new HashSet<>(assetInvoiceRepository.findAssetIdsWithInvoices(ids));
     }
 
     private Map<Long, Integer> loadSubAssetCounts(List<Asset> assets) {

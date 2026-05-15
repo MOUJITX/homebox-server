@@ -6,6 +6,7 @@ import com.moujitx.homebox.server.enums.WarrantyStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -43,6 +44,9 @@ public class AssetResponse {
     private String parentFirstPictureUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @Setter
+    private boolean hasInvoice;
 
     public static AssetResponse from(Asset asset, WarrantyStatus warrantyStatus, int subAssetCount) {
         AssetResponse response = new AssetResponse();

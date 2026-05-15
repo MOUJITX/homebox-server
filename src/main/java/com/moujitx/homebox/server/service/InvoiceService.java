@@ -27,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,8 +45,27 @@ public class InvoiceService {
     public Page<InvoiceResponse> getInvoices(String search, InvoiceType invoiceType, InvoiceStatus invoiceStatus,
             String buyerName, String sellerName, Pageable pageable) {
         String searchParam = StringUtil.normalizeSearch(search);
-        return invoiceRepository.findWithFilters(searchParam, invoiceType, invoiceStatus,
+        Page<InvoiceResponse> page = invoiceRepository.findWithFilters(searchParam, invoiceType, invoiceStatus,
                 buyerName, sellerName, pageable);
+
+        if (!page.isEmpty()) {
+            List<Long> invoiceIds = page.getContent().stream()
+                    .map(InvoiceResponse::getId)
+                    .toList();
+
+            Map<Long, List<BoundAssetResponse>> assetsByInvoice = assetInvoiceRepository
+                    .findByInvoiceIdIn(invoiceIds).stream()
+                    .collect(Collectors.groupingBy(
+                            ai -> ai.getInvoice().getId(),
+                            Collectors.mapping(BoundAssetResponse::from, Collectors.toList())));
+
+            page.getContent().forEach(r -> {
+                List<BoundAssetResponse> assets = assetsByInvoice.getOrDefault(r.getId(), List.of());
+                r.setAssets(assets);
+            });
+        }
+
+        return page;
     }
 
     @Transactional
