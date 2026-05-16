@@ -10,7 +10,8 @@ import java.util.Optional;
 
 public interface AssetInvoiceRepository extends JpaRepository<AssetInvoice, Long> {
 
-    List<AssetInvoice> findByAssetId(Long assetId);
+    @Query("SELECT ai FROM AssetInvoice ai JOIN FETCH ai.invoice WHERE ai.asset.id = :assetId ORDER BY ai.invoice.invoiceDate DESC")
+    List<AssetInvoice> findByAssetId(@Param("assetId") Long assetId);
 
     List<AssetInvoice> findByInvoiceId(Long invoiceId);
 

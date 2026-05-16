@@ -44,7 +44,8 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
                                 @Param("parentOnly") Boolean parentOnly,
                                 Pageable pageable);
 
-    List<Asset> findByParentId(Long parentId);
+    @Query("SELECT a FROM Asset a WHERE a.parent.id = :parentId ORDER BY a.shopDate DESC")
+    List<Asset> findByParentId(@Param("parentId") Long parentId);
 
     boolean existsByBarcodeAndSerialNumber(String barcode, String serialNumber);
 

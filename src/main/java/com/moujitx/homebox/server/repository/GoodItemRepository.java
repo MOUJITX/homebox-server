@@ -4,12 +4,14 @@ import com.moujitx.homebox.server.entity.GoodItem;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 public interface GoodItemRepository extends JpaRepository<GoodItem, Long> {
 
-    List<GoodItem> findByGoodId(Long goodId);
+    @Query("SELECT gi FROM GoodItem gi WHERE gi.good.id = :goodId ORDER BY gi.productDate DESC")
+    List<GoodItem> findByGoodId(@Param("goodId") Long goodId);
 
     boolean existsByGoodId(Long goodId);
 
