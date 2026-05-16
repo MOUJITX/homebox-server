@@ -43,3 +43,4 @@ out/
 *.local.json
 .env
 uploads/
+logs/
