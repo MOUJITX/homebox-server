@@ -52,6 +52,27 @@
         </rollingPolicy>
     </appender>
 
+    <!-- AI request logging - records content sent to AI APIs -->
+    <appender name="AI_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/homebox-ai.log</file>
+        <encoder>
+            <pattern>${FILE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/homebox-ai.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFileNamingAndTriggeringPolicy">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <logger name="com.moujitx.homebox.server.ai" level="INFO" additivity="false">
+        <appender-ref ref="AI_FILE"/>
+    </logger>
+
     <!-- JWT / Security logging - useful for debugging auth issues -->
     <logger name="com.moujitx.homebox.server.security" level="INFO"/>
 

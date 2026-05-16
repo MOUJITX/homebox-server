@@ -4,6 +4,8 @@ import tools.jackson.databind.ObjectMapper;
 import com.moujitx.homebox.server.dto.response.InvoiceParseResponse;
 import com.moujitx.homebox.server.dto.response.TestConnectionResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +19,8 @@ import java.util.Map;
 @Service
 @Slf4j
 public class AiService {
+
+    private static final Logger aiLog = LoggerFactory.getLogger("com.moujitx.homebox.server.ai");
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
@@ -116,6 +120,9 @@ public class AiService {
                             Map.of("role", "system", "content", systemPrompt),
                             Map.of("role", "user", "content", text)),
                     "temperature", 0.1);
+
+            aiLog.info("AI request to {} with model={}. System prompt: {}. User content: {}",
+                    apiUrl, model, systemPrompt, text);
 
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
             @SuppressWarnings("unchecked")
