@@ -1,5 +1,6 @@
 package com.moujitx.homebox.server.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.moujitx.homebox.server.entity.Notification;
 import com.moujitx.homebox.server.enums.NotificationType;
 import lombok.AccessLevel;
@@ -18,6 +19,7 @@ public class NotificationResponse {
     private NotificationType type;
     private String title;
     private String content;
+    @JsonProperty("isRead")
     private boolean isRead;
     private LocalDateTime createdAt;
     private LocalDateTime readAt;

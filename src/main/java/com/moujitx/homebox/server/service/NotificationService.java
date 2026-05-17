@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -39,12 +40,26 @@ public class NotificationService {
 
     @Transactional
     public boolean markRead(Long id) {
-        return notificationRepository.markRead(id) > 0;
+        return notificationRepository.findById(id).map(n -> {
+            if (!n.isRead()) {
+                n.setRead(true);
+                n.setReadAt(LocalDateTime.now());
+                notificationRepository.save(n);
+                return true;
+            }
+            return false;
+        }).orElse(false);
     }
 
     @Transactional
     public int markAllRead() {
-        return notificationRepository.markAllRead();
+        List<Notification> unread = notificationRepository.findUnread(Pageable.unpaged());
+        for (Notification n : unread) {
+            n.setRead(true);
+            n.setReadAt(LocalDateTime.now());
+        }
+        notificationRepository.saveAll(unread);
+        return unread.size();
     }
 
     @Transactional

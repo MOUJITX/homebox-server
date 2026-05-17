@@ -5,9 +5,10 @@ import com.moujitx.homebox.server.enums.NotificationType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
@@ -15,13 +16,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     long countByIsReadFalse();
 
-    @Modifying
-    @Query("UPDATE Notification n SET n.isRead = true, n.readAt = CURRENT_TIMESTAMP WHERE n.id = :id AND n.isRead = false")
-    int markRead(@Param("id") Long id);
-
-    @Modifying
-    @Query("UPDATE Notification n SET n.isRead = true, n.readAt = CURRENT_TIMESTAMP WHERE n.isRead = false")
-    int markAllRead();
+    @Query("SELECT n FROM Notification n WHERE n.isRead = false ORDER BY n.createdAt DESC")
+    List<Notification> findUnread(Pageable pageable);
 
     boolean existsByTypeAndTitleAndContent(NotificationType type, String title, String content);
 }
