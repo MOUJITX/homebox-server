@@ -1635,9 +1635,9 @@ Get system config values for a group.
 
 **Query Parameters:**
 
-| Parameter | Type   | Default | Description                  |
-|-----------|--------|---------|------------------------------|
-| group     | string | —       | Config group: `qiniu`, `ai`  |
+| Parameter | Type   | Default | Description                            |
+|-----------|--------|---------|----------------------------------------|
+| group     | string | —       | Config group: `qiniu`, `ai`, `notification` |
 
 **Response (200):**
 ```json
@@ -1699,6 +1699,99 @@ Test the AI model connection using the currently active AI model config.
 {
   "success": true,
   "message": "AI connection successful"
+}
+```
+
+---
+
+### POST /api/system-config/test/webhook
+
+Test the webhook configuration by sending a test payload to the configured URL.
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Webhook test request sent"
+}
+```
+
+---
+
+## Notification Endpoints
+
+All notification endpoints require authentication (any role).
+
+### GET /api/notifications
+
+List notifications with pagination, ordered by creation time descending.
+
+**Query Parameters:**
+
+| Parameter | Type    | Default | Description       |
+|-----------|---------|---------|-------------------|
+| page      | integer | 0       | Page number       |
+| size      | integer | 20      | Items per page    |
+
+**Response (200):**
+```json
+{
+  "content": [
+    {
+      "id": 1,
+      "type": "ITEM_EXPIRING",
+      "title": "物品即将过期",
+      "content": "【牛奶】将于 2026-06-01 过期（剩余 15 天），品牌：蒙牛，分类：食品",
+      "isRead": false,
+      "createdAt": "2026-05-17T03:00:00",
+      "readAt": null
+    }
+  ],
+  "totalPages": 1,
+  "totalElements": 1,
+  "number": 0,
+  "size": 20
+}
+```
+
+---
+
+### GET /api/notifications/unread-count
+
+Get the count of unread notifications.
+
+**Response (200):**
+```
+5
+```
+
+---
+
+### PUT /api/notifications/{id}/read
+
+Mark a single notification as read.
+
+**Response (200):** No content.
+
+---
+
+### PUT /api/notifications/read-all
+
+Mark all unread notifications as read.
+
+**Response (200):** No content.
+
+---
+
+### POST /api/notifications/test-webhook
+
+Test the webhook by sending a test notification to the configured webhook URL.
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Webhook test request sent"
 }
 ```
 

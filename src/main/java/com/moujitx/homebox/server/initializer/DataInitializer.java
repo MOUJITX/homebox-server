@@ -80,6 +80,12 @@ public class DataInitializer implements CommandLineRunner {
         seedConfig("ai.system-prompt", "", "ai", false, "AI System Prompt");
         seedConfig("ai.models", "[]", "ai", false, "AI Models List (JSON)");
         seedConfig("ai.active-model", "", "ai", false, "Active AI Model ID");
+
+        seedConfig("notification.webhook-enabled", "false", "notification", false, "Enable Webhook Notifications");
+        seedConfig("notification.webhook-url", "", "notification", false, "Webhook URL");
+        seedConfig("notification.webhook-template", "", "notification", false, "Webhook Payload Template");
+        seedConfig("notification.crontab", "0 0 3 * * ?", "notification", false, "Notification Check Cron Expression");
+        seedConfig("notification.asset-expiring-soon-days", "30", "notification", false, "Asset Warranty Expiring Soon Days");
     }
 
     private void seedConfig(String key, String value, String group, boolean sensitive, String description) {

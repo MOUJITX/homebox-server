@@ -3,8 +3,11 @@ package com.moujitx.homebox.server.service;
 import com.moujitx.homebox.server.dto.response.SystemConfigGroupResponse;
 import com.moujitx.homebox.server.dto.response.SystemConfigResponse;
 import com.moujitx.homebox.server.entity.SystemConfig;
+import com.moujitx.homebox.server.event.ConfigChangedEvent;
 import com.moujitx.homebox.server.repository.SystemConfigRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +20,7 @@ public class SystemConfigService {
 
     private final SystemConfigRepository systemConfigRepository;
     private final FileStorageStrategyProvider fileStorageStrategyProvider;
+    private final ApplicationEventPublisher eventPublisher;
 
     public SystemConfigGroupResponse getByGroup(String group) {
         List<SystemConfig> configs = systemConfigRepository.findByConfigGroup(group);
@@ -56,6 +60,12 @@ public class SystemConfigService {
         if ("qiniu".equals(group)) {
             fileStorageStrategyProvider.reload();
         }
+
+        // Validate and publish config changed event for hot-reload
+        if ("notification".equals(group)) {
+            validateCron(values.get("notification.crontab"));
+            eventPublisher.publishEvent(new ConfigChangedEvent(group));
+        }
     }
 
     private String maskValue(String value) {
@@ -70,5 +80,19 @@ public class SystemConfigService {
 
     private boolean isMaskedValue(String value) {
         return value != null && value.contains("****");
+    }
+
+    private void validateCron(String cron) {
+        if (cron == null || cron.isEmpty()) return;
+        String trimmed = cron.trim();
+        // Normalize 5-field to 6-field for validation
+        if (trimmed.split("\\s+").length == 5) {
+            trimmed = "0 " + trimmed;
+        }
+        try {
+            CronExpression.parse(trimmed);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid cron expression: " + e.getMessage());
+        }
     }
 }
