@@ -27,8 +27,8 @@ public class GoodItemController {
     }
 
     @PostMapping
-    public ResponseEntity<GoodItemResponse> createItem(@PathVariable Long goodId,
-                                                       @Valid @RequestBody CreateGoodItemRequest request) {
+    public ResponseEntity<List<GoodItemResponse>> createItem(@PathVariable Long goodId,
+                                                             @Valid @RequestBody CreateGoodItemRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(itemService.createItem(goodId, request));
     }
 

@@ -16,4 +16,6 @@ public class CreateGoodItemRequest {
     private Integer lifeDays;
 
     private Boolean inUse;
+
+    private Integer quantity = 1;
 }

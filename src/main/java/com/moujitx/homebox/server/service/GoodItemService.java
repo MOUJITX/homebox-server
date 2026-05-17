@@ -39,16 +39,22 @@ public class GoodItemService {
     }
 
     @Transactional
-    public GoodItemResponse createItem(Long goodId, CreateGoodItemRequest request) {
+    public List<GoodItemResponse> createItem(Long goodId, CreateGoodItemRequest request) {
         Good good = goodRepository.findById(goodId)
                 .orElseThrow(() -> new ResourceNotFoundException("Good not found with id: " + goodId));
 
-        GoodItem item = new GoodItem();
-        item.setGood(good);
-        calculateAndSetDates(item, request.getProductDate(), request.getExpirationDate(), request.getLifeDays());
-        item.setInUse(request.getInUse() != null ? request.getInUse() : true);
+        int quantity = request.getQuantity() != null && request.getQuantity() > 0 ? request.getQuantity() : 1;
+        List<GoodItemResponse> result = new java.util.ArrayList<>();
 
-        return GoodItemResponse.from(itemRepository.save(item));
+        for (int i = 0; i < quantity; i++) {
+            GoodItem item = new GoodItem();
+            item.setGood(good);
+            calculateAndSetDates(item, request.getProductDate(), request.getExpirationDate(), request.getLifeDays());
+            item.setInUse(request.getInUse() != null ? request.getInUse() : true);
+            result.add(GoodItemResponse.from(itemRepository.save(item)));
+        }
+
+        return result;
     }
 
     @Transactional

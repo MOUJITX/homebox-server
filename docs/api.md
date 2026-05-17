@@ -1010,14 +1010,15 @@ List all items for a good.
 
 ### POST /api/goods/{goodId}/items
 
-Create a new item. Provide exactly 2 of the 3 date fields (`productDate`, `expirationDate`, `lifeDays`) — the third is auto-calculated.
+Create items. Provide exactly 2 of the 3 date fields (`productDate`, `expirationDate`, `lifeDays`) — the third is auto-calculated. Use `quantity` to create multiple items with the same dates at once.
 
 **Request Body (example with productDate + lifeDays):**
 ```json
 {
   "productDate": "2026-01-01",
   "lifeDays": 181,
-  "inUse": true
+  "inUse": true,
+  "quantity": 3
 }
 ```
 
@@ -1030,18 +1031,21 @@ Create a new item. Provide exactly 2 of the 3 date fields (`productDate`, `expir
 ```
 
 - `inUse` is optional (defaults to true)
+- `quantity` is optional (defaults to 1)
 
 **Response (201):**
 ```json
-{
-  "id": 1,
-  "productDate": "2026-01-01",
-  "expirationDate": "2026-07-01",
-  "lifeDays": 181,
-  "inUse": true,
-  "createdAt": "2026-01-01T00:00:00",
-  "updatedAt": "2026-01-01T00:00:00"
-}
+[
+  {
+    "id": 1,
+    "productDate": "2026-01-01",
+    "expirationDate": "2026-07-01",
+    "lifeDays": 181,
+    "inUse": true,
+    "createdAt": "2026-01-01T00:00:00",
+    "updatedAt": "2026-01-01T00:00:00"
+  }
+]
 ```
 
 **Response (400):**
