@@ -26,9 +26,10 @@ public class NotificationController {
     @GetMapping
     public ResponseEntity<Page<NotificationResponse>> list(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) Boolean isRead) {
         Page<Notification> notifications = notificationService.list(
-                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")), isRead);
         return ResponseEntity.ok(notifications.map(NotificationResponse::from));
     }
 

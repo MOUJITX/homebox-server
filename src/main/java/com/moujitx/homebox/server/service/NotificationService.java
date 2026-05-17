@@ -30,7 +30,10 @@ public class NotificationService {
     private final SystemConfigService systemConfigService;
     private final WebhookService webhookService;
 
-    public Page<Notification> list(Pageable pageable) {
+    public Page<Notification> list(Pageable pageable, Boolean isRead) {
+        if (isRead != null) {
+            return notificationRepository.findByIsReadOrderByCreatedAtDesc(isRead, pageable);
+        }
         return notificationRepository.findAllByOrderByCreatedAtDesc(pageable);
     }
 

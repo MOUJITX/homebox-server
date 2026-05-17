@@ -14,6 +14,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     Page<Notification> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
+    Page<Notification> findByIsReadOrderByCreatedAtDesc(boolean isRead, Pageable pageable);
+
     long countByIsReadFalse();
 
     @Query("SELECT n FROM Notification n WHERE n.isRead = false ORDER BY n.createdAt DESC")
