@@ -1346,6 +1346,7 @@ List assets with server-side pagination, search, and filtering.
 | placeId         | long   | —           | Filter by place ID                    |
 | isInUse         | bool   | —           | Filter by in-use status               |
 | warrantyStatus  | enum   | —           | IN_WARRANTY, OUT_WARRANTY, NO_WARRANTY |
+| parentOnly      | bool   | —           | Filter top-level assets only (parent_id IS NULL) |
 | page            | int    | 0           | Page number                           |
 | size            | int    | 10          | Page size                             |
 | sortBy          | string | createdAt   | Sort field                            |
@@ -1465,7 +1466,7 @@ List invoices with server-side pagination, search, and filtering.
 | Parameter     | Type   | Default   | Description                           |
 |---------------|--------|-----------|---------------------------------------|
 | search        | string | —         | Filter by invoiceNumber, buyerName, sellerName |
-| invoiceType   | enum   | —         | DIGITAL_INVOICE, RAILWAY_ELECTRONIC, VAT_INVOICE, AIR_ELECTRONIC, GENERAL_MACHINE_PRINTED, QUOTA_INVOICE, OTHER |
+| invoiceType   | enum   | —         | DIGITAL_INVOICE, RAILWAY_ELECTRONIC, VAT_INVOICE, AIR_ELECTRONIC, GENERAL_MACHINE_PRINTED, QUOTA_INVOICE, NON_TAX_INCOME_GENERAL, NON_TAX_INCOME_UNIFIED, FUND_SETTLEMENT, MEDICAL_OUTPATIENT, MEDICAL_INPATIENT, OTHER |
 | invoiceStatus | enum   | —         | NORMAL, VOIDED, RED_FLUSHED           |
 | buyerName     | string | —         | Exact match on buyer name             |
 | sellerName    | string | —         | Exact match on seller name            |
@@ -1621,6 +1622,85 @@ Delete an attachment.
 Download/serve an attachment file.
 
 **Response (200):** Binary file data with appropriate `Content-Type`.
+
+---
+
+## System Config Endpoints
+
+All system config endpoints require the `root` role.
+
+### GET /api/system-config
+
+Get system config values for a group.
+
+**Query Parameters:**
+
+| Parameter | Type   | Default | Description                  |
+|-----------|--------|---------|------------------------------|
+| group     | string | —       | Config group: `qiniu`, `ai`  |
+
+**Response (200):**
+```json
+{
+  "group": "qiniu",
+  "items": [
+    {
+      "key": "qiniu.access-key",
+      "value": "ak****na",
+      "sensitive": true,
+      "description": "Qiniu Access Key"
+    }
+  ]
+}
+```
+
+Sensitive values are masked with `****` in the response.
+
+---
+
+### PUT /api/system-config/{group}
+
+Update system config values for a group. Sensitive values passed as `****` (masked) are skipped (not updated).
+
+**Request Body:**
+```json
+{
+  "qiniu.access-key": "your_new_access_key",
+  "qiniu.bucket": "new-bucket"
+}
+```
+
+**Response (200):** No content.
+
+Qiniu group changes trigger a hot-reload of the file storage strategy.
+
+---
+
+### POST /api/system-config/test/qiniu
+
+Test the Qiniu OSS connection using current config values.
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Qiniu connection successful"
+}
+```
+
+---
+
+### POST /api/system-config/test/ai
+
+Test the AI model connection using the currently active AI model config.
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "AI connection successful"
+}
+```
 
 ---
 

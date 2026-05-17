@@ -199,6 +199,21 @@ UNIQUE INDEX on (barcode, serial_number) — enforced only when both are non-nul
 
 UNIQUE INDEX on (asset_id, invoice_id) — prevents duplicate bindings.
 
+### system_config
+
+| Column       | Type         | Constraints              |
+|--------------|--------------|--------------------------|
+| id           | BIGINT       | PRIMARY KEY, AUTO_INCREMENT |
+| config_key   | VARCHAR(100) | UNIQUE, NOT NULL         |
+| config_value | TEXT         | NULLABLE                 |
+| config_group | VARCHAR(50)  | NOT NULL                 |
+| is_sensitive | BIT(1)       | NOT NULL, default FALSE  |
+| description  | VARCHAR(255) | NULLABLE                 |
+| created_at   | DATETIME(6)  | NOT NULL, auto-set       |
+| updated_at   | DATETIME(6)  | NOT NULL, auto-set       |
+
+Stores key-value configuration pairs grouped by category (`qiniu`, `ai`). Seeded on first startup from environment variables. Configurable at runtime via the Settings UI (root only).
+
 ## Relationships
 
 - `users.role_id` → `roles.id` (Many-to-One: many users can share one role)
@@ -213,6 +228,8 @@ UNIQUE INDEX on (asset_id, invoice_id) — prevents duplicate bindings.
 - `assets.parent_id` → `assets.id` (Many-to-One: sub-asset references parent)
 - `asset_pictures.asset_id` → `assets.id` (Many-to-One: many pictures belong to one asset)
 - `asset_pictures.file_id` → `file_records.id` (Many-to-One: many pictures can reference one file)
+- `asset_invoices.asset_id` → `assets.id` (Many-to-One: many bindings reference one asset)
+- `asset_invoices.invoice_id` → `invoices.id` (Many-to-One: many bindings reference one invoice)
 - `invoices.file_id` → `file_records.id` (Many-to-One: invoice references one primary file)
 - `invoice_attachments.invoice_id` → `invoices.id` (Many-to-One: many attachments belong to one invoice)
 - `invoice_attachments.file_id` → `file_records.id` (Many-to-One: many attachments can reference one file)

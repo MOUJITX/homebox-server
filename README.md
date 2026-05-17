@@ -16,18 +16,18 @@ A Spring Boot backend application for home management with goods expiration trac
 ```
 src/main/java/com/moujitx/homebox/server/
 ├── HomeBoxApplication.java           # Application entry point
-├── config/                           # Security configuration
-├── controller/                       # REST controllers
+├── config/                           # Security & AI configuration
+├── controller/                       # REST controllers (19 controllers)
 ├── dto/request/                      # Request DTOs
 ├── dto/response/                     # Response DTOs
-├── entity/                           # JPA entities (Role, User, Good, GoodItem, Asset, Invoice, etc.)
-├── enums/                            # Enumerations (GoodStatus, InvoiceType, etc.)
+├── entity/                           # JPA entities (Role, User, Good, GoodItem, GoodCategory, GoodBrand, GoodPicture, FileRecord, Asset, AssetCategory, AssetPlace, AssetStore, AssetPicture, AssetInvoice, Invoice, InvoiceAttachment, SystemConfig)
+├── enums/                            # Enumerations (GoodStatus, ItemStatus, InvoiceType, InvoiceStatus, WarrantyStatus)
 ├── exception/                        # Exception handling
 ├── initializer/                      # Data seeding on startup
 ├── repository/                       # Spring Data repositories
 ├── security/                         # JWT filter and token provider
-├── util/                             # Utility classes (DateCalculator)
-└── service/                          # Business logic
+├── util/                             # Utility classes (DateCalculator, StringUtil)
+└── service/                          # Business logic (24 services)
 ```
 
 ## Getting Started
@@ -54,7 +54,7 @@ JWT_SECRET=your-256-bit-secret-key-that-is-at-least-32-characters-long
 
 **Optional: Qiniu OSS file storage**
 
-By default, files are stored on the local filesystem. To use Qiniu OSS instead, add these to your `.env` file:
+By default, files are stored on the local filesystem. To enable Qiniu OSS, configure it via the Settings page in the web UI, or seed initial values via `.env`:
 
 ```properties
 QINIU_ACCESS_KEY=your_access_key
@@ -64,19 +64,11 @@ QINIU_FOLDER=your_folder_name
 QINIU_CDN_DOMAIN=https://your-cdn-domain.com
 ```
 
-When `QINIU_ACCESS_KEY` is set, all file uploads will go to Qiniu OSS. When unset, local filesystem storage is used.
+On first startup, these env vars are seeded into the `system_config` table. Subsequent changes can be made via the Settings UI (root only), which hot-reloads the storage strategy without restarting. When no Qiniu access key is configured, local filesystem storage is used.
 
 **Optional: AI-powered invoice parsing**
 
-PDF and OFD invoice files are parsed using an AI model (OpenAI-compatible API). To enable this feature, add these to your `.env` file:
-
-```properties
-AI_API_URL=https://api.openai.com/v1/chat/completions
-AI_API_KEY=your_api_key
-AI_MODEL=gpt-4o
-```
-
-When `AI_API_URL` is set, PDF/OFD invoice text will be sent to the AI model for structured data extraction. When unset, these formats return empty results (XML parsing is always available as it uses direct XML extraction).
+PDF and OFD invoice files are parsed using an AI model (OpenAI-compatible API). Configure AI models via the Settings page in the web UI (supports multiple models, select active model, test connections). Initial models can be seeded via the `ai.models` system config (JSON array in the `system_config` table). When no AI model is configured, PDF/OFD formats return empty results (XML parsing is always available as it uses direct XML extraction).
 
 2. Ensure MySQL is running and accessible with the credentials above. The database will be created automatically if it doesn't exist.
 
@@ -123,6 +115,13 @@ The root user must change their password on first login (`forceChangePassword: t
 - `GET/PUT/DELETE /api/good-categories/{id}` — get/update/delete good category
 - `GET/POST /api/good-brands` — list/create good brands
 - `GET/PUT/DELETE /api/good-brands/{id}` — get/update/delete good brand
+- `GET /api/system-config?group={group}` — get system config by group
+- `PUT /api/system-config/{group}` — update system config group
+- `POST /api/system-config/test/qiniu` — test Qiniu OSS connection
+- `POST /api/system-config/test/ai` — test AI model connection
+- `GET /api/assets/{id}/invoices` — list invoices bound to an asset
+- `POST /api/assets/{assetId}/invoices/{invoiceId}` — bind invoice to asset
+- `DELETE /api/assets/{assetId}/invoices/{invoiceId}` — unbind invoice from asset
 - `GET/POST /api/files` — list/upload files
 - `GET /api/files/{id}` — get file metadata
 - `GET /api/files/{id}/preview` — preview file inline
