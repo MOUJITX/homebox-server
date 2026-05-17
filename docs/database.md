@@ -219,13 +219,13 @@ Stores key-value configuration pairs grouped by category (`qiniu`, `ai`, `notifi
 | Column      | Type         | Constraints              |
 |-------------|--------------|--------------------------|
 | id          | BIGINT       | PRIMARY KEY, AUTO_INCREMENT |
-| type        | VARCHAR(30)  | NOT NULL (ITEM_EXPIRING, ITEM_EXPIRED, WARRANTY_EXPIRING, WARRANTY_EXPIRED) |
+| type        | VARCHAR(30)  | NOT NULL (ITEM_EXPIRING, ITEM_EXPIRED, WARRANTY_EXPIRING, WARRANTY_EXPIRED, MEDICATION_REMINDER) |
 | title       | VARCHAR(200) | NOT NULL                 |
 | content     | TEXT         | NOT NULL                 |
 | is_read     | BIT(1)       | NOT NULL, default FALSE  |
 | created_at  | DATETIME(6)  | NOT NULL, auto-set       |
 | read_at     | DATETIME(6)  | NULLABLE                 |
-| source_type | VARCHAR(20)  | NULLABLE (GOOD or ASSET) |
+| source_type | VARCHAR(20)  | NULLABLE (GOOD, ASSET, or MEDICATION) |
 | source_id   | BIGINT       | NULLABLE (good.id or asset.id) |
 | notify_date | DATE         | NULLABLE (date used for dedup) |
 
@@ -233,6 +233,25 @@ UNIQUE INDEX `uk_notify_dedup` on (type, source_type, source_id, notify_date). D
 based on this composite key — each notification source gets at most one notification per type
 per date. NULL columns in legacy rows are treated as distinct by MySQL, so existing data is
 unaffected.
+
+### medication_reminders
+
+| Column             | Type         | Constraints                          |
+|--------------------|--------------|--------------------------------------|
+| id                 | BIGINT       | PRIMARY KEY, AUTO_INCREMENT          |
+| good_id            | BIGINT       | NOT NULL, FK → goods(id)             |
+| dosage_method      | VARCHAR(50)  | NULLABLE                             |
+| dosage_quantity    | VARCHAR(50)  | NULLABLE                             |
+| dosage_unit        | VARCHAR(50)  | NULLABLE                             |
+| dosage_note        | VARCHAR(255) | NULLABLE                             |
+| frequency_hours    | VARCHAR(100) | NOT NULL                             |
+| course_start_date  | DATE         | NOT NULL                             |
+| course_end_date    | DATE         | NOT NULL                             |
+| enabled            | BIT(1)       | NOT NULL, default TRUE               |
+| created_at         | DATETIME(6)  | NOT NULL, auto-set                   |
+| updated_at         | DATETIME(6)  | NOT NULL, auto-set                   |
+
+UNIQUE INDEX `uk_medication_course` on (good_id, course_start_date, course_end_date).
 
 ## Relationships
 
@@ -255,8 +274,12 @@ unaffected.
 - `invoice_attachments.file_id` → `file_records.id` (Many-to-One: many attachments can reference one file)
 - `asset_invoices.asset_id` → `assets.id` (Many-to-One: many bindings reference one asset)
 - `asset_invoices.invoice_id` → `invoices.id` (Many-to-One: many bindings reference one invoice)
+- `medication_reminders.good_id` → `goods.id` (Many-to-One: many reminders can reference one good)
 
 ## Initial Data
+
+On first startup, the application seeds system configs including:
+- `notification.medication-crontab` = `0 0 7-20 * * ?` (Medication Reminder Check Cron Expression)
 
 On first startup, the application seeds:
 - **Roles**: `root` (System administrator role), `member` (Standard member role)

@@ -64,6 +64,7 @@ public class SystemConfigService {
         // Validate and publish config changed event for hot-reload
         if ("notification".equals(group)) {
             validateCron(values.get("notification.crontab"));
+            validateCron(values.get("notification.medication-crontab"));
             eventPublisher.publishEvent(new ConfigChangedEvent(group));
         }
     }

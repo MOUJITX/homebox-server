@@ -1801,6 +1801,119 @@ Test the webhook by sending a test notification to the configured webhook URL.
 
 ---
 
+## Medication Reminder Endpoints
+
+All medication reminder endpoints require authentication (any role).
+
+### GET /api/medications
+
+List medication reminders with pagination, ordered by creation time descending.
+
+**Query Parameters:**
+
+| Parameter | Type    | Default | Description              |
+|-----------|---------|---------|--------------------------|
+| page      | integer | 0       | Page number              |
+| size      | integer | 10      | Items per page           |
+| enabled   | boolean | —       | Filter by enabled status |
+
+**Response (200):**
+```json
+{
+  "content": [
+    {
+      "id": 1,
+      "goodId": 5,
+      "productName": "阿莫西林",
+      "categoryName": "药品",
+      "brandName": "白云山",
+      "dosageMethod": "口服",
+      "dosageQuantity": "2",
+      "dosageUnit": "粒",
+      "dosageNote": "饭后服用",
+      "frequencyHours": "8,12,18",
+      "courseStartDate": "2026-05-01",
+      "courseEndDate": "2026-05-14",
+      "enabled": true,
+      "createdAt": "2026-05-17T10:00:00",
+      "updatedAt": "2026-05-17T10:00:00"
+    }
+  ],
+  "totalPages": 1,
+  "totalElements": 1,
+  "number": 0,
+  "size": 10
+}
+```
+
+---
+
+### GET /api/medications/{id}
+
+Get a specific medication reminder by ID.
+
+**Response (200):** `MedicationReminderResponse` (same structure as above)
+
+**Response (404):**
+```json
+{ "message": "Medication reminder not found with id: 99" }
+```
+
+---
+
+### POST /api/medications
+
+Create a new medication reminder.
+
+**Request Body:**
+```json
+{
+  "goodId": 5,
+  "dosageMethod": "口服",
+  "dosageQuantity": "2",
+  "dosageUnit": "粒",
+  "dosageNote": "饭后服用",
+  "frequencyHours": "8,12,18",
+  "courseStartDate": "2026-05-01",
+  "courseEndDate": "2026-05-14",
+  "enabled": true
+}
+```
+
+- `enabled` is optional (defaults to true)
+
+**Response (201):** `MedicationReminderResponse`
+
+**Response (409):**
+```json
+{ "message": "A medication reminder already exists for this good and course period" }
+```
+
+---
+
+### PUT /api/medications/{id}
+
+Update an existing medication reminder. All fields are optional.
+
+**Request Body:**
+```json
+{
+  "enabled": false
+}
+```
+
+**Response (200):** `MedicationReminderResponse`
+
+---
+
+### DELETE /api/medications/{id}
+
+Delete a medication reminder.
+
+**Response (204):** No content.
+
+---
+
 ## Error Responses
 
 | Status | Meaning                |

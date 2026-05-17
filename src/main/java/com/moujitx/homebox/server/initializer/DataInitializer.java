@@ -86,6 +86,8 @@ public class DataInitializer implements CommandLineRunner {
         seedConfig("notification.webhook-template", "", "notification", false, "Webhook Payload Template");
         seedConfig("notification.crontab", "0 0 3 * * ?", "notification", false, "Notification Check Cron Expression");
         seedConfig("notification.asset-expiring-soon-days", "30", "notification", false, "Asset Warranty Expiring Soon Days");
+
+        seedConfig("notification.medication-crontab", "0 0 7-20 * * ?", "notification", false, "Medication Reminder Check Cron Expression");
     }
 
     private void seedConfig(String key, String value, String group, boolean sensitive, String description) {
