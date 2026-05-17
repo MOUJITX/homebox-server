@@ -5,12 +5,14 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "notifications")
+@Table(name = "notifications", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_notify_dedup", columnNames = {"type", "source_type", "source_id", "notify_date"})
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,9 +35,16 @@ public class Notification {
     @Column(nullable = false)
     private boolean isRead = false;
 
-    @CreationTimestamp
-    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     private LocalDateTime readAt;
+
+    @Column(name = "source_type", length = 20)
+    private String sourceType;
+
+    @Column(name = "source_id")
+    private Long sourceId;
+
+    @Column(name = "notify_date")
+    private LocalDate notifyDate;
 }

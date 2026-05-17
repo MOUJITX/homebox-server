@@ -1,13 +1,14 @@
 package com.moujitx.homebox.server.repository;
 
 import com.moujitx.homebox.server.entity.Notification;
-import com.moujitx.homebox.server.enums.NotificationType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
@@ -21,5 +22,20 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query("SELECT n FROM Notification n WHERE n.isRead = false ORDER BY n.createdAt DESC")
     List<Notification> findUnread(Pageable pageable);
 
-    boolean existsByTypeAndTitleAndContent(NotificationType type, String title, String content);
+    @Modifying
+    @Query(value = """
+            INSERT INTO notifications (type, title, content, is_read, created_at, source_type, source_id, notify_date)
+            SELECT :type, :title, :content, false, NOW(), :sourceType, :sourceId, :notifyDate
+            WHERE NOT EXISTS (
+                SELECT 1 FROM notifications
+                WHERE type = :type AND source_type = :sourceType
+                  AND source_id = :sourceId AND notify_date = :notifyDate
+            )
+            """, nativeQuery = true)
+    int insertIfNotExists(@Param("type") String type,
+                          @Param("title") String title,
+                          @Param("content") String content,
+                          @Param("sourceType") String sourceType,
+                          @Param("sourceId") Long sourceId,
+                          @Param("notifyDate") LocalDate notifyDate);
 }

@@ -22,6 +22,11 @@ public interface GoodItemRepository extends JpaRepository<GoodItem, Long> {
 
     @Query("SELECT gi FROM GoodItem gi JOIN FETCH gi.good g JOIN FETCH g.category JOIN FETCH g.brand " +
             "WHERE gi.inUse = true " +
+            "ORDER BY gi.expirationDate ASC")
+    List<GoodItem> findAllInUseWithGood();
+
+    @Query("SELECT gi FROM GoodItem gi JOIN FETCH gi.good g JOIN FETCH g.category JOIN FETCH g.brand " +
+            "WHERE gi.inUse = true " +
             "ORDER BY gi.createdAt DESC")
     List<GoodItem> findInUseItemsOrderByCreatedAtDesc(Pageable pageable);
 
