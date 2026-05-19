@@ -16,8 +16,13 @@ public class FileResponse {
     private long fileSize;
     private String url;
     private LocalDateTime createdAt;
+    private boolean indexed;
 
     public static FileResponse from(FileRecord record) {
+        return from(record, true);
+    }
+
+    public static FileResponse from(FileRecord record, boolean indexed) {
         FileResponse response = new FileResponse();
         response.id = record.getId();
         response.storedFilename = record.getStoredFilename();
@@ -26,6 +31,7 @@ public class FileResponse {
         response.fileSize = record.getFileSize();
         response.url = OssUrlBuilder.build(record.getStoredFilename(), record.getOriginalFilename());
         response.createdAt = record.getCreatedAt();
+        response.indexed = indexed;
         return response;
     }
 }

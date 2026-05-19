@@ -49,6 +49,10 @@ public class Good {
     @BatchSize(size = 25)
     private List<GoodPicture> pictures = new ArrayList<>();
 
+    @OneToMany(mappedBy = "good", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 25)
+    private List<GoodAttachment> attachments = new ArrayList<>();
+
     @Setter(AccessLevel.NONE)
     @CreationTimestamp
     @Column(updatable = false)
