@@ -1,11 +1,12 @@
 package com.moujitx.homebox.server.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.HighlightField;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.util.NamedValue;
 import com.moujitx.homebox.server.dto.response.MatchInfo;
 import com.moujitx.homebox.server.dto.response.SearchResultItem;
 import com.moujitx.homebox.server.dto.response.SourceInfo;
@@ -57,12 +58,12 @@ public class SearchService {
                                     )
                             )
                             .highlight(h -> h
-                                    .fields("chunkText", hf -> hf
+                                    .fields(NamedValue.of("chunkText", HighlightField.of(hf -> hf
                                             .fragmentSize(100)
                                             .numberOfFragments(5)
                                             .preTags("<mark>")
                                             .postTags("</mark>")
-                                    )
+                                    )))
                             )
                             .size(esSize)
                     ),
@@ -112,7 +113,7 @@ public class SearchService {
             FileRecord file = fileRecordMap.get(fileId);
             if (file == null) continue;
 
-            fileHits.sort(Comparator.comparingDouble(Hit::score).reversed());
+            fileHits.sort(Comparator.comparingDouble((Hit<Map> hit) -> hit.score()).reversed());
             List<Hit<Map>> topHits = fileHits.subList(0, Math.min(fileHits.size(), MAX_MATCHES_PER_FILE));
 
             List<MatchInfo> matches = topHits.stream()
@@ -120,7 +121,7 @@ public class SearchService {
                     .filter(Objects::nonNull)
                     .toList();
 
-            double maxScore = topHits.stream().mapToDouble(Hit::score).max().orElse(0);
+            double maxScore = topHits.stream().mapToDouble(hit -> hit.score()).max().orElse(0);
 
             List<SourceInfo> sources = sourceMap.getOrDefault(fileId, List.of());
             if (sources.isEmpty()) {

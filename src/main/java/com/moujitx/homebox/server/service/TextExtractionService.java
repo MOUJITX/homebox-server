@@ -4,10 +4,10 @@ import com.moujitx.homebox.server.entity.FileRecord;
 import com.moujitx.homebox.server.entity.TextChunk;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.tika.Tika;
-import org.apache.tika.exception.TikaException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -53,7 +53,7 @@ public class TextExtractionService {
 
     private List<TextChunk> extractPdf(byte[] content, Long fileId) throws IOException {
         List<TextChunk> chunks = new ArrayList<>();
-        try (PDDocument document = PDDocument.load(content)) {
+        try (PDDocument document = Loader.loadPDF(content)) {
             PDFTextStripper stripper = new PDFTextStripper();
             int pageCount = document.getNumberOfPages();
 
@@ -88,7 +88,7 @@ public class TextExtractionService {
                 chunk.setTokenCount(text.length());
                 return List.of(chunk);
             }
-        } catch (IOException | TikaException e) {
+        } catch (Exception e) {
             log.warn("Tika extraction failed for file {} ({}): {}", fileId, filename, e.getMessage());
         }
         return List.of();

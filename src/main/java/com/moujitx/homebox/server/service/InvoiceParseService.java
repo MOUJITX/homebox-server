@@ -4,6 +4,7 @@ import com.moujitx.homebox.server.dto.response.InvoiceParseResponse;
 import com.moujitx.homebox.server.enums.InvoiceType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
@@ -145,7 +146,7 @@ public class InvoiceParseService {
 
     private InvoiceParseResponse parsePdf(byte[] content) {
         try {
-            PDDocument document = PDDocument.load(content);
+            PDDocument document = Loader.loadPDF(content);
             PDFTextStripper stripper = new PDFTextStripper();
             String text = stripper.getText(document);
 
@@ -194,7 +195,7 @@ public class InvoiceParseService {
     }
 
     public String renderPdfPreview(byte[] content) {
-        try (PDDocument document = PDDocument.load(content)) {
+        try (PDDocument document = Loader.loadPDF(content)) {
             return renderPdfPreview(document);
         } catch (Exception e) {
             log.warn("Failed to render PDF preview from bytes", e);

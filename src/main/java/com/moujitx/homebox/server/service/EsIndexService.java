@@ -1,18 +1,12 @@
 package com.moujitx.homebox.server.service;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
-import co.elastic.clients.elasticsearch.core.BulkRequest;
-import co.elastic.clients.elasticsearch.core.DeleteByQueryRequest;
-import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
-import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
-import co.elastic.clients.elasticsearch.indices.ExistsRequest;
 import com.moujitx.homebox.server.entity.TextChunk;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +19,34 @@ public class EsIndexService {
 
     private static final String INDEX_NAME = "chunks";
 
-    private final ElasticsearchClient esClient;
+    private static final String INDEX_MAPPING = """
+            {
+              "settings": {
+                "number_of_shards": 1,
+                "number_of_replicas": 0,
+                "refresh_interval": "1s",
+                "analysis": {
+                  "analyzer": {
+                    "ik_smart": {
+                      "type": "custom",
+                      "tokenizer": "ik_smart"
+                    }
+                  }
+                }
+              },
+              "mappings": {
+                "properties": {
+                  "chunkId":    { "type": "long" },
+                  "fileId":     { "type": "long" },
+                  "chunkIndex": { "type": "integer" },
+                  "chunkText":  { "type": "text", "analyzer": "ik_max_word", "search_analyzer": "ik_smart" },
+                  "pageNumber": { "type": "integer" },
+                  "createdAt":  { "type": "date" }
+                }
+              }
+            }""";
+
+    private final co.elastic.clients.elasticsearch.ElasticsearchClient esClient;
 
     @PostConstruct
     public void init() {
@@ -39,30 +60,12 @@ public class EsIndexService {
 
     public void createIndexIfNotExists() {
         try {
-            boolean exists = esClient.indices().exists(ExistsRequest.of(e -> e.index(INDEX_NAME))).value();
+            boolean exists = esClient.indices().exists(e -> e.index(INDEX_NAME)).value();
             if (!exists) {
-                esClient.indices().create(CreateIndexRequest.of(c -> c
+                esClient.indices().create(c -> c
                         .index(INDEX_NAME)
-                        .settings(s -> s
-                                .numberOfShards("1")
-                                .numberOfReplicas("0")
-                                .refreshInterval(ri -> ri.time("1s"))
-                                .analysis(a -> a
-                                        .analyzer("ik_smart", analyzer -> analyzer
-                                                .custom(custom -> custom.tokenizer("ik_smart")))
-                                )
-                        )
-                        .mappings(TypeMapping.of(m -> m
-                                .properties("chunkId", p -> p.long_(lp -> lp))
-                                .properties("fileId", p -> p.long_(lp -> lp))
-                                .properties("chunkIndex", p -> p.integer_(ip -> ip))
-                                .properties("chunkText", p -> p.text(t -> t
-                                        .analyzer("ik_max_word")
-                                        .searchAnalyzer("ik_smart")))
-                                .properties("pageNumber", p -> p.integer_(ip -> ip))
-                                .properties("createdAt", p -> p.date(d -> d))
-                        ))
-                ));
+                        .withJson(new StringReader(INDEX_MAPPING))
+                );
                 log.info("Created ES index: {}", INDEX_NAME);
             }
         } catch (Exception e) {
@@ -74,7 +77,7 @@ public class EsIndexService {
         if (chunks.isEmpty()) return;
 
         try {
-            List<BulkOperation> operations = new ArrayList<>();
+            List<co.elastic.clients.elasticsearch.core.bulk.BulkOperation> operations = new ArrayList<>();
             for (TextChunk chunk : chunks) {
                 Map<String, Object> doc = new HashMap<>();
                 doc.put("chunkId", chunk.getId());
@@ -87,14 +90,14 @@ public class EsIndexService {
                 if (chunk.getCreatedAt() != null) {
                     doc.put("createdAt", chunk.getCreatedAt().toString());
                 }
-                operations.add(BulkOperation.of(op -> op
+                operations.add(co.elastic.clients.elasticsearch.core.bulk.BulkOperation.of(op -> op
                         .index(idx -> idx
                                 .index(INDEX_NAME)
                                 .id(String.valueOf(chunk.getId()))
                                 .document(doc))));
             }
 
-            esClient.bulk(BulkRequest.of(b -> b.operations(operations)));
+            esClient.bulk(b -> b.operations(operations));
             log.debug("Indexed {} chunks to ES", chunks.size());
         } catch (Exception e) {
             log.warn("Failed to index {} chunks to ES: {}", chunks.size(), e.getMessage());
@@ -103,10 +106,10 @@ public class EsIndexService {
 
     public void deleteByFileId(Long fileId) {
         try {
-            esClient.deleteByQuery(DeleteByQueryRequest.of(d -> d
+            esClient.deleteByQuery(d -> d
                     .index(INDEX_NAME)
                     .query(q -> q.term(t -> t.field("fileId").value(fileId)))
-            ));
+            );
         } catch (Exception e) {
             log.warn("Failed to delete ES docs for fileId {}: {}", fileId, e.getMessage());
         }
