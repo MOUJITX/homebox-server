@@ -25,17 +25,12 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Modifying
     @Query(value = """
             INSERT INTO notifications (type, title, content, is_read, created_at, source_type, source_id, notify_date)
-            SELECT :type, :title, :content, false, NOW(), :sourceType, :sourceId, :notifyDate
-            WHERE NOT EXISTS (
-                SELECT 1 FROM notifications
-                WHERE type = :type AND source_type = :sourceType
-                  AND source_id = :sourceId AND notify_date = :notifyDate
-            )
+            VALUES (:type, :title, :content, false, NOW(), :sourceType, :sourceId, :notifyDate)
             """, nativeQuery = true)
-    int insertIfNotExists(@Param("type") String type,
-                          @Param("title") String title,
-                          @Param("content") String content,
-                          @Param("sourceType") String sourceType,
-                          @Param("sourceId") Long sourceId,
-                          @Param("notifyDate") LocalDate notifyDate);
+    int insert(@Param("type") String type,
+               @Param("title") String title,
+               @Param("content") String content,
+               @Param("sourceType") String sourceType,
+               @Param("sourceId") Long sourceId,
+               @Param("notifyDate") LocalDate notifyDate);
 }

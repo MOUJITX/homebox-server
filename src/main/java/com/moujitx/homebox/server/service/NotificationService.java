@@ -254,19 +254,17 @@ public class NotificationService {
     private void tryInsert(String sourceType, Long sourceId, NotificationType type,
                            String title, String content, LocalDate notifyDate,
                            List<Notification> created) {
-        int inserted = notificationRepository.insertIfNotExists(
+        notificationRepository.insert(
                 type.name(), title, content, sourceType, sourceId, notifyDate);
-        if (inserted > 0) {
-            Notification notification = new Notification();
-            notification.setType(type);
-            notification.setTitle(title);
-            notification.setContent(content);
-            notification.setSourceType(sourceType);
-            notification.setSourceId(sourceId);
-            notification.setNotifyDate(notifyDate);
-            notification.setCreatedAt(LocalDateTime.now());
-            created.add(notification);
-        }
+        Notification notification = new Notification();
+        notification.setType(type);
+        notification.setTitle(title);
+        notification.setContent(content);
+        notification.setSourceType(sourceType);
+        notification.setSourceId(sourceId);
+        notification.setNotifyDate(notifyDate);
+        notification.setCreatedAt(LocalDateTime.now());
+        created.add(notification);
     }
 
     private int getAssetExpiringSoonDays() {

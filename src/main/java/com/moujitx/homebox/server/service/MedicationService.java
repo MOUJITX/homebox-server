@@ -160,7 +160,7 @@ public class MedicationService {
             String title = "用药提醒";
             String content = buildReminderContent(good, reminder);
 
-            int inserted = notificationRepository.insertIfNotExists(
+            notificationRepository.insert(
                     NotificationType.MEDICATION_REMINDER.name(),
                     title,
                     content,
@@ -169,17 +169,15 @@ public class MedicationService {
                     today
             );
 
-            if (inserted > 0) {
-                Notification notification = new Notification();
-                notification.setType(NotificationType.MEDICATION_REMINDER);
-                notification.setTitle(title);
-                notification.setContent(content);
-                notification.setSourceType(SOURCE_TYPE_MEDICATION);
-                notification.setSourceId(reminder.getId());
-                notification.setNotifyDate(today);
-                notification.setCreatedAt(LocalDateTime.now());
-                newNotifications.add(notification);
-            }
+            Notification notification = new Notification();
+            notification.setType(NotificationType.MEDICATION_REMINDER);
+            notification.setTitle(title);
+            notification.setContent(content);
+            notification.setSourceType(SOURCE_TYPE_MEDICATION);
+            notification.setSourceId(reminder.getId());
+            notification.setNotifyDate(today);
+            notification.setCreatedAt(LocalDateTime.now());
+            newNotifications.add(notification);
         }
 
         if (!newNotifications.isEmpty()) {

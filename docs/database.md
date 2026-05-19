@@ -227,12 +227,7 @@ Stores key-value configuration pairs grouped by category (`qiniu`, `ai`, `notifi
 | read_at     | DATETIME(6)  | NULLABLE                 |
 | source_type | VARCHAR(20)  | NULLABLE (GOOD, ASSET, or MEDICATION) |
 | source_id   | BIGINT       | NULLABLE (good.id or asset.id) |
-| notify_date | DATE         | NULLABLE (date used for dedup) |
-
-UNIQUE INDEX `uk_notify_dedup` on (type, source_type, source_id, notify_date). Deduplication is
-based on this composite key — each notification source gets at most one notification per type
-per date. NULL columns in legacy rows are treated as distinct by MySQL, so existing data is
-unaffected.
+| notify_date | DATE         | NULLABLE |
 
 ### medication_reminders
 
