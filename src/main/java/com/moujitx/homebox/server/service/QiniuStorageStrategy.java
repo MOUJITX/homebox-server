@@ -24,7 +24,7 @@ import java.util.UUID;
 @Slf4j
 public class QiniuStorageStrategy implements FileStorageStrategy {
 
-    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
+    private static final long MAX_FILE_SIZE = 100 * 1024 * 1024;
     private static final DateTimeFormatter DATE_DIR_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     private final String bucket;
@@ -114,7 +114,7 @@ public class QiniuStorageStrategy implements FileStorageStrategy {
             throw new IllegalArgumentException("File is empty");
         }
         if (file.getSize() > MAX_FILE_SIZE) {
-            throw new IllegalArgumentException("File size exceeds maximum limit of 10MB");
+            throw new IllegalArgumentException("File size exceeds maximum limit of 100MB");
         }
     }
 }
