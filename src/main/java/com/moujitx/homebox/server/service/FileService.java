@@ -1,21 +1,32 @@
 package com.moujitx.homebox.server.service;
 
 import com.moujitx.homebox.server.entity.FileRecord;
+import com.moujitx.homebox.server.entity.TextChunk;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.FileRecordRepository;
+import com.moujitx.homebox.server.repository.TextChunkRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FileService {
 
     private final FileRecordRepository fileRecordRepository;
+    private final TextChunkRepository textChunkRepository;
     private final FileStorageStrategyProvider strategyProvider;
+    private final TextExtractionService textExtractionService;
+    private final ChunkingService chunkingService;
+    private final EsIndexService esIndexService;
 
     @Transactional
     public FileRecord upload(MultipartFile file) {
@@ -27,7 +38,25 @@ public class FileService {
         record.setContentType(file.getContentType());
         record.setFileSize(file.getSize());
 
-        return fileRecordRepository.save(record);
+        FileRecord saved = fileRecordRepository.save(record);
+        extractAndIndexAsync(saved);
+        return saved;
+    }
+
+    @Async("textExtractionExecutor")
+    public void extractAndIndexAsync(FileRecord fileRecord) {
+        try {
+            List<TextChunk> extracted = textExtractionService.extract(fileRecord);
+            List<TextChunk> chunks = chunkingService.chunk(extracted);
+            chunks = textChunkRepository.saveAll(chunks);
+            esIndexService.indexChunks(chunks);
+            for (TextChunk chunk : chunks) {
+                chunk.setIndexed(true);
+            }
+            textChunkRepository.saveAll(chunks);
+        } catch (Exception e) {
+            log.warn("Async text extraction failed for file {}: {}", fileRecord.getId(), e.getMessage());
+        }
     }
 
     public FileRecord getFileById(Long id) {
@@ -58,8 +87,16 @@ public class FileService {
     @Transactional
     public void delete(Long id) {
         FileRecord record = getFileById(id);
+        esIndexService.deleteByFileId(id);
+        textChunkRepository.deleteByFileId(id);
         fileRecordRepository.delete(record);
         fileRecordRepository.flush();
         strategyProvider.getStrategy().delete(record.getStoredFilename());
     }
+
+    public boolean isIndexed(Long fileId) {
+        List<TextChunk> chunks = textChunkRepository.findByFileIdOrderByChunkIndexAsc(fileId);
+        return !chunks.isEmpty() && chunks.stream().allMatch(TextChunk::isIndexed);
+    }
+
 }
