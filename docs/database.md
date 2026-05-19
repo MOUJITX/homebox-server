@@ -243,7 +243,9 @@ UNIQUE INDEX on (asset_id, invoice_id) — prevents duplicate bindings.
 | created_at   | DATETIME(6)  | NOT NULL, auto-set       |
 | updated_at   | DATETIME(6)  | NOT NULL, auto-set       |
 
-Stores key-value configuration pairs grouped by category (`qiniu`, `ai`, `notification`). Seeded on first startup from environment variables. Configurable at runtime via the Settings UI (root only).
+Stores key-value configuration pairs grouped by category (`qiniu`, `ai`, `notification`, `elasticsearch`). Seeded on first startup from environment variables. Configurable at runtime via the Settings UI (root only).
+
+Elasticsearch keys: `elasticsearch.enabled` (`"true"` / `"false"`), `elasticsearch.host`, `elasticsearch.port` (default `9200`). When disabled, search features are hidden in the UI and ES indexing is skipped.
 
 ### notifications
 

@@ -61,6 +61,11 @@ public class SystemConfigService {
             fileStorageStrategyProvider.reload();
         }
 
+        // Trigger hot-reload for elasticsearch config
+        if ("elasticsearch".equals(group)) {
+            eventPublisher.publishEvent(new ConfigChangedEvent(group));
+        }
+
         // Validate and publish config changed event for hot-reload
         if ("notification".equals(group)) {
             validateCron(values.get("notification.crontab"));

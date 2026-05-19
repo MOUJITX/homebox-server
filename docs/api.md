@@ -1641,7 +1641,7 @@ Get system config values for a group.
 
 | Parameter | Type   | Default | Description                            |
 |-----------|--------|---------|----------------------------------------|
-| group     | string | —       | Config group: `qiniu`, `ai`, `notification` |
+| group     | string | —       | Config group: `qiniu`, `ai`, `notification`, `elasticsearch` |
 
 **Response (200):**
 ```json
@@ -1677,6 +1677,7 @@ Update system config values for a group. Sensitive values passed as `****` (mask
 **Response (200):** No content.
 
 Qiniu group changes trigger a hot-reload of the file storage strategy.
+Elasticsearch group changes trigger a hot-reload of the ES client connection.
 
 ---
 
@@ -1717,6 +1718,78 @@ Test the webhook configuration by sending a test payload to the configured URL.
 {
   "success": true,
   "message": "Webhook test request sent"
+}
+```
+
+---
+
+### POST /api/system-config/test/elasticsearch
+
+Test the Elasticsearch connection using current config values.
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Elasticsearch connection successful"
+}
+```
+
+---
+
+---
+
+## Search Endpoints
+
+All search endpoints require authentication (any role).
+
+### GET /api/search
+
+Search file contents via Elasticsearch. Returns paginated results grouped by file, with highlighted snippets.
+
+**Query Parameters:**
+
+| Parameter | Type   | Default | Description      |
+|-----------|--------|---------|------------------|
+| q         | string | —       | Search query     |
+| page      | int    | 0       | Page number      |
+| size      | int    | 20      | Results per page |
+
+**Response (200):**
+
+```json
+{
+  "content": [
+    {
+      "fileId": 1,
+      "originalFilename": "manual.pdf",
+      "contentType": "application/pdf",
+      "fileSize": 1024000,
+      "sources": [{ "type": "ASSET", "typeLabel": "资产", "sourceId": 5, "sourceName": "Laptop" }],
+      "matches": [{ "chunkId": 42, "page": 3, "snippet": "the <mark>warranty</mark> covers...", "matchTerms": ["warranty"] }],
+      "score": 2.5
+    }
+  ],
+  "totalElements": 10,
+  "totalPages": 1,
+  "size": 20,
+  "number": 0
+}
+```
+
+Returns empty results when Elasticsearch is not configured or unavailable.
+
+---
+
+### GET /api/search/status
+
+Check whether Elasticsearch search is available.
+
+**Response (200):**
+
+```json
+{
+  "available": true
 }
 ```
 

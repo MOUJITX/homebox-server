@@ -3,8 +3,9 @@ spring:
     name: homebox-server
   config:
     import: "optional:file:.env[.properties]"
-  elasticsearch:
-    uris: ${ES_HOST:localhost}:${ES_PORT:9200}
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchClientAutoConfiguration
   datasource:
     url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&connectTimeout=30000&socketTimeout=60000&connectionTimeZone=Asia/Shanghai
     username: ${DB_USERNAME}

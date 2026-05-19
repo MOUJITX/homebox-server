@@ -46,23 +46,29 @@ public class EsIndexService {
               }
             }""";
 
-    private final co.elastic.clients.elasticsearch.ElasticsearchClient esClient;
+    private final EsClientProvider esClientProvider;
 
     @PostConstruct
     public void init() {
-        try {
-            createIndexIfNotExists();
-            log.info("Elasticsearch connection established, index ready");
-        } catch (Exception e) {
-            log.warn("Elasticsearch unavailable, search features will be disabled: {}", e.getMessage());
+        if (esClientProvider.isAvailable()) {
+            try {
+                createIndexIfNotExists();
+                log.info("Elasticsearch index ready");
+            } catch (Exception e) {
+                log.warn("Elasticsearch index init failed: {}", e.getMessage());
+            }
+        } else {
+            log.info("Elasticsearch not available, index init skipped");
         }
     }
 
     public void createIndexIfNotExists() {
+        var client = esClientProvider.getClient();
+        if (client == null) return;
         try {
-            boolean exists = esClient.indices().exists(e -> e.index(INDEX_NAME)).value();
+            boolean exists = client.indices().exists(e -> e.index(INDEX_NAME)).value();
             if (!exists) {
-                esClient.indices().create(c -> c
+                client.indices().create(c -> c
                         .index(INDEX_NAME)
                         .withJson(new StringReader(INDEX_MAPPING))
                 );
@@ -73,8 +79,11 @@ public class EsIndexService {
         }
     }
 
-    public void indexChunks(List<TextChunk> chunks) {
-        if (chunks.isEmpty()) return;
+    public boolean indexChunks(List<TextChunk> chunks) {
+        if (chunks.isEmpty()) return false;
+
+        var client = esClientProvider.getClient();
+        if (client == null) return false;
 
         try {
             List<co.elastic.clients.elasticsearch.core.bulk.BulkOperation> operations = new ArrayList<>();
@@ -97,16 +106,21 @@ public class EsIndexService {
                                 .document(doc))));
             }
 
-            esClient.bulk(b -> b.operations(operations));
+            client.bulk(b -> b.operations(operations));
             log.debug("Indexed {} chunks to ES", chunks.size());
+            return true;
         } catch (Exception e) {
             log.warn("Failed to index {} chunks to ES: {}", chunks.size(), e.getMessage());
+            return false;
         }
     }
 
     public void deleteByFileId(Long fileId) {
+        var client = esClientProvider.getClient();
+        if (client == null) return;
+
         try {
-            esClient.deleteByQuery(d -> d
+            client.deleteByQuery(d -> d
                     .index(INDEX_NAME)
                     .query(q -> q.term(t -> t.field("fileId").value(fileId)))
             );

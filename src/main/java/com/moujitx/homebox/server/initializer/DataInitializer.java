@@ -88,6 +88,10 @@ public class DataInitializer implements CommandLineRunner {
         seedConfig("notification.asset-expiring-soon-days", "30", "notification", false, "Asset Warranty Expiring Soon Days");
 
         seedConfig("notification.medication-crontab", "0 0 7-20 * * ?", "notification", false, "Medication Reminder Check Cron Expression");
+
+        seedConfig("elasticsearch.enabled", "false", "elasticsearch", false, "Enable Elasticsearch Search");
+        seedConfig("elasticsearch.host", "", "elasticsearch", false, "Elasticsearch Host");
+        seedConfig("elasticsearch.port", "9200", "elasticsearch", false, "Elasticsearch Port");
     }
 
     private void seedConfig(String key, String value, String group, boolean sensitive, String description) {

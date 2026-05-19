@@ -34,7 +34,7 @@ public class SearchService {
 
     private static final int MAX_MATCHES_PER_FILE = 5;
 
-    private final ElasticsearchClient esClient;
+    private final EsClientProvider esClientProvider;
     private final FileRecordRepository fileRecordRepository;
     private final AssetAttachmentRepository assetAttachmentRepository;
     private final GoodAttachmentRepository goodAttachmentRepository;
@@ -44,10 +44,15 @@ public class SearchService {
             return new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
         }
 
+        var client = esClientProvider.getClient();
+        if (client == null) {
+            return new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+        }
+
         try {
             int esSize = page * size * MAX_MATCHES_PER_FILE + size * MAX_MATCHES_PER_FILE;
 
-            SearchResponse<Map> esResponse = esClient.search(
+            SearchResponse<Map> esResponse = client.search(
                     SearchRequest.of(s -> s
                             .index("chunks")
                             .query(qq -> qq
