@@ -8,9 +8,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Spring Boot 4.0.3
 - Spring Security (JWT-based stateless auth)
 - Spring Data JPA (Hibernate, MySQL)
+- Spring Data Elasticsearch (Elasticsearch 8.x for full-text content search)
 - Gradle 8.14 (wrapper included)
 - JJWT 0.13.0 (JWT token handling)
 - Qiniu Java SDK 7.16.0 (optional Qiniu OSS file storage)
+- Apache Tika 3.2.0 (multi-format text extraction)
+- PDFBox (PDF page-by-page text extraction)
 - Lombok (boilerplate reduction: `@Getter`, `@Setter`, `@NoArgsConstructor`, `@AllArgsConstructor`, `@RequiredArgsConstructor`, `@Slf4j`)
 - RestTemplate (OpenAI-compatible API integration for invoice parsing)
 
@@ -23,18 +26,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Layout
 
 - `src/main/java/com/moujitx/homebox/server/` — application source code
-  - `config/` — Spring Security configuration, AI configuration
+  - `config/` — Spring Security, AI, Async (@EnableAsync + ThreadPoolTaskExecutor)
   - `controller/` — REST API controllers
   - `dto/request/` — request DTOs with validation
   - `dto/response/` — response DTOs
-  - `entity/` — JPA entities (Role, User, Good, GoodItem, GoodCategory, GoodBrand, GoodPicture, FileRecord, Asset, AssetCategory, AssetPlace, AssetStore, AssetPicture, AssetInvoice, Invoice, InvoiceAttachment, SystemConfig)
-  - `enums/` — enumerations (GoodStatus, ItemStatus, InvoiceType, InvoiceStatus, WarrantyStatus)
+  - `entity/` — JPA entities (Role, User, Good, GoodItem, GoodCategory, GoodBrand, GoodPicture, GoodAttachment, FileRecord, TextChunk, Asset, AssetCategory, AssetPlace, AssetStore, AssetPicture, AssetAttachment, AssetInvoice, Invoice, InvoiceAttachment, SystemConfig)
+  - `enums/` — enumerations (GoodStatus, ItemStatus, InvoiceType, InvoiceStatus, WarrantyStatus, SourceType)
   - `util/` — utility classes (DateCalculator, StringUtil)
   - `exception/` — custom exceptions and global handler
   - `initializer/` — data seeding (root role/user on startup)
   - `repository/` — Spring Data JPA repositories
   - `security/` — JWT token provider, auth filter, UserDetailsService
-  - `service/` — business logic (GoodService, AssetService, InvoiceService, InvoiceParseService, AiService, DashboardService, AuthService, MemberService, ProfileService, RoleService, FileService, SystemConfigService, FileStorageStrategyProvider, LocalStorageStrategy, QiniuStorageStrategy, etc.)
+  - `service/` — business logic (GoodService, AssetService, InvoiceService, InvoiceParseService, AiService, DashboardService, AuthService, MemberService, ProfileService, RoleService, FileService, SystemConfigService, FileStorageStrategyProvider, LocalStorageStrategy, QiniuStorageStrategy, TextExtractionService, ChunkingService, EsIndexService, SearchService, AssetAttachmentService, GoodAttachmentService, etc.)
 - `src/main/resources/application.yml` — configuration (loads .env via spring.config.import)
 - `src/test/java/com/moujitx/homebox/server/` — tests
 - `docs/` — API docs, database schema, Postman collection
@@ -46,7 +49,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Authorization: Role-based (root role required for member/role management)
 - Database: MySQL with Hibernate ddl-auto:update (auto-creates/updates tables)
 - Configuration: .env file loaded via Spring Boot's native config import
-- File Storage: Strategy pattern — `FileStorageStrategyProvider` selects between `LocalStorageStrategy` (default) and `QiniuStorageStrategy` based on the `qiniu.access-key` system config (seeded from `QINIU_ACCESS_KEY` env var on first startup, hot-reloadable via Settings UI)
+- File Storage: Strategy pattern — `FileStorageStrategyProvider` selects between `LocalStorageStrategy` (default) and `QiniuStorageStrategy` based on the `qiniu.access-key` system config (seeded from `QINIU_ACCESS_KEY` env var on first startup, hot-reloadable via Settings UI). Max file size: 100MB.
+- Content Search: Elasticsearch 8.17.0 with IK Analyzer for Chinese tokenization. Files uploaded via `FileService` are asynchronously processed through `TextExtractionService` (PDFBox for PDF page-by-page extraction, Tika for other formats) → `ChunkingService` (~500-char chunks with 50-char overlap) → `EsIndexService` (bulk index to `chunks` index). Search API uses `SearchService` with ES `multi_match` + highlight, then enriches results with MySQL source attribution (ASSET/GOOD/FILE). ES connection failure is non-fatal (search degrades gracefully).
 - AI Integration: OpenAI-compatible API for PDF/OFD invoice parsing (optional, configured via Settings UI or `ai.models` system config — supports multiple models, selectable active model, hot-reloadable)
 - Invoice Preview: PDF/OFD files are rendered to PNG images at parse time (PDFBox PDFRenderer for PDF, ofdrw ImageMaker for OFD) and stored as base64 in the `invoices.preview_image` column. Existing invoices without a preview auto-generate one on first view.
 - List Query Optimization: List endpoints use bulk repository queries (GROUP BY with Tuple projections) to fetch computed counts (subAssetCount, itemCountTotal, etc.) and first picture URLs in batch, avoiding N+1 query patterns. Response DTOs use `@AllArgsConstructor` for JPQL `SELECT new` constructor expressions (InvoiceResponse) or bulk-optimized factory methods accepting pre-fetched maps (AssetResponse, GoodResponse).

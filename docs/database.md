@@ -86,7 +86,30 @@ The application uses MySQL and manages schema via Hibernate's `ddl-auto: update`
 | file_size         | BIGINT       | NOT NULL                 |
 | created_at        | DATETIME(6)  | NOT NULL, auto-set       |
 
+### text_chunks
+
+| Column      | Type         | Constraints              |
+|-------------|--------------|--------------------------|
+| id          | BIGINT       | PRIMARY KEY, AUTO_INCREMENT |
+| file_id     | BIGINT       | NOT NULL, FK → file_records(id) |
+| chunk_index | INT          | NOT NULL                 |
+| chunk_text  | MEDIUMTEXT   | NOT NULL                 |
+| page_number | INT          | NULLABLE                 |
+| token_count | INT          | NULLABLE                 |
+| indexed     | BIT(1)       | NOT NULL, default FALSE  |
+| created_at  | DATETIME(6)  | NOT NULL, auto-set       |
+
+UNIQUE INDEX on (file_id, chunk_index).
+
 ### good_pictures
+
+| Column  | Type   | Constraints                  |
+|---------|--------|------------------------------|
+| id      | BIGINT | PRIMARY KEY, AUTO_INCREMENT  |
+| good_id | BIGINT | NOT NULL, FK → goods(id)     |
+| file_id | BIGINT | NOT NULL, FK → file_records(id) |
+
+### good_attachments
 
 | Column  | Type   | Constraints                  |
 |---------|--------|------------------------------|
@@ -151,6 +174,14 @@ The application uses MySQL and manages schema via Hibernate's `ddl-auto: update`
 UNIQUE INDEX on (barcode, serial_number) — enforced only when both are non-null.
 
 ### asset_pictures
+
+| Column  | Type   | Constraints                  |
+|---------|--------|------------------------------|
+| id      | BIGINT | PRIMARY KEY, AUTO_INCREMENT  |
+| asset_id| BIGINT | NOT NULL, FK → assets(id)    |
+| file_id | BIGINT | NOT NULL, FK → file_records(id) |
+
+### asset_attachments
 
 | Column  | Type   | Constraints                  |
 |---------|--------|------------------------------|
