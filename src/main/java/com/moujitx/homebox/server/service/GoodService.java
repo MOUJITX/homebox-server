@@ -18,6 +18,7 @@ import com.moujitx.homebox.server.repository.GoodCategoryRepository;
 import com.moujitx.homebox.server.repository.GoodItemRepository;
 import com.moujitx.homebox.server.repository.GoodPictureRepository;
 import com.moujitx.homebox.server.repository.GoodRepository;
+import com.moujitx.homebox.server.util.OssUrlBuilder;
 import com.moujitx.homebox.server.util.StringUtil;
 import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
@@ -102,7 +103,7 @@ public class GoodService {
         return goodPictureRepository.findFirstPictureIdGroupedByGood(ids).stream()
                 .collect(Collectors.toMap(
                         t -> (Long) t.get("goodId"),
-                        t -> "/oss/" + t.get("storedFilename"),
+                        t -> OssUrlBuilder.build((String) t.get("storedFilename"), (String) t.get("originalFilename")),
                         (a, b) -> b));
     }
 

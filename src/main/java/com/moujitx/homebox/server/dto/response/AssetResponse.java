@@ -3,6 +3,7 @@ package com.moujitx.homebox.server.dto.response;
 import com.moujitx.homebox.server.entity.Asset;
 import com.moujitx.homebox.server.entity.AssetPicture;
 import com.moujitx.homebox.server.enums.WarrantyStatus;
+import com.moujitx.homebox.server.util.OssUrlBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -95,7 +96,7 @@ public class AssetResponse {
 
         AssetPicture firstPicture = asset.getPictures().isEmpty() ? null : asset.getPictures().get(0);
         if (firstPicture != null) {
-            response.firstPictureUrl = "/oss/" + firstPicture.getFile().getStoredFilename();
+            response.firstPictureUrl = OssUrlBuilder.build(firstPicture.getFile().getStoredFilename(), firstPicture.getFile().getOriginalFilename());
         }
 
         response.createdAt = asset.getCreatedAt();
@@ -107,7 +108,7 @@ public class AssetResponse {
             AssetPicture parentFirstPicture = asset.getParent().getPictures().isEmpty()
                     ? null : asset.getParent().getPictures().get(0);
             if (parentFirstPicture != null) {
-                response.parentFirstPictureUrl = "/oss/" + parentFirstPicture.getFile().getStoredFilename();
+                response.parentFirstPictureUrl = OssUrlBuilder.build(parentFirstPicture.getFile().getStoredFilename(), parentFirstPicture.getFile().getOriginalFilename());
             }
         }
     }

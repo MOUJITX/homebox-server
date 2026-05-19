@@ -3,6 +3,7 @@ package com.moujitx.homebox.server.dto.response;
 import com.moujitx.homebox.server.entity.Good;
 import com.moujitx.homebox.server.entity.GoodPicture;
 import com.moujitx.homebox.server.enums.GoodStatus;
+import com.moujitx.homebox.server.util.OssUrlBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -62,7 +63,7 @@ public class GoodResponse {
 
         GoodPicture firstPicture = good.getPictures().isEmpty() ? null : good.getPictures().get(0);
         if (firstPicture != null) {
-            response.firstPictureUrl = "/oss/" + firstPicture.getFile().getStoredFilename();
+            response.firstPictureUrl = OssUrlBuilder.build(firstPicture.getFile().getStoredFilename(), firstPicture.getFile().getOriginalFilename());
         }
 
         response.createdAt = good.getCreatedAt();

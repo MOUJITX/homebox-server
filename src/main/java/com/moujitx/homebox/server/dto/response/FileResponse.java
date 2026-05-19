@@ -1,6 +1,7 @@
 package com.moujitx.homebox.server.dto.response;
 
 import com.moujitx.homebox.server.entity.FileRecord;
+import com.moujitx.homebox.server.util.OssUrlBuilder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -23,7 +24,7 @@ public class FileResponse {
         response.originalFilename = record.getOriginalFilename();
         response.contentType = record.getContentType();
         response.fileSize = record.getFileSize();
-        response.url = "/oss/" + record.getStoredFilename();
+        response.url = OssUrlBuilder.build(record.getStoredFilename(), record.getOriginalFilename());
         response.createdAt = record.getCreatedAt();
         return response;
     }

@@ -3,6 +3,7 @@ package com.moujitx.homebox.server.dto.response;
 import com.moujitx.homebox.server.entity.Invoice;
 import com.moujitx.homebox.server.enums.InvoiceStatus;
 import com.moujitx.homebox.server.enums.InvoiceType;
+import com.moujitx.homebox.server.util.OssUrlBuilder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
@@ -59,7 +60,7 @@ public class InvoiceDetailResponse {
 
         if (invoice.getFile() != null) {
             response.fileId = invoice.getFile().getId();
-            response.fileUrl = "/oss/" + invoice.getFile().getStoredFilename();
+            response.fileUrl = OssUrlBuilder.build(invoice.getFile().getStoredFilename(), invoice.getFile().getOriginalFilename());
         }
 
         response.attachments = invoice.getAttachments().stream()

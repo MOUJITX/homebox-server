@@ -1,6 +1,7 @@
 package com.moujitx.homebox.server.dto.response;
 
 import com.moujitx.homebox.server.entity.InvoiceAttachment;
+import com.moujitx.homebox.server.util.OssUrlBuilder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -21,7 +22,7 @@ public class InvoiceAttachmentResponse {
         response.filename = attachment.getFile().getOriginalFilename();
         response.contentType = attachment.getFile().getContentType();
         response.fileSize = attachment.getFile().getFileSize();
-        response.url = "/oss/" + attachment.getFile().getStoredFilename();
+        response.url = OssUrlBuilder.build(attachment.getFile().getStoredFilename(), attachment.getFile().getOriginalFilename());
         response.createdAt = attachment.getFile().getCreatedAt();
         return response;
     }

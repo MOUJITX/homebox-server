@@ -1,6 +1,7 @@
 package com.moujitx.homebox.server.dto.response;
 
 import com.moujitx.homebox.server.entity.AssetInvoice;
+import com.moujitx.homebox.server.util.OssUrlBuilder;
 import lombok.Getter;
 
 @Getter
@@ -20,7 +21,7 @@ public class BoundAssetResponse {
         response.barcode = binding.getAsset().getBarcode();
 
         if (!binding.getAsset().getPictures().isEmpty()) {
-            response.firstPictureUrl = "/oss/" + binding.getAsset().getPictures().get(0).getFile().getStoredFilename();
+            response.firstPictureUrl = OssUrlBuilder.build(binding.getAsset().getPictures().get(0).getFile().getStoredFilename(), binding.getAsset().getPictures().get(0).getFile().getOriginalFilename());
         }
 
         return response;

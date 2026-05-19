@@ -12,6 +12,7 @@ import com.moujitx.homebox.server.exception.ResourceAlreadyExistsException;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.*;
 import com.moujitx.homebox.server.util.DateCalculator;
+import com.moujitx.homebox.server.util.OssUrlBuilder;
 import com.moujitx.homebox.server.util.StringUtil;
 import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
@@ -96,7 +97,7 @@ public class AssetService {
         return assetPictureRepository.findFirstPictureIdGroupedByAsset(ids).stream()
                 .collect(Collectors.toMap(
                         t -> (Long) t.get("assetId"),
-                        t -> "/oss/" + t.get("storedFilename"),
+                        t -> OssUrlBuilder.build((String) t.get("storedFilename"), (String) t.get("originalFilename")),
                         (a, b) -> b));
     }
 
