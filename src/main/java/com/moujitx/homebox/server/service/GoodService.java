@@ -2,6 +2,7 @@ package com.moujitx.homebox.server.service;
 
 import com.moujitx.homebox.server.dto.request.CreateGoodRequest;
 import com.moujitx.homebox.server.dto.request.UpdateGoodRequest;
+import com.moujitx.homebox.server.dto.response.GoodAttachmentResponse;
 import com.moujitx.homebox.server.dto.response.GoodDetailResponse;
 import com.moujitx.homebox.server.dto.response.GoodResponse;
 import com.moujitx.homebox.server.entity.Good;
@@ -13,6 +14,7 @@ import com.moujitx.homebox.server.enums.ItemStatus;
 import com.moujitx.homebox.server.exception.OperationNotAllowedException;
 import com.moujitx.homebox.server.exception.ResourceAlreadyExistsException;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
+import com.moujitx.homebox.server.repository.GoodAttachmentRepository;
 import com.moujitx.homebox.server.repository.GoodBrandRepository;
 import com.moujitx.homebox.server.repository.GoodCategoryRepository;
 import com.moujitx.homebox.server.repository.GoodItemRepository;
@@ -42,6 +44,7 @@ public class GoodService {
     private final GoodCategoryRepository categoryRepository;
     private final GoodBrandRepository brandRepository;
     private final GoodItemRepository itemRepository;
+    private final GoodAttachmentRepository goodAttachmentRepository;
     private final GoodPictureRepository goodPictureRepository;
     private final FileService fileService;
 
@@ -111,7 +114,15 @@ public class GoodService {
     public GoodDetailResponse getGoodById(Long id) {
         Good good = goodRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Good not found with id: " + id));
-        return GoodDetailResponse.from(good, computeStatus(good));
+
+        GoodDetailResponse detail = GoodDetailResponse.from(good, computeStatus(good));
+
+        List<GoodAttachmentResponse> attachments = goodAttachmentRepository.findByGoodId(id).stream()
+                .map(a -> GoodAttachmentResponse.from(a, fileService.isIndexed(a.getFile().getId())))
+                .toList();
+        detail.setAttachments(attachments);
+
+        return detail;
     }
 
     @Transactional(readOnly = true)
@@ -191,11 +202,15 @@ public class GoodService {
             throw new OperationNotAllowedException("Cannot delete good that has items. Delete all items first.");
         }
 
-        goodRepository.delete(good);
+        for (var attachment : good.getAttachments()) {
+            fileService.delete(attachment.getFile().getId());
+        }
 
         for (var picture : good.getPictures()) {
             fileService.delete(picture.getFile().getId());
         }
+
+        goodRepository.delete(good);
     }
 
     public GoodStatus computeStatus(Good good) {

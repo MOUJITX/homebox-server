@@ -2,6 +2,7 @@ package com.moujitx.homebox.server.service;
 
 import com.moujitx.homebox.server.dto.request.CreateAssetRequest;
 import com.moujitx.homebox.server.dto.request.UpdateAssetRequest;
+import com.moujitx.homebox.server.dto.response.AssetAttachmentResponse;
 import com.moujitx.homebox.server.dto.response.AssetDetailResponse;
 import com.moujitx.homebox.server.dto.response.AssetInvoiceResponse;
 import com.moujitx.homebox.server.dto.response.AssetResponse;
@@ -39,6 +40,7 @@ public class AssetService {
     private final AssetPlaceRepository placeRepository;
     private final AssetStoreRepository storeRepository;
     private final AssetPictureRepository assetPictureRepository;
+    private final AssetAttachmentRepository assetAttachmentRepository;
     private final AssetInvoiceRepository assetInvoiceRepository;
     private final InvoiceRepository invoiceRepository;
     private final FileService fileService;
@@ -115,7 +117,13 @@ public class AssetService {
                 .map(AssetInvoiceResponse::from)
                 .toList();
 
-        return AssetDetailResponse.from(asset, computeWarrantyStatus(asset), subAssets.size(), subAssets, invoices);
+        List<AssetAttachmentResponse> attachments = assetAttachmentRepository.findByAssetId(id).stream()
+                .map(a -> AssetAttachmentResponse.from(a, fileService.isIndexed(a.getFile().getId())))
+                .toList();
+
+        AssetDetailResponse detail = AssetDetailResponse.from(asset, computeWarrantyStatus(asset), subAssets.size(), subAssets, invoices);
+        detail.setAttachments(attachments);
+        return detail;
     }
 
     @Transactional
@@ -287,11 +295,15 @@ public class AssetService {
             throw new OperationNotAllowedException("Cannot delete asset that has sub-assets. Delete all sub-assets first.");
         }
 
-        assetRepository.delete(asset);
+        for (var attachment : asset.getAttachments()) {
+            fileService.delete(attachment.getFile().getId());
+        }
 
         for (var picture : asset.getPictures()) {
             fileService.delete(picture.getFile().getId());
         }
+
+        assetRepository.delete(asset);
     }
 
     public WarrantyStatus computeWarrantyStatus(Asset asset) {

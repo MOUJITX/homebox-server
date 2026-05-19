@@ -3,6 +3,7 @@ package com.moujitx.homebox.server.dto.response;
 import com.moujitx.homebox.server.entity.Asset;
 import com.moujitx.homebox.server.enums.WarrantyStatus;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,6 +17,8 @@ public class AssetDetailResponse extends AssetResponse {
     private List<AssetPictureResponse> pictures;
     private List<AssetResponse> subAssets;
     private List<AssetInvoiceResponse> invoices;
+    @Setter
+    private List<AssetAttachmentResponse> attachments;
 
     public static AssetDetailResponse from(Asset asset, WarrantyStatus warrantyStatus, int subAssetCount,
                                             List<AssetResponse> subAssets) {

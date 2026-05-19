@@ -3,6 +3,7 @@ package com.moujitx.homebox.server.dto.response;
 import com.moujitx.homebox.server.entity.Good;
 import com.moujitx.homebox.server.enums.GoodStatus;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -11,6 +12,8 @@ public class GoodDetailResponse extends GoodResponse {
 
     private List<GoodItemResponse> items;
     private List<GoodPictureResponse> pictures;
+    @Setter
+    private List<GoodAttachmentResponse> attachments;
 
     public static GoodDetailResponse from(Good good, GoodStatus status) {
         GoodDetailResponse response = new GoodDetailResponse();
