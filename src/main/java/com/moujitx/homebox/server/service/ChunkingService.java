@@ -60,10 +60,11 @@ public class ChunkingService {
             }
 
             fragments.add(text.substring(start, end).trim());
-            start = end - overlap;
-            if (start >= text.length() || start <= 0) {
+
+            if (end >= text.length()) {
                 break;
             }
+            start = end - overlap;
         }
 
         return fragments.isEmpty() ? List.of(text) : fragments;

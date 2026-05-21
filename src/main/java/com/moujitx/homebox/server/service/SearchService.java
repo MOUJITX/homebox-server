@@ -1,6 +1,5 @@
 package com.moujitx.homebox.server.service;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -170,7 +169,10 @@ public class SearchService {
         }
 
         String snippet = "";
-        List<String> highlightList = hit.highlight().get("chunkText");
+        List<String> highlightList = null;
+        if (hit.highlight() != null) {
+            highlightList = hit.highlight().get("chunkText");
+        }
         if (highlightList != null && !highlightList.isEmpty()) {
             snippet = highlightList.get(0);
         } else if (hit.source() != null && hit.source().get("chunkText") != null) {

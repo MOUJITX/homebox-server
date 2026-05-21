@@ -27,6 +27,7 @@ public class FileService {
     private final TextExtractionService textExtractionService;
     private final ChunkingService chunkingService;
     private final EsIndexService esIndexService;
+    private final EsClientProvider esClientProvider;
 
     @Transactional
     public FileRecord upload(MultipartFile file) {
@@ -49,12 +50,14 @@ public class FileService {
             List<TextChunk> extracted = textExtractionService.extract(fileRecord);
             List<TextChunk> chunks = chunkingService.chunk(extracted);
             chunks = textChunkRepository.saveAll(chunks);
-            boolean indexed = esIndexService.indexChunks(chunks);
-            if (indexed) {
-                for (TextChunk chunk : chunks) {
-                    chunk.setIndexed(true);
+            if (esClientProvider.isAvailable()) {
+                boolean indexed = esIndexService.indexChunks(chunks);
+                if (indexed) {
+                    for (TextChunk chunk : chunks) {
+                        chunk.setIndexed(true);
+                    }
+                    textChunkRepository.saveAll(chunks);
                 }
-                textChunkRepository.saveAll(chunks);
             }
         } catch (Exception e) {
             log.warn("Async text extraction failed for file {}: {}", fileRecord.getId(), e.getMessage());

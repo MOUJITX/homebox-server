@@ -56,7 +56,7 @@ public class EsClientProvider {
     }
 
     public boolean testConnection() {
-        if (!enabled) return false;
+        if (!enabled || elasticsearchClient == null) return false;
         try {
             elasticsearchClient.ping();
             return true;
