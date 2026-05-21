@@ -1,6 +1,7 @@
 package com.moujitx.homebox.server.dto.response;
 
 import com.moujitx.homebox.server.entity.FileRecord;
+import com.moujitx.homebox.server.enums.ProcessStatus;
 import com.moujitx.homebox.server.util.OssUrlBuilder;
 import lombok.Getter;
 
@@ -17,6 +18,8 @@ public class FileResponse {
     private String url;
     private LocalDateTime createdAt;
     private boolean indexed;
+    private ProcessStatus extractStatus;
+    private ProcessStatus chunkStatus;
 
     public static FileResponse from(FileRecord record) {
         return from(record, true);
@@ -32,6 +35,8 @@ public class FileResponse {
         response.url = OssUrlBuilder.build(record.getStoredFilename(), record.getOriginalFilename());
         response.createdAt = record.getCreatedAt();
         response.indexed = indexed;
+        response.extractStatus = record.getExtractStatus();
+        response.chunkStatus = record.getChunkStatus();
         return response;
     }
 }

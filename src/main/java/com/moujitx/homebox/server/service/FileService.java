@@ -2,6 +2,7 @@ package com.moujitx.homebox.server.service;
 
 import com.moujitx.homebox.server.entity.FileRecord;
 import com.moujitx.homebox.server.entity.TextChunk;
+import com.moujitx.homebox.server.enums.ProcessStatus;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.FileRecordRepository;
 import com.moujitx.homebox.server.repository.TextChunkRepository;
@@ -46,8 +47,45 @@ public class FileService {
 
     @Async("textExtractionExecutor")
     public void extractAndIndexAsync(FileRecord fileRecord) {
+        extractAndIndex(fileRecord.getId());
+    }
+
+    public void extractAndIndex(Long fileId) {
+        FileRecord fileRecord = getFileById(fileId);
+        ProcessStatus extractStatus = fileRecord.getExtractStatus();
+        ProcessStatus chunkStatus = fileRecord.getChunkStatus();
+
+        boolean needExtract = extractStatus == ProcessStatus.PENDING || extractStatus == ProcessStatus.FAILED;
+        boolean needChunk = chunkStatus == ProcessStatus.PENDING || chunkStatus == ProcessStatus.FAILED;
+
+        if (needExtract) {
+            fileRecord.setExtractStatus(ProcessStatus.PROCESSING);
+            fileRecordRepository.save(fileRecord);
+            try {
+                List<TextChunk> extracted = textExtractionService.extract(fileRecord);
+                if (extracted.isEmpty()) {
+                    fileRecord.setExtractStatus(ProcessStatus.FAILED);
+                    fileRecordRepository.save(fileRecord);
+                    return;
+                }
+                fileRecord.setExtractStatus(ProcessStatus.SUCCESS);
+                fileRecordRepository.save(fileRecord);
+                runChunkAndIndex(fileRecord, extracted);
+            } catch (Exception e) {
+                log.warn("Text extraction failed for file {}: {}", fileRecord.getId(), e.getMessage());
+                fileRecord.setExtractStatus(ProcessStatus.FAILED);
+                fileRecordRepository.save(fileRecord);
+            }
+        } else if (needChunk) {
+            List<TextChunk> extracted = textChunkRepository.findByFileIdOrderByChunkIndexAsc(fileRecord.getId());
+            runChunkAndIndex(fileRecord, extracted);
+        }
+    }
+
+    private void runChunkAndIndex(FileRecord fileRecord, List<TextChunk> extracted) {
+        fileRecord.setChunkStatus(ProcessStatus.PROCESSING);
+        fileRecordRepository.save(fileRecord);
         try {
-            List<TextChunk> extracted = textExtractionService.extract(fileRecord);
             List<TextChunk> chunks = chunkingService.chunk(extracted);
             chunks = textChunkRepository.saveAll(chunks);
             if (esClientProvider.isAvailable()) {
@@ -59,9 +97,18 @@ public class FileService {
                     textChunkRepository.saveAll(chunks);
                 }
             }
+            fileRecord.setChunkStatus(ProcessStatus.SUCCESS);
+            fileRecordRepository.save(fileRecord);
         } catch (Exception e) {
-            log.warn("Async text extraction failed for file {}: {}", fileRecord.getId(), e.getMessage());
+            log.warn("Chunk/index failed for file {}: {}", fileRecord.getId(), e.getMessage());
+            fileRecord.setChunkStatus(ProcessStatus.FAILED);
+            fileRecordRepository.save(fileRecord);
         }
+    }
+
+    @Async("textExtractionExecutor")
+    public void retryAsync(Long fileId) {
+        extractAndIndex(fileId);
     }
 
     public FileRecord getFileById(Long id) {

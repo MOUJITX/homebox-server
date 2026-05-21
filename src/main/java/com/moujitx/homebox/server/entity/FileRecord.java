@@ -1,5 +1,6 @@
 package com.moujitx.homebox.server.entity;
 
+import com.moujitx.homebox.server.enums.ProcessStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -31,6 +32,14 @@ public class FileRecord {
 
     @Column(nullable = false)
     private long fileSize;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 16)
+    private ProcessStatus extractStatus = ProcessStatus.PENDING;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 16)
+    private ProcessStatus chunkStatus = ProcessStatus.PENDING;
 
     @Setter(AccessLevel.NONE)
     @CreationTimestamp

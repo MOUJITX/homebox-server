@@ -84,6 +84,8 @@ The application uses MySQL and manages schema via Hibernate's `ddl-auto: update`
 | original_filename | VARCHAR(255) | NOT NULL (original upload name) |
 | content_type      | VARCHAR(255) | NOT NULL                 |
 | file_size         | BIGINT       | NOT NULL                 |
+| extract_status    | VARCHAR(16)  | NOT NULL, default PENDING |
+| chunk_status      | VARCHAR(16)  | NOT NULL, default PENDING |
 | created_at        | DATETIME(6)  | NOT NULL, auto-set       |
 
 ### text_chunks

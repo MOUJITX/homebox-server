@@ -1126,7 +1126,10 @@ Upload a file. Uses multipart/form-data.
   "contentType": "application/pdf",
   "fileSize": 204800,
   "url": "/api/files/1/download",
-  "createdAt": "2026-01-01T00:00:00"
+  "createdAt": "2026-01-01T00:00:00",
+  "indexed": true,
+  "extractStatus": "PENDING",
+  "chunkStatus": "PENDING"
 }
 ```
 
@@ -1144,7 +1147,10 @@ Get file metadata by ID.
   "contentType": "application/pdf",
   "fileSize": 204800,
   "url": "/api/files/1/download",
-  "createdAt": "2026-01-01T00:00:00"
+  "createdAt": "2026-01-01T00:00:00",
+  "indexed": true,
+  "extractStatus": "SUCCESS",
+  "chunkStatus": "SUCCESS"
 }
 ```
 
@@ -1193,6 +1199,14 @@ Rename a file's original filename.
 Delete a file (removes from disk and database).
 
 **Response (204):** No content.
+
+---
+
+### POST /api/files/{id}/retry
+
+Retry failed text extraction or chunking/indexing for a file. Only re-executes the failed step(s).
+
+**Response (202):** Accepted (processing is asynchronous).
 
 ---
 

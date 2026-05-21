@@ -82,4 +82,10 @@ public class FileController {
         fileService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/retry")
+    public ResponseEntity<Void> retry(@PathVariable Long id) {
+        fileService.retryAsync(id);
+        return ResponseEntity.accepted().build();
+    }
 }
