@@ -1,9 +1,12 @@
 package com.moujitx.homebox.server.service;
 
 import com.moujitx.homebox.server.entity.TextChunk;
+import com.moujitx.homebox.server.event.ConfigChangedEvent;
+import com.moujitx.homebox.server.repository.TextChunkRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.io.StringReader;
@@ -47,18 +50,27 @@ public class EsIndexService {
             }""";
 
     private final EsClientProvider esClientProvider;
+    private final TextChunkRepository textChunkRepository;
 
     @PostConstruct
     public void init() {
         if (esClientProvider.isAvailable()) {
             try {
                 createIndexIfNotExists();
+                reindexAll();
                 log.info("Elasticsearch index ready");
             } catch (Exception e) {
                 log.warn("Elasticsearch index init failed: {}", e.getMessage());
             }
         } else {
             log.info("Elasticsearch not available, index init skipped");
+        }
+    }
+
+    @EventListener
+    public void onConfigChanged(ConfigChangedEvent event) {
+        if ("elasticsearch".equals(event.getGroup()) && esClientProvider.isAvailable()) {
+            reindexAll();
         }
     }
 
@@ -126,6 +138,24 @@ public class EsIndexService {
             );
         } catch (Exception e) {
             log.warn("Failed to delete ES docs for fileId {}: {}", fileId, e.getMessage());
+        }
+    }
+
+    public void reindexAll() {
+        var client = esClientProvider.getClient();
+        if (client == null) return;
+
+        List<TextChunk> unindexed = textChunkRepository.findByIndexedFalse();
+        if (unindexed.isEmpty()) return;
+
+        log.info("Re-indexing {} unindexed chunks to ES", unindexed.size());
+        boolean indexed = indexChunks(unindexed);
+        if (indexed) {
+            for (TextChunk chunk : unindexed) {
+                chunk.setIndexed(true);
+            }
+            textChunkRepository.saveAll(unindexed);
+            log.info("Successfully re-indexed {} chunks", unindexed.size());
         }
     }
 }

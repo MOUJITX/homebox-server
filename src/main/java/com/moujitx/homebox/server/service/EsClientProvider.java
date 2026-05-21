@@ -21,7 +21,7 @@ public class EsClientProvider {
         this.systemConfigService = systemConfigService;
     }
 
-    private volatile boolean enabled = false;
+    private volatile boolean searchEnabled = false;
 
     @PostConstruct
     public void init() {
@@ -37,26 +37,30 @@ public class EsClientProvider {
 
     public synchronized void refresh() {
         String enabledStr = systemConfigService.get("elasticsearch.enabled");
-        boolean wasEnabled = this.enabled;
-        this.enabled = "true".equals(enabledStr);
+        boolean wasEnabled = this.searchEnabled;
+        this.searchEnabled = "true".equals(enabledStr);
 
-        if (this.enabled && !wasEnabled) {
+        if (this.searchEnabled && !wasEnabled) {
             log.info("Elasticsearch search enabled via system config");
-        } else if (!this.enabled && wasEnabled) {
+        } else if (!this.searchEnabled && wasEnabled) {
             log.info("Elasticsearch search disabled via system config");
         }
     }
 
     public ElasticsearchClient getClient() {
-        return enabled ? elasticsearchClient : null;
+        return elasticsearchClient;
     }
 
     public boolean isAvailable() {
-        return enabled;
+        return elasticsearchClient != null;
+    }
+
+    public boolean isSearchEnabled() {
+        return searchEnabled && elasticsearchClient != null;
     }
 
     public boolean testConnection() {
-        if (!enabled || elasticsearchClient == null) return false;
+        if (elasticsearchClient == null) return false;
         try {
             elasticsearchClient.ping();
             return true;

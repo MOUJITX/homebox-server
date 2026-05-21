@@ -31,6 +31,6 @@ public class SearchController {
 
     @GetMapping("/status")
     public ResponseEntity<Map<String, Boolean>> status() {
-        return ResponseEntity.ok(Map.of("available", esClientProvider.isAvailable()));
+        return ResponseEntity.ok(Map.of("available", esClientProvider.isSearchEnabled()));
     }
 }

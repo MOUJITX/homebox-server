@@ -43,10 +43,10 @@ public class SearchService {
             return new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
         }
 
-        var client = esClientProvider.getClient();
-        if (client == null) {
+        if (!esClientProvider.isSearchEnabled()) {
             return new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
         }
+        var client = esClientProvider.getClient();
 
         try {
             int esSize = page * size * MAX_MATCHES_PER_FILE + size * MAX_MATCHES_PER_FILE;
