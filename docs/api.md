@@ -1641,7 +1641,7 @@ Get system config values for a group.
 
 | Parameter | Type   | Default | Description                            |
 |-----------|--------|---------|----------------------------------------|
-| group     | string | —       | Config group: `qiniu`, `ai`, `notification`, `elasticsearch` |
+| group     | string | —       | Config group: `qiniu`, `ai`, `notification`, `elasticsearch` (enabled toggle only) |
 
 **Response (200):**
 ```json

@@ -245,7 +245,7 @@ UNIQUE INDEX on (asset_id, invoice_id) — prevents duplicate bindings.
 
 Stores key-value configuration pairs grouped by category (`qiniu`, `ai`, `notification`, `elasticsearch`). Seeded on first startup from environment variables. Configurable at runtime via the Settings UI (root only).
 
-Elasticsearch keys: `elasticsearch.enabled` (`"true"` / `"false"`), `elasticsearch.host`, `elasticsearch.port` (default `9200`). When disabled, search features are hidden in the UI and ES indexing is skipped.
+Elasticsearch key: `elasticsearch.enabled` (`"true"` / `"false"`, default `"false"`). Host and port are configured via `ES_HOST` / `ES_PORT` environment variables (spring.elasticsearch.uris). When disabled, search features are hidden in the UI and ES indexing is skipped.
 
 ### notifications
 

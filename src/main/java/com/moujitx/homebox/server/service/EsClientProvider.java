@@ -3,18 +3,23 @@ package com.moujitx.homebox.server.service;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import com.moujitx.homebox.server.event.ConfigChangedEvent;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class EsClientProvider {
 
     private final ElasticsearchClient elasticsearchClient;
     private final SystemConfigService systemConfigService;
+
+    public EsClientProvider(@Autowired(required = false) ElasticsearchClient elasticsearchClient,
+                            SystemConfigService systemConfigService) {
+        this.elasticsearchClient = elasticsearchClient;
+        this.systemConfigService = systemConfigService;
+    }
 
     private volatile boolean enabled = false;
 

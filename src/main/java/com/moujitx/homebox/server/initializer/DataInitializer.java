@@ -47,12 +47,6 @@ public class DataInitializer implements CommandLineRunner {
     @Value("${app.qiniu.domain:}")
     private String qiniuDomain;
 
-    @Value("${app.elasticsearch.host:}")
-    private String esHost;
-
-    @Value("${app.elasticsearch.port:9200}")
-    private String esPort;
-
     @Override
     @Transactional
     public void run(String... args) {
@@ -96,8 +90,6 @@ public class DataInitializer implements CommandLineRunner {
         seedConfig("notification.medication-crontab", "0 0 7-20 * * ?", "notification", false, "Medication Reminder Check Cron Expression");
 
         seedConfig("elasticsearch.enabled", "false", "elasticsearch", false, "Enable Elasticsearch Search");
-        seedConfig("elasticsearch.host", esHost, "elasticsearch", false, "Elasticsearch Host");
-        seedConfig("elasticsearch.port", esPort, "elasticsearch", false, "Elasticsearch Port");
     }
 
     private void seedConfig(String key, String value, String group, boolean sensitive, String description) {
