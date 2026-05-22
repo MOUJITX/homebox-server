@@ -8,4 +8,6 @@ import java.util.List;
 public interface InvoiceAttachmentRepository extends JpaRepository<InvoiceAttachment, Long> {
 
     List<InvoiceAttachment> findByInvoiceId(Long invoiceId);
+
+    List<InvoiceAttachment> findByFileIdIn(List<Long> fileIds);
 }

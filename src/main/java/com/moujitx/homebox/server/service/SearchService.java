@@ -12,10 +12,14 @@ import com.moujitx.homebox.server.dto.response.SourceInfo;
 import com.moujitx.homebox.server.entity.AssetAttachment;
 import com.moujitx.homebox.server.entity.FileRecord;
 import com.moujitx.homebox.server.entity.GoodAttachment;
+import com.moujitx.homebox.server.entity.Invoice;
+import com.moujitx.homebox.server.entity.InvoiceAttachment;
 import com.moujitx.homebox.server.enums.SourceType;
 import com.moujitx.homebox.server.repository.AssetAttachmentRepository;
 import com.moujitx.homebox.server.repository.FileRecordRepository;
 import com.moujitx.homebox.server.repository.GoodAttachmentRepository;
+import com.moujitx.homebox.server.repository.InvoiceAttachmentRepository;
+import com.moujitx.homebox.server.repository.InvoiceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -37,6 +41,8 @@ public class SearchService {
     private final FileRecordRepository fileRecordRepository;
     private final AssetAttachmentRepository assetAttachmentRepository;
     private final GoodAttachmentRepository goodAttachmentRepository;
+    private final InvoiceAttachmentRepository invoiceAttachmentRepository;
+    private final InvoiceRepository invoiceRepository;
 
     public Page<SearchResultItem> search(String q, int page, int size) {
         if (q == null || q.isBlank()) {
@@ -197,6 +203,8 @@ public class SearchService {
 
         List<AssetAttachment> assetAtts = assetAttachmentRepository.findByFileIdIn(fileIds);
         List<GoodAttachment> goodAtts = goodAttachmentRepository.findByFileIdIn(fileIds);
+        List<InvoiceAttachment> invoiceAtts = invoiceAttachmentRepository.findByFileIdIn(fileIds);
+        List<Invoice> primaryInvoices = invoiceRepository.findByFileIdIn(fileIds);
 
         for (AssetAttachment aa : assetAtts) {
             Long fileId = aa.getFile().getId();
@@ -216,6 +224,37 @@ public class SearchService {
                     "有效期",
                     ga.getGood().getId(),
                     ga.getGood().getProductName()
+            );
+            map.computeIfAbsent(fileId, k -> new ArrayList<>()).add(source);
+        }
+
+        for (InvoiceAttachment ia : invoiceAtts) {
+            Long fileId = ia.getFile().getId();
+            Invoice invoice = ia.getInvoice();
+            SourceInfo source = new SourceInfo(
+                    SourceType.INVOICE,
+                    "发票",
+                    invoice.getId(),
+                    invoice.getInvoiceNumber()
+            );
+            map.computeIfAbsent(fileId, k -> new ArrayList<>()).add(source);
+        }
+
+        for (Invoice inv : primaryInvoices) {
+            Long fileId = inv.getFile().getId();
+            if (fileId == null) continue;
+
+            Long invoiceId = inv.getId();
+            List<SourceInfo> existing = map.get(fileId);
+            boolean alreadyAdded = existing != null && existing.stream().anyMatch(
+                    s -> s.getType() == SourceType.INVOICE && invoiceId.equals(s.getSourceId()));
+            if (alreadyAdded) continue;
+
+            SourceInfo source = new SourceInfo(
+                    SourceType.INVOICE,
+                    "发票",
+                    invoiceId,
+                    inv.getInvoiceNumber()
             );
             map.computeIfAbsent(fileId, k -> new ArrayList<>()).add(source);
         }

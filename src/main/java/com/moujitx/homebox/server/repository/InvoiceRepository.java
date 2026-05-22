@@ -12,6 +12,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
+    List<Invoice> findByFileIdIn(List<Long> fileIds);
+
     boolean existsByInvoiceNumber(String invoiceNumber);
 
     boolean existsByInvoiceNumberAndIdNot(String invoiceNumber, Long id);
