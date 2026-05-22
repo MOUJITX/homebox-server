@@ -29,8 +29,11 @@ public class SubscriptionResponse {
     private SubscriptionStatus status;
     private Integer renewNoticeDays;
     private String note;
+    @Setter
     private LocalDate latestRecordDate;
+    @Setter
     private BigDecimal latestRecordAmount;
+    @Setter
     private LocalDate latestRecordEndDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
