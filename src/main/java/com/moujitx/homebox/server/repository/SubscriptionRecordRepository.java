@@ -14,4 +14,6 @@ public interface SubscriptionRecordRepository extends JpaRepository<Subscription
 
     @Query("SELECT sr FROM SubscriptionRecord sr WHERE sr.subscription.id = :subscriptionId ORDER BY sr.recordDate DESC")
     Optional<SubscriptionRecord> findLatestBySubscriptionId(@Param("subscriptionId") Long subscriptionId);
+
+    boolean existsByPaymentMethodId(Long paymentMethodId);
 }

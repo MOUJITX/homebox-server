@@ -4,10 +4,12 @@ import com.moujitx.homebox.server.dto.request.PaymentMethodRequest;
 import com.moujitx.homebox.server.dto.response.PaymentMethodResponse;
 import com.moujitx.homebox.server.entity.FileRecord;
 import com.moujitx.homebox.server.entity.PaymentMethod;
+import com.moujitx.homebox.server.exception.OperationNotAllowedException;
 import com.moujitx.homebox.server.exception.ResourceAlreadyExistsException;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.FileRecordRepository;
 import com.moujitx.homebox.server.repository.PaymentMethodRepository;
+import com.moujitx.homebox.server.repository.SubscriptionRecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ public class PaymentMethodService {
 
     private final PaymentMethodRepository paymentMethodRepository;
     private final FileRecordRepository fileRecordRepository;
+    private final SubscriptionRecordRepository subscriptionRecordRepository;
 
     @Transactional(readOnly = true)
     public List<PaymentMethodResponse> getAll() {
@@ -70,6 +73,10 @@ public class PaymentMethodService {
     public void delete(Long id) {
         if (!paymentMethodRepository.existsById(id)) {
             throw new ResourceNotFoundException("Payment method not found with id: " + id);
+        }
+
+        if (subscriptionRecordRepository.existsByPaymentMethodId(id)) {
+            throw new OperationNotAllowedException("Cannot delete payment method that is used by subscription records");
         }
 
         paymentMethodRepository.deleteById(id);

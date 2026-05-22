@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(OperationNotAllowedException.class)
     public ResponseEntity<MessageResponse> handleNotAllowed(OperationNotAllowedException ex) {
         log.warn("Operation not allowed: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new MessageResponse(ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new MessageResponse(ex.getMessage()));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
