@@ -14,12 +14,14 @@ import com.moujitx.homebox.server.entity.FileRecord;
 import com.moujitx.homebox.server.entity.GoodAttachment;
 import com.moujitx.homebox.server.entity.Invoice;
 import com.moujitx.homebox.server.entity.InvoiceAttachment;
+import com.moujitx.homebox.server.entity.SubscriptionRecordAttachment;
 import com.moujitx.homebox.server.enums.SourceType;
 import com.moujitx.homebox.server.repository.AssetAttachmentRepository;
 import com.moujitx.homebox.server.repository.FileRecordRepository;
 import com.moujitx.homebox.server.repository.GoodAttachmentRepository;
 import com.moujitx.homebox.server.repository.InvoiceAttachmentRepository;
 import com.moujitx.homebox.server.repository.InvoiceRepository;
+import com.moujitx.homebox.server.repository.SubscriptionRecordAttachmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -43,6 +45,7 @@ public class SearchService {
     private final GoodAttachmentRepository goodAttachmentRepository;
     private final InvoiceAttachmentRepository invoiceAttachmentRepository;
     private final InvoiceRepository invoiceRepository;
+    private final SubscriptionRecordAttachmentRepository subscriptionRecordAttachmentRepository;
 
     public Page<SearchResultItem> search(String q, int page, int size) {
         if (q == null || q.isBlank()) {
@@ -236,6 +239,19 @@ public class SearchService {
                     "发票",
                     invoice.getId(),
                     invoice.getInvoiceNumber()
+            );
+            map.computeIfAbsent(fileId, k -> new ArrayList<>()).add(source);
+        }
+
+        List<SubscriptionRecordAttachment> subAtts = subscriptionRecordAttachmentRepository.findByFileIdIn(fileIds);
+
+        for (SubscriptionRecordAttachment sa : subAtts) {
+            Long fileId = sa.getFile().getId();
+            SourceInfo source = new SourceInfo(
+                    SourceType.SUBSCRIPTION,
+                    "订阅",
+                    sa.getRecord().getSubscription().getId(),
+                    sa.getRecord().getSubscription().getName()
             );
             map.computeIfAbsent(fileId, k -> new ArrayList<>()).add(source);
         }

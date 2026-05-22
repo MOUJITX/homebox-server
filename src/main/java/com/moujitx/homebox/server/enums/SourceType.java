@@ -4,5 +4,6 @@ public enum SourceType {
     ASSET,
     GOOD,
     INVOICE,
-    FILE
+    FILE,
+    SUBSCRIPTION
 }

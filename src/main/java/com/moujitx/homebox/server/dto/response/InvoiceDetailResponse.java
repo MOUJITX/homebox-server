@@ -5,6 +5,7 @@ import com.moujitx.homebox.server.enums.InvoiceStatus;
 import com.moujitx.homebox.server.enums.InvoiceType;
 import com.moujitx.homebox.server.util.OssUrlBuilder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -32,6 +33,8 @@ public class InvoiceDetailResponse {
     private String previewImage;
     private List<InvoiceAttachmentResponse> attachments;
     private List<BoundAssetResponse> assets;
+    @Setter
+    private List<BoundSubscriptionResponse> subscriptions;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

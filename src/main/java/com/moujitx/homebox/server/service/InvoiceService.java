@@ -3,6 +3,7 @@ package com.moujitx.homebox.server.service;
 import com.moujitx.homebox.server.dto.request.CreateInvoiceRequest;
 import com.moujitx.homebox.server.dto.request.UpdateInvoiceRequest;
 import com.moujitx.homebox.server.dto.response.BoundAssetResponse;
+import com.moujitx.homebox.server.dto.response.BoundSubscriptionResponse;
 import com.moujitx.homebox.server.dto.response.InvoiceAttachmentResponse;
 import com.moujitx.homebox.server.dto.response.InvoiceDetailResponse;
 import com.moujitx.homebox.server.dto.response.InvoiceParseResponse;
@@ -17,6 +18,7 @@ import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.AssetInvoiceRepository;
 import com.moujitx.homebox.server.repository.InvoiceAttachmentRepository;
 import com.moujitx.homebox.server.repository.InvoiceRepository;
+import com.moujitx.homebox.server.repository.SubscriptionRecordInvoiceRepository;
 import com.moujitx.homebox.server.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +40,7 @@ public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final InvoiceAttachmentRepository attachmentRepository;
     private final AssetInvoiceRepository assetInvoiceRepository;
+    private final SubscriptionRecordInvoiceRepository subscriptionRecordInvoiceRepository;
     private final FileService fileService;
     private final InvoiceParseService invoiceParseService;
 
@@ -59,9 +62,17 @@ public class InvoiceService {
                             ai -> ai.getInvoice().getId(),
                             Collectors.mapping(BoundAssetResponse::from, Collectors.toList())));
 
+            Map<Long, List<BoundSubscriptionResponse>> subscriptionsByInvoice = subscriptionRecordInvoiceRepository
+                    .findByInvoiceIdIn(invoiceIds).stream()
+                    .collect(Collectors.groupingBy(
+                            si -> si.getInvoice().getId(),
+                            Collectors.mapping(BoundSubscriptionResponse::from, Collectors.toList())));
+
             page.getContent().forEach(r -> {
                 List<BoundAssetResponse> assets = assetsByInvoice.getOrDefault(r.getId(), List.of());
                 r.setAssets(assets);
+                List<BoundSubscriptionResponse> subscriptions = subscriptionsByInvoice.getOrDefault(r.getId(), List.of());
+                r.setSubscriptions(subscriptions);
             });
         }
 
@@ -81,7 +92,13 @@ public class InvoiceService {
                 .map(BoundAssetResponse::from)
                 .toList();
 
-        return InvoiceDetailResponse.from(invoice, boundAssets);
+        List<BoundSubscriptionResponse> boundSubscriptions = subscriptionRecordInvoiceRepository.findByInvoiceId(id).stream()
+                .map(BoundSubscriptionResponse::from)
+                .toList();
+
+        InvoiceDetailResponse detail = InvoiceDetailResponse.from(invoice, boundAssets);
+        detail.setSubscriptions(boundSubscriptions);
+        return detail;
     }
 
     @Transactional
