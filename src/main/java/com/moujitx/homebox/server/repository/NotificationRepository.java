@@ -24,7 +24,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     @Modifying
     @Query(value = """
-            INSERT INTO notifications (type, title, content, is_read, created_at, source_type, source_id, notify_date)
+            INSERT IGNORE INTO notifications (type, title, content, is_read, created_at, source_type, source_id, notify_date)
             VALUES (:type, :title, :content, false, NOW(), :sourceType, :sourceId, :notifyDate)
             """, nativeQuery = true)
     int insert(@Param("type") String type,
