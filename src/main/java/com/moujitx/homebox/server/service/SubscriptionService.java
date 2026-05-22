@@ -177,24 +177,32 @@ public class SubscriptionService {
             int noticeDays = sub.getRenewNoticeDays() != null ? sub.getRenewNoticeDays() : 7;
             LocalDate deadline = today.plusDays(noticeDays);
 
+            String title;
+            String content;
+
             if (!latest.getEndDate().isBefore(today) && !latest.getEndDate().isAfter(deadline)) {
-                String title = "续费提醒";
-                String content = "您的订阅「" + sub.getName() + "」将于 " + latest.getEndDate() + " 到期，请及时续费";
-
-                notificationRepository.insert(
-                        NotificationType.SUBSCRIPTION_RENEWAL.name(),
-                        title, content, "SUBSCRIPTION", sub.getId(), today);
-
-                Notification notification = new Notification();
-                notification.setType(NotificationType.SUBSCRIPTION_RENEWAL);
-                notification.setTitle(title);
-                notification.setContent(content);
-                notification.setSourceType("SUBSCRIPTION");
-                notification.setSourceId(sub.getId());
-                notification.setNotifyDate(today);
-                notification.setCreatedAt(LocalDateTime.now());
-                newNotifications.add(notification);
+                title = "续费提醒";
+                content = "您的订阅「" + sub.getName() + "」将于 " + latest.getEndDate() + " 到期，请及时续费";
+            } else if (latest.getEndDate().equals(today.minusDays(1))) {
+                title = "续费提醒";
+                content = "您的订阅「" + sub.getName() + "」已于昨天（" + latest.getEndDate() + "）到期，请及时续费";
+            } else {
+                continue;
             }
+
+            notificationRepository.insert(
+                    NotificationType.SUBSCRIPTION_RENEWAL.name(),
+                    title, content, "SUBSCRIPTION", sub.getId(), today);
+
+            Notification notification = new Notification();
+            notification.setType(NotificationType.SUBSCRIPTION_RENEWAL);
+            notification.setTitle(title);
+            notification.setContent(content);
+            notification.setSourceType("SUBSCRIPTION");
+            notification.setSourceId(sub.getId());
+            notification.setNotifyDate(today);
+            notification.setCreatedAt(LocalDateTime.now());
+            newNotifications.add(notification);
         }
 
         if (!newNotifications.isEmpty()) {
