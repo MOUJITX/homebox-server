@@ -1,32 +1,38 @@
 package com.moujitx.homebox.server.config;
 
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class SubscriptionNotificationMigration {
 
-    private final EntityManager entityManager;
+    private final JdbcTemplate jdbcTemplate;
 
     @EventListener(ApplicationReadyEvent.class)
     @Order(0)
-    @Transactional
     public void dropDedupConstraint() {
         try {
-            entityManager.createNativeQuery(
-                    "ALTER TABLE notifications DROP INDEX uk_notify_dedup"
-            ).executeUpdate();
-            log.info("Dropped uk_notify_dedup constraint for notification dedup");
+            var rows = jdbcTemplate.queryForList(
+                    "SELECT 1 FROM information_schema.STATISTICS " +
+                    "WHERE TABLE_SCHEMA = DATABASE() " +
+                    "AND TABLE_NAME = 'notifications' " +
+                    "AND INDEX_NAME = 'uk_notify_dedup'"
+            );
+            if (!rows.isEmpty()) {
+                jdbcTemplate.execute("ALTER TABLE notifications DROP INDEX uk_notify_dedup");
+                log.info("Dropped uk_notify_dedup constraint for notification dedup");
+            } else {
+                log.debug("uk_notify_dedup constraint does not exist, skipping");
+            }
         } catch (Exception e) {
-            log.debug("uk_notify_dedup constraint may already be removed: {}", e.getMessage());
+            log.warn("Failed to drop uk_notify_dedup: {}", e.getMessage());
         }
     }
 }
