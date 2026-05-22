@@ -52,7 +52,7 @@ public class SubscriptionService {
         List<SubscriptionResponse> responses = page.getContent().stream()
                 .map(sub -> {
                     SubscriptionResponse r = SubscriptionResponse.from(sub);
-                    SubscriptionRecord latest = recordRepository.findLatestBySubscriptionId(sub.getId()).orElse(null);
+                    SubscriptionRecord latest = recordRepository.findFirstBySubscriptionIdOrderByRecordDateDesc(sub.getId()).orElse(null);
                     if (latest != null) {
                         r.setLatestRecordDate(latest.getRecordDate());
                         r.setLatestRecordAmount(latest.getAmount());
@@ -169,7 +169,7 @@ public class SubscriptionService {
         List<Notification> newNotifications = new ArrayList<>();
 
         for (Subscription sub : subscriptions) {
-            SubscriptionRecord latest = recordRepository.findLatestBySubscriptionId(sub.getId()).orElse(null);
+            SubscriptionRecord latest = recordRepository.findFirstBySubscriptionIdOrderByRecordDateDesc(sub.getId()).orElse(null);
             if (latest == null || latest.getEndDate() == null) {
                 continue;
             }

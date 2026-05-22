@@ -112,7 +112,7 @@ public class DashboardService {
         List<DashboardResponse.UpcomingRenewal> result = new ArrayList<>();
 
         for (Subscription sub : subscriptions) {
-            SubscriptionRecord latest = recordRepository.findLatestBySubscriptionId(sub.getId()).orElse(null);
+            SubscriptionRecord latest = recordRepository.findFirstBySubscriptionIdOrderByRecordDateDesc(sub.getId()).orElse(null);
             if (latest == null || latest.getEndDate() == null) continue;
             if (latest.getEndDate().isBefore(today) || latest.getEndDate().isAfter(deadline)) continue;
 
