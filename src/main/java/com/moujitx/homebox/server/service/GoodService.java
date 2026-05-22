@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -115,7 +116,8 @@ public class GoodService {
         Good good = goodRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Good not found with id: " + id));
 
-        GoodDetailResponse detail = GoodDetailResponse.from(good, computeStatus(good));
+        List<GoodItem> sortedItems = sortItemsForExpiration(good.getItems(), good.getExpiringSoonDays());
+        GoodDetailResponse detail = GoodDetailResponse.from(good, computeStatus(good), sortedItems);
 
         List<GoodAttachmentResponse> attachments = goodAttachmentRepository.findByGoodId(id).stream()
                 .map(a -> GoodAttachmentResponse.from(a, fileService.isIndexed(a.getFile().getId())))
@@ -233,5 +235,30 @@ public class GoodService {
         long daysUntil = ChronoUnit.DAYS.between(today, item.getExpirationDate());
         if (daysUntil <= expiringSoonDays) return ItemStatus.EXPIRING_SOON;
         return ItemStatus.IN_USE;
+    }
+
+    /**
+     * Sort items for expiration management display.
+     * Order: inUse (true first) -> expiration status (EXPIRING_SOON > not expired > EXPIRED) -> expirationDate ASC.
+     */
+    public List<GoodItem> sortItemsForExpiration(List<GoodItem> items, int expiringSoonDays) {
+        LocalDate today = LocalDate.now();
+        return items.stream()
+                .sorted(Comparator
+                        .comparing(GoodItem::isInUse).reversed()
+                        .thenComparing((a, b) -> {
+                            int pa = getExpirationPriority(a.getExpirationDate(), today, expiringSoonDays);
+                            int pb = getExpirationPriority(b.getExpirationDate(), today, expiringSoonDays);
+                            return Integer.compare(pb, pa);
+                        })
+                        .thenComparing(GoodItem::getExpirationDate))
+                .toList();
+    }
+
+    private int getExpirationPriority(LocalDate expirationDate, LocalDate today, int expiringSoonDays) {
+        if (expirationDate.isBefore(today)) return 0; // EXPIRED
+        long daysUntil = ChronoUnit.DAYS.between(today, expirationDate);
+        if (daysUntil <= expiringSoonDays) return 2; // EXPIRING_SOON
+        return 1; // not expired
     }
 }

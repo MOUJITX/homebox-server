@@ -17,6 +17,7 @@ import com.moujitx.homebox.server.util.DateCalculator;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,11 +30,15 @@ public class GoodItemService {
     public List<GoodItemResponse> getItemsByGoodId(Long goodId, ItemStatus itemStatus) {
         Good good = goodRepository.findById(goodId)
                 .orElseThrow(() -> new ResourceNotFoundException("Good not found with id: " + goodId));
-        return itemRepository.findByGoodId(goodId).stream()
+
+        List<GoodItem> filtered = itemRepository.findByGoodId(goodId).stream()
                 .filter(item -> {
                     if (itemStatus == null) return true;
                     return goodService.computeItemStatus(item, good.getExpiringSoonDays()) == itemStatus;
                 })
+                .collect(Collectors.toList());
+
+        return goodService.sortItemsForExpiration(filtered, good.getExpiringSoonDays()).stream()
                 .map(GoodItemResponse::from)
                 .toList();
     }
