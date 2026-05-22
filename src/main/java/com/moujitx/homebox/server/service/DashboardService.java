@@ -3,16 +3,23 @@ package com.moujitx.homebox.server.service;
 import com.moujitx.homebox.server.dto.response.DashboardResponse;
 import com.moujitx.homebox.server.entity.Asset;
 import com.moujitx.homebox.server.entity.GoodItem;
+import com.moujitx.homebox.server.entity.Subscription;
+import com.moujitx.homebox.server.entity.SubscriptionRecord;
 import com.moujitx.homebox.server.repository.AssetRepository;
 import com.moujitx.homebox.server.repository.GoodItemRepository;
 import com.moujitx.homebox.server.repository.InvoiceRepository;
+import com.moujitx.homebox.server.repository.SubscriptionRecordRepository;
+import com.moujitx.homebox.server.repository.SubscriptionRepository;
+import com.moujitx.homebox.server.util.OssUrlBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -23,9 +30,12 @@ public class DashboardService {
     private final GoodItemRepository goodItemRepository;
     private final AssetRepository assetRepository;
     private final InvoiceRepository invoiceRepository;
+    private final SubscriptionRepository subscriptionRepository;
+    private final SubscriptionRecordRepository recordRepository;
     private final AssetService assetService;
 
     private static final int DASHBOARD_LIST_LIMIT = 10;
+    private static final int UPCOMING_RENEWAL_DAYS = 7;
 
     @Transactional(readOnly = true)
     public DashboardResponse getDashboard() {
@@ -34,8 +44,9 @@ public class DashboardService {
         List<DashboardResponse.ItemSummary> inUseItems = buildInUseItems();
         List<DashboardResponse.WarrantyExpiringAsset> warrantyExpiringAssets = buildWarrantyExpiringAssets();
         List<DashboardResponse.InUseAsset> inUseAssets = buildInUseAssets();
+        List<DashboardResponse.UpcomingRenewal> upcomingRenewals = buildUpcomingRenewals();
 
-        return new DashboardResponse(stats, expiringSoonItems, inUseItems, warrantyExpiringAssets, inUseAssets);
+        return new DashboardResponse(stats, expiringSoonItems, inUseItems, warrantyExpiringAssets, inUseAssets, upcomingRenewals);
     }
 
     private DashboardResponse.Stats buildStats() {
@@ -43,7 +54,13 @@ public class DashboardService {
         long assetCount = assetRepository.count();
         var totalAssetPrice = assetRepository.sumAllPrices();
         long invoiceCount = invoiceRepository.count();
-        return new DashboardResponse.Stats(itemCount, assetCount, totalAssetPrice, invoiceCount);
+        long activeSubscriptionCount = subscriptionRepository.countActive();
+        LocalDate now = LocalDate.now();
+        LocalDate monthStart = now.withDayOfMonth(1);
+        LocalDate monthEnd = now.withDayOfMonth(now.lengthOfMonth());
+        BigDecimal monthlySubscriptionSpending = subscriptionRepository.sumAmountByDateRange(monthStart, monthEnd);
+        return new DashboardResponse.Stats(itemCount, assetCount, totalAssetPrice, invoiceCount,
+                activeSubscriptionCount, monthlySubscriptionSpending);
     }
 
     private List<DashboardResponse.ItemSummary> buildExpiringSoonItems() {
@@ -86,5 +103,36 @@ public class DashboardService {
         return assets.stream()
                 .map(asset -> DashboardResponse.InUseAsset.from(asset, assetService.computeWarrantyStatus(asset)))
                 .toList();
+    }
+
+    private List<DashboardResponse.UpcomingRenewal> buildUpcomingRenewals() {
+        List<Subscription> subscriptions = subscriptionRepository.findActivePeriodicSubscriptions();
+        LocalDate today = LocalDate.now();
+        LocalDate deadline = today.plusDays(UPCOMING_RENEWAL_DAYS);
+        List<DashboardResponse.UpcomingRenewal> result = new ArrayList<>();
+
+        for (Subscription sub : subscriptions) {
+            SubscriptionRecord latest = recordRepository.findLatestBySubscriptionId(sub.getId()).orElse(null);
+            if (latest == null || latest.getEndDate() == null) continue;
+            if (latest.getEndDate().isBefore(today) || latest.getEndDate().isAfter(deadline)) continue;
+
+            DashboardResponse.UpcomingRenewal item = new DashboardResponse.UpcomingRenewal();
+            item.setId(sub.getId());
+            item.setName(sub.getName());
+            item.setPlatformName(sub.getPlatform().getName());
+            if (sub.getPlatform().getLogoFile() != null) {
+                item.setPlatformLogoUrl(OssUrlBuilder.build(
+                        sub.getPlatform().getLogoFile().getStoredFilename(),
+                        sub.getPlatform().getLogoFile().getOriginalFilename()));
+            }
+            item.setEndDate(latest.getEndDate());
+            result.add(item);
+        }
+
+        result.sort(Comparator.comparing(DashboardResponse.UpcomingRenewal::getEndDate));
+        if (result.size() > 5) {
+            return result.subList(0, 5);
+        }
+        return result;
     }
 }

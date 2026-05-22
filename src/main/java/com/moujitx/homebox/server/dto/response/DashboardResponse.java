@@ -6,6 +6,7 @@ import com.moujitx.homebox.server.enums.WarrantyStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ public class DashboardResponse {
     private List<ItemSummary> inUseItems;
     private List<WarrantyExpiringAsset> warrantyExpiringAssets;
     private List<InUseAsset> inUseAssets;
+    private List<UpcomingRenewal> upcomingRenewals;
 
     @Getter
     @NoArgsConstructor
@@ -31,6 +33,8 @@ public class DashboardResponse {
         private long assetCount;
         private BigDecimal totalAssetPrice;
         private long invoiceCount;
+        private long activeSubscriptionCount;
+        private BigDecimal monthlySubscriptionSpending;
     }
 
     @Getter
@@ -83,6 +87,18 @@ public class DashboardResponse {
             dto.shopDate = asset.getShopDate();
             return dto;
         }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpcomingRenewal {
+        private Long id;
+        private String name;
+        private String platformName;
+        private String platformLogoUrl;
+        private LocalDate endDate;
     }
 
     @Getter
