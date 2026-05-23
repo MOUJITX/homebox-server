@@ -28,6 +28,19 @@ public interface VisitRecordRepository extends JpaRepository<VisitRecord, Long> 
     @Query("SELECT v FROM VisitRecord v JOIN FETCH v.institution WHERE v.patientName LIKE %:patientName%")
     Page<VisitRecord> findByPatientNameContaining(@Param("patientName") String patientName, Pageable pageable);
 
+    @Query("SELECT v FROM VisitRecord v JOIN FETCH v.institution WHERE " +
+           "(:visitType IS NULL OR v.visitType = :visitType) AND " +
+           "(:startDate IS NULL OR v.visitDate >= :startDate) AND " +
+           "(:endDate IS NULL OR v.visitDate <= :endDate) AND " +
+           "(:institutionId IS NULL OR v.institution.id = :institutionId) AND " +
+           "(:patientName IS NULL OR v.patientName LIKE %:patientName%)")
+    Page<VisitRecord> findWithFilters(@Param("visitType") VisitType visitType,
+                                       @Param("startDate") LocalDate startDate,
+                                       @Param("endDate") LocalDate endDate,
+                                       @Param("institutionId") Long institutionId,
+                                       @Param("patientName") String patientName,
+                                       Pageable pageable);
+
     @Query("SELECT DISTINCT v.patientName FROM VisitRecord v ORDER BY v.patientName")
     List<String> findDistinctPatientNames();
 }

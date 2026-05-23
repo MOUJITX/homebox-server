@@ -36,21 +36,9 @@ public class VisitRecordService {
     public Page<VisitRecordResponse> list(int page, int size, VisitType visitType, LocalDate startDate,
                                            LocalDate endDate, Long institutionId, String patientName) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "visitDate"));
-        Page<VisitRecord> result;
-
-        if (visitType != null) {
-            result = visitRecordRepository.findByVisitType(visitType, pageable);
-        } else if (startDate != null && endDate != null) {
-            result = visitRecordRepository.findByVisitDateBetween(startDate, endDate, pageable);
-        } else if (institutionId != null) {
-            result = visitRecordRepository.findByInstitutionId(institutionId, pageable);
-        } else if (patientName != null && !patientName.isBlank()) {
-            result = visitRecordRepository.findByPatientNameContaining(patientName, pageable);
-        } else {
-            result = visitRecordRepository.findAllWithInstitution(pageable);
-        }
-
-        return result.map(VisitRecordResponse::from);
+        String nameFilter = (patientName != null && !patientName.isBlank()) ? patientName : null;
+        return visitRecordRepository.findWithFilters(visitType, startDate, endDate, institutionId, nameFilter, pageable)
+                .map(VisitRecordResponse::from);
     }
 
     @Transactional(readOnly = true)
