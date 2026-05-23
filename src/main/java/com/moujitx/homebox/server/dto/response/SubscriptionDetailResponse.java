@@ -8,7 +8,6 @@ import com.moujitx.homebox.server.enums.SubscriptionType;
 import com.moujitx.homebox.server.util.OssUrlBuilder;
 import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,9 +19,6 @@ public class SubscriptionDetailResponse {
     private String description;
     private SubscriptionType subscriptionType;
     private BillingMode billingMode;
-    private Integer billingCycleDays;
-    private BigDecimal price;
-    private String currency;
     private Long platformId;
     private String platformName;
     private String platformLogoUrl;
@@ -41,9 +37,6 @@ public class SubscriptionDetailResponse {
         r.description = s.getDescription();
         r.subscriptionType = s.getSubscriptionType();
         r.billingMode = s.getBillingMode();
-        r.billingCycleDays = s.getBillingCycleDays();
-        r.price = s.getPrice();
-        r.currency = s.getCurrency();
         r.platformId = s.getPlatform().getId();
         r.platformName = s.getPlatform().getName();
         r.platformWebsite = s.getPlatform().getWebsite();

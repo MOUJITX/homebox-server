@@ -20,9 +20,6 @@ public class SubscriptionResponse {
     private String description;
     private SubscriptionType subscriptionType;
     private BillingMode billingMode;
-    private Integer billingCycleDays;
-    private BigDecimal price;
-    private String currency;
     private Long platformId;
     private String platformName;
     private String platformLogoUrl;
@@ -48,9 +45,6 @@ public class SubscriptionResponse {
         r.description = s.getDescription();
         r.subscriptionType = s.getSubscriptionType();
         r.billingMode = s.getBillingMode();
-        r.billingCycleDays = s.getBillingCycleDays();
-        r.price = s.getPrice();
-        r.currency = s.getCurrency();
         r.platformId = s.getPlatform().getId();
         r.platformName = s.getPlatform().getName();
         if (s.getPlatform().getLogoFile() != null) {

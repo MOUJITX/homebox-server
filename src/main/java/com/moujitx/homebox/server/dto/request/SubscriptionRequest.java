@@ -8,8 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-
 @Getter
 @Setter
 public class SubscriptionRequest {
@@ -23,12 +21,6 @@ public class SubscriptionRequest {
     private SubscriptionType subscriptionType;
 
     private BillingMode billingMode;
-
-    private Integer billingCycleDays;
-
-    private BigDecimal price;
-
-    private String currency;
 
     @NotNull
     private Long platformId;

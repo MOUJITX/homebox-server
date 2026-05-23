@@ -88,9 +88,6 @@ public class SubscriptionService {
         subscription.setDescription(request.getDescription());
         subscription.setSubscriptionType(request.getSubscriptionType());
         subscription.setBillingMode(request.getBillingMode());
-        subscription.setBillingCycleDays(request.getBillingCycleDays());
-        subscription.setPrice(request.getPrice());
-        subscription.setCurrency(request.getCurrency() != null ? request.getCurrency() : "CNY");
         subscription.setPlatform(platform);
         subscription.setStatus(request.getStatus() != null ? request.getStatus() : SubscriptionStatus.ACTIVE);
         subscription.setRenewNoticeDays(request.getRenewNoticeDays() != null ? request.getRenewNoticeDays() : 7);
@@ -116,15 +113,6 @@ public class SubscriptionService {
         }
         if (request.getBillingMode() != null) {
             subscription.setBillingMode(request.getBillingMode());
-        }
-        if (request.getBillingCycleDays() != null) {
-            subscription.setBillingCycleDays(request.getBillingCycleDays());
-        }
-        if (request.getPrice() != null) {
-            subscription.setPrice(request.getPrice());
-        }
-        if (request.getCurrency() != null) {
-            subscription.setCurrency(request.getCurrency());
         }
         if (request.getPlatformId() != null) {
             Platform platform = platformRepository.findById(request.getPlatformId())

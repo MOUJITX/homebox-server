@@ -12,7 +12,6 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,14 +40,6 @@ public class Subscription {
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private BillingMode billingMode;
-
-    private Integer billingCycleDays;
-
-    @Column(precision = 12, scale = 2)
-    private BigDecimal price;
-
-    @Column(length = 10)
-    private String currency = "CNY";
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "platform_id")
