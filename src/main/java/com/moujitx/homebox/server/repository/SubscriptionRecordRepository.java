@@ -13,4 +13,8 @@ public interface SubscriptionRecordRepository extends JpaRepository<Subscription
     Optional<SubscriptionRecord> findFirstBySubscriptionIdOrderByRecordDateDesc(Long subscriptionId);
 
     boolean existsByPaymentMethodId(Long paymentMethodId);
+
+    boolean existsByOrderNo(String orderNo);
+
+    boolean existsByOrderNoAndIdNot(String orderNo, Long id);
 }

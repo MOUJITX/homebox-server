@@ -20,6 +20,7 @@ public class SubscriptionRecordResponse {
     private LocalDate startDate;
     private LocalDate endDate;
     private String quantity;
+    private String orderNo;
     private Long paymentMethodId;
     private String paymentMethodName;
     private String paymentMethodLogoUrl;
@@ -38,6 +39,7 @@ public class SubscriptionRecordResponse {
         r.startDate = record.getStartDate();
         r.endDate = record.getEndDate();
         r.quantity = record.getQuantity();
+        r.orderNo = record.getOrderNo();
         if (record.getPaymentMethod() != null) {
             r.paymentMethodId = record.getPaymentMethod().getId();
             r.paymentMethodName = record.getPaymentMethod().getName();

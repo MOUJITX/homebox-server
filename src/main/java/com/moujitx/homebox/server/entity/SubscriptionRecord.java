@@ -46,6 +46,9 @@ public class SubscriptionRecord {
     @Column(length = 100)
     private String quantity;
 
+    @Column(unique = true, length = 100)
+    private String orderNo;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_method_id")
     private PaymentMethod paymentMethod;

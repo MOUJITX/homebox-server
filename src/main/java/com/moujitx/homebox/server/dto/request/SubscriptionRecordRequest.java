@@ -26,6 +26,8 @@ public class SubscriptionRecordRequest {
 
     private String quantity;
 
+    private String orderNo;
+
     private Long paymentMethodId;
 
     private String note;

@@ -51,7 +51,12 @@ public class SubscriptionRecordService {
         record.setStartDate(request.getStartDate());
         record.setEndDate(request.getEndDate());
         record.setQuantity(request.getQuantity());
+        record.setOrderNo(request.getOrderNo() != null && !request.getOrderNo().isBlank() ? request.getOrderNo() : null);
         record.setNote(request.getNote());
+
+        if (record.getOrderNo() != null && recordRepository.existsByOrderNo(record.getOrderNo())) {
+            throw new ResourceAlreadyExistsException("Order number already exists: " + record.getOrderNo());
+        }
 
         if (request.getPaymentMethodId() != null) {
             PaymentMethod paymentMethod = paymentMethodRepository.findById(request.getPaymentMethodId())
@@ -82,6 +87,13 @@ public class SubscriptionRecordService {
         if (request.getStartDate() != null) record.setStartDate(request.getStartDate());
         if (request.getEndDate() != null) record.setEndDate(request.getEndDate());
         if (request.getQuantity() != null) record.setQuantity(request.getQuantity().isEmpty() ? null : request.getQuantity());
+        if (request.getOrderNo() != null) {
+            String orderNo = request.getOrderNo().isBlank() ? null : request.getOrderNo();
+            if (orderNo != null && recordRepository.existsByOrderNoAndIdNot(orderNo, recordId)) {
+                throw new ResourceAlreadyExistsException("Order number already exists: " + orderNo);
+            }
+            record.setOrderNo(orderNo);
+        }
         if (request.getNote() != null) record.setNote(request.getNote().isEmpty() ? null : request.getNote());
 
         if (request.getPaymentMethodId() != null) {
