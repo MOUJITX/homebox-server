@@ -25,6 +25,7 @@ public class SubscriptionRecordResponse {
     private String paymentMethodName;
     private String paymentMethodLogoUrl;
     private String note;
+    private boolean expired;
     private List<SubscriptionRecordAttachmentResponse> attachments;
     private List<SubscriptionRecordInvoiceResponse> invoices;
     private LocalDateTime createdAt;
@@ -50,6 +51,7 @@ public class SubscriptionRecordResponse {
             }
         }
         r.note = record.getNote();
+        r.expired = record.isExpired();
         r.attachments = record.getAttachments().stream()
                 .map(SubscriptionRecordAttachmentResponse::from)
                 .toList();

@@ -40,6 +40,10 @@ public class SubscriptionRecordService {
 
     @Transactional
     public SubscriptionRecordResponse addRecord(Long subscriptionId, SubscriptionRecordRequest request) {
+        if (request.getRecordDate() == null || request.getAmount() == null || request.getStartDate() == null) {
+            throw new IllegalArgumentException("recordDate, amount, and startDate are required");
+        }
+
         Subscription subscription = subscriptionRepository.findById(subscriptionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Subscription not found with id: " + subscriptionId));
 
@@ -53,6 +57,7 @@ public class SubscriptionRecordService {
         record.setQuantity(request.getQuantity());
         record.setOrderNo(request.getOrderNo() != null && !request.getOrderNo().isBlank() ? request.getOrderNo() : null);
         record.setNote(request.getNote());
+        if (request.getExpired() != null) record.setExpired(request.getExpired());
 
         if (record.getOrderNo() != null && recordRepository.existsByOrderNo(record.getOrderNo())) {
             throw new ResourceAlreadyExistsException("Order number already exists: " + record.getOrderNo());
@@ -94,6 +99,7 @@ public class SubscriptionRecordService {
             }
             record.setOrderNo(orderNo);
         }
+        if (request.getExpired() != null) record.setExpired(request.getExpired());
         if (request.getNote() != null) record.setNote(request.getNote().isEmpty() ? null : request.getNote());
 
         if (request.getPaymentMethodId() != null) {

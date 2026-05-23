@@ -1,6 +1,5 @@
 package com.moujitx.homebox.server.dto.request;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,15 +10,12 @@ import java.time.LocalDate;
 @Setter
 public class SubscriptionRecordRequest {
 
-    @NotNull
     private LocalDate recordDate;
 
-    @NotNull
     private BigDecimal amount;
 
     private String currency;
 
-    @NotNull
     private LocalDate startDate;
 
     private LocalDate endDate;
@@ -31,4 +27,6 @@ public class SubscriptionRecordRequest {
     private Long paymentMethodId;
 
     private String note;
+
+    private Boolean expired;
 }

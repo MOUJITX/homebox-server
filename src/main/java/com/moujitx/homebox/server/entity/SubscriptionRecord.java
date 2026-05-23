@@ -56,6 +56,9 @@ public class SubscriptionRecord {
     @Column(columnDefinition = "TEXT")
     private String note;
 
+    @Column(nullable = false)
+    private boolean expired = false;
+
     @OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 25)
     private List<SubscriptionRecordAttachment> attachments = new ArrayList<>();
