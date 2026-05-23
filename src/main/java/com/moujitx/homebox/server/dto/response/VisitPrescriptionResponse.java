@@ -17,12 +17,17 @@ public record VisitPrescriptionResponse(
     LocalDateTime updatedAt
 ) {
     public static VisitPrescriptionResponse from(VisitPrescription p) {
+        return from(p, 0, 0);
+    }
+
+    public static VisitPrescriptionResponse from(VisitPrescription p, long attachmentCount, long invoiceCount) {
         return new VisitPrescriptionResponse(
                 p.getId(),
                 p.getVisit().getId(),
                 p.getDescription(),
                 p.getItems().stream().map(PrescriptionItemResponse::from).toList(),
-                0, 0,
+                attachmentCount,
+                invoiceCount,
                 p.getCreatedAt(),
                 p.getUpdatedAt()
         );

@@ -17,13 +17,18 @@ public record VisitExaminationResponse(
     LocalDateTime updatedAt
 ) {
     public static VisitExaminationResponse from(VisitExamination e) {
+        return from(e, 0, 0);
+    }
+
+    public static VisitExaminationResponse from(VisitExamination e, long attachmentCount, long invoiceCount) {
         return new VisitExaminationResponse(
                 e.getId(),
                 e.getVisit().getId(),
                 e.getName(),
                 e.getExamDate(),
                 e.getDescription(),
-                0, 0,
+                attachmentCount,
+                invoiceCount,
                 e.getCreatedAt(),
                 e.getUpdatedAt()
         );

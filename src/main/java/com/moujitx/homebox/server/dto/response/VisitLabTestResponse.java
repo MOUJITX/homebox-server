@@ -17,13 +17,18 @@ public record VisitLabTestResponse(
     LocalDateTime updatedAt
 ) {
     public static VisitLabTestResponse from(VisitLabTest t) {
+        return from(t, 0, 0);
+    }
+
+    public static VisitLabTestResponse from(VisitLabTest t, long attachmentCount, long invoiceCount) {
         return new VisitLabTestResponse(
                 t.getId(),
                 t.getVisit().getId(),
                 t.getName(),
                 t.getTestDate(),
                 t.getDescription(),
-                0, 0,
+                attachmentCount,
+                invoiceCount,
                 t.getCreatedAt(),
                 t.getUpdatedAt()
         );
