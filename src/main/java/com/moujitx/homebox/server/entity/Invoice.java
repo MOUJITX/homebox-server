@@ -78,6 +78,10 @@ public class Invoice {
     @BatchSize(size = 25)
     private List<AssetInvoice> assetBindings = new ArrayList<>();
 
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 25)
+    private List<VisitInvoice> visitBindings = new ArrayList<>();
+
     @Setter(AccessLevel.NONE)
     @CreationTimestamp
     @Column(updatable = false)

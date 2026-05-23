@@ -34,6 +34,9 @@ public class InvoiceResponse {
     @Setter
     private List<BoundSubscriptionResponse> subscriptions = new ArrayList<>();
 
+    @Setter
+    private List<BoundVisitResponse> visits = new ArrayList<>();
+
     public InvoiceResponse(Long id, String invoiceNumber, LocalDate invoiceDate,
                            InvoiceType invoiceType, InvoiceStatus invoiceStatus,
                            String sellerName, String buyerName,

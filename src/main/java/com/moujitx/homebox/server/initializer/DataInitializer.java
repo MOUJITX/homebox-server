@@ -77,9 +77,10 @@ public class DataInitializer implements CommandLineRunner {
         seedConfig("qiniu.folder", qiniuFolder, "qiniu", false, "Qiniu Folder Path");
         seedConfig("qiniu.domain", qiniuDomain, "qiniu", false, "Qiniu CDN Domain");
 
-        seedConfig("ai.system-prompt", "", "ai", false, "AI System Prompt");
+        seedConfig("ai.system-prompt", "", "ai", false, "AI System Prompt (for invoice parsing)");
         seedConfig("ai.models", "[]", "ai", false, "AI Models List (JSON)");
         seedConfig("ai.active-model", "", "ai", false, "Active AI Model ID");
+        seedConfig("ai.visit-record-prompt", "", "ai", false, "AI Prompt for Visit Record Parsing");
 
         seedConfig("notification.webhook-enabled", "false", "notification", false, "Enable Webhook Notifications");
         seedConfig("notification.webhook-url", "", "notification", false, "Webhook URL");

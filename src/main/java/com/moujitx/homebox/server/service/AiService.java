@@ -3,6 +3,7 @@ package com.moujitx.homebox.server.service;
 import tools.jackson.databind.ObjectMapper;
 import com.moujitx.homebox.server.dto.response.InvoiceParseResponse;
 import com.moujitx.homebox.server.dto.response.TestConnectionResponse;
+import com.moujitx.homebox.server.dto.response.VisitRecordParseResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,28 @@ public class AiService {
             2. 如果某个字段无法从文本中提取，设为null
             3. 金额字段使用数字格式，不包含货币符号和千分位分隔符
             4. 日期格式必须为 yyyy-MM-dd
+            """;
+
+    private static final String VISIT_RECORD_PROMPT = """
+            你是一个就诊记录信息提取助手。请从给定的文本中提取以下信息，并以JSON格式返回。
+
+            字段说明：
+            - patientName: 就诊人姓名
+            - patientAge: 年龄（数字）
+            - patientGender: 性别，取值为 MALE 或 FEMALE
+            - visitType: 就诊类型，取值为 OUTPATIENT 或 INPATIENT。如果文本提到住院、入院、出院等，则为 INPATIENT；如果提到门诊、挂号等，则为 OUTPATIENT
+            - visitDate: 就诊日期（门诊）或入院日期（住院），格式为 yyyy-MM-dd
+            - medicalContent: 病历内容摘要
+            - doctor: 医生姓名
+            - department: 就诊科室（门诊）或入院科室（住院）
+            - dischargeDate: 出院时间（仅住院），格式为 yyyy-MM-dd
+            - dischargeDept: 出院科室（仅住院）
+
+            要求：
+            1. 仅返回JSON对象，不要包含其他文字说明或markdown代码块标记
+            2. 如果某个字段无法从文本中提取，设为null
+            3. 日期格式必须为 yyyy-MM-dd
+            4. 年龄必须是整数数字或null
             """;
 
     @SuppressWarnings("unchecked")
@@ -157,6 +180,77 @@ public class AiService {
         } catch (Exception e) {
             log.error("AI extraction failed", e);
             return new InvoiceParseResponse();
+        }
+    }
+
+    public VisitRecordParseResponse extractVisitRecordInfo(String text) {
+        Map<String, String> activeModel = resolveActiveModel();
+        if (activeModel == null) {
+            log.warn("No active AI model configured, skipping AI extraction");
+            return null;
+        }
+
+        String apiUrl = activeModel.get("apiUrl");
+        String apiKey = activeModel.get("apiKey");
+        String model = activeModel.get("model");
+        String systemPrompt = systemConfigService.get("ai.visit-record-prompt");
+        if (systemPrompt == null || systemPrompt.isBlank()) {
+            systemPrompt = VISIT_RECORD_PROMPT;
+        }
+
+        if (apiUrl == null || apiUrl.isBlank()) {
+            log.warn("AI API URL is not configured");
+            return null;
+        }
+
+        String endpoint = apiUrl;
+        if (!endpoint.endsWith("/chat/completions")) {
+            endpoint = endpoint.replaceAll("/+$", "") + "/chat/completions";
+        }
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(apiKey);
+
+            Map<String, Object> body = Map.of(
+                    "model", model,
+                    "messages", List.of(
+                            Map.of("role", "system", "content", systemPrompt),
+                            Map.of("role", "user", "content", text)),
+                    "temperature", 0.1);
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> response = restTemplate.postForObject(endpoint, request, Map.class);
+
+            if (response == null || !response.containsKey("choices")) {
+                return null;
+            }
+
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> choices = (List<Map<String, Object>>) response.get("choices");
+            if (choices.isEmpty()) {
+                return null;
+            }
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
+            String content = (String) message.get("content");
+            if (content == null || content.isBlank()) {
+                return null;
+            }
+
+            content = content.strip();
+            if (content.startsWith("```")) {
+                content = content.replaceFirst("```(?:json)?\\s*", "");
+                content = content.replaceFirst("\\s*```$", "");
+            }
+
+            return objectMapper.readValue(content, VisitRecordParseResponse.class);
+        } catch (Exception e) {
+            log.error("AI visit record extraction failed", e);
+            return null;
         }
     }
 

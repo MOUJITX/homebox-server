@@ -4,6 +4,7 @@ import com.moujitx.homebox.server.dto.request.CreateInvoiceRequest;
 import com.moujitx.homebox.server.dto.request.UpdateInvoiceRequest;
 import com.moujitx.homebox.server.dto.response.BoundAssetResponse;
 import com.moujitx.homebox.server.dto.response.BoundSubscriptionResponse;
+import com.moujitx.homebox.server.dto.response.BoundVisitResponse;
 import com.moujitx.homebox.server.dto.response.InvoiceAttachmentResponse;
 import com.moujitx.homebox.server.dto.response.InvoiceDetailResponse;
 import com.moujitx.homebox.server.dto.response.InvoiceParseResponse;
@@ -19,6 +20,7 @@ import com.moujitx.homebox.server.repository.AssetInvoiceRepository;
 import com.moujitx.homebox.server.repository.InvoiceAttachmentRepository;
 import com.moujitx.homebox.server.repository.InvoiceRepository;
 import com.moujitx.homebox.server.repository.SubscriptionRecordInvoiceRepository;
+import com.moujitx.homebox.server.repository.VisitInvoiceRepository;
 import com.moujitx.homebox.server.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +43,7 @@ public class InvoiceService {
     private final InvoiceAttachmentRepository attachmentRepository;
     private final AssetInvoiceRepository assetInvoiceRepository;
     private final SubscriptionRecordInvoiceRepository subscriptionRecordInvoiceRepository;
+    private final VisitInvoiceRepository visitInvoiceRepository;
     private final FileService fileService;
     private final InvoiceParseService invoiceParseService;
 
@@ -68,11 +71,19 @@ public class InvoiceService {
                             si -> si.getInvoice().getId(),
                             Collectors.mapping(BoundSubscriptionResponse::from, Collectors.toList())));
 
+            Map<Long, List<BoundVisitResponse>> visitsByInvoice = visitInvoiceRepository
+                    .findByInvoiceIdIn(invoiceIds).stream()
+                    .collect(Collectors.groupingBy(
+                            vi -> vi.getInvoice().getId(),
+                            Collectors.mapping(BoundVisitResponse::from, Collectors.toList())));
+
             page.getContent().forEach(r -> {
                 List<BoundAssetResponse> assets = assetsByInvoice.getOrDefault(r.getId(), List.of());
                 r.setAssets(assets);
                 List<BoundSubscriptionResponse> subscriptions = subscriptionsByInvoice.getOrDefault(r.getId(), List.of());
                 r.setSubscriptions(subscriptions);
+                List<BoundVisitResponse> visits = visitsByInvoice.getOrDefault(r.getId(), List.of());
+                r.setVisits(visits);
             });
         }
 
@@ -96,8 +107,13 @@ public class InvoiceService {
                 .map(BoundSubscriptionResponse::from)
                 .toList();
 
+        List<BoundVisitResponse> boundVisits = visitInvoiceRepository.findByInvoiceId(id).stream()
+                .map(BoundVisitResponse::from)
+                .toList();
+
         InvoiceDetailResponse detail = InvoiceDetailResponse.from(invoice, boundAssets);
         detail.setSubscriptions(boundSubscriptions);
+        detail.setVisits(boundVisits);
         return detail;
     }
 

@@ -14,5 +14,7 @@ public interface VisitInvoiceRepository extends JpaRepository<VisitInvoice, Long
 
     List<VisitInvoice> findByInvoiceId(Long invoiceId);
 
+    List<VisitInvoice> findByInvoiceIdIn(List<Long> invoiceIds);
+
     void deleteByVisitIdAndSourceTypeAndSourceId(Long visitId, VisitSourceType sourceType, Long sourceId);
 }
