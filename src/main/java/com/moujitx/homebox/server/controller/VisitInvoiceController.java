@@ -1,8 +1,9 @@
 package com.moujitx.homebox.server.controller;
 
+import com.moujitx.homebox.server.dto.request.BindInvoiceRequest;
 import com.moujitx.homebox.server.dto.response.VisitInvoiceResponse;
-import com.moujitx.homebox.server.enums.VisitSourceType;
 import com.moujitx.homebox.server.service.VisitInvoiceService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,10 +25,9 @@ public class VisitInvoiceController {
 
     @PostMapping
     public ResponseEntity<VisitInvoiceResponse> bind(@PathVariable Long visitId,
-                                                       @RequestParam Long invoiceId,
-                                                       @RequestParam VisitSourceType sourceType,
-                                                       @RequestParam Long sourceId) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.bind(visitId, invoiceId, sourceType, sourceId));
+                                                       @Valid @RequestBody BindInvoiceRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(service.bind(visitId, request.getInvoiceId(), request.getSourceType(), request.getSourceId()));
     }
 
     @DeleteMapping("/{id}")
