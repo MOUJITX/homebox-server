@@ -24,9 +24,12 @@ public class MedicationController {
     public ResponseEntity<Page<MedicationReminderResponse>> list(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) Boolean enabled) {
+            @RequestParam(required = false) Boolean enabled,
+            @RequestParam(defaultValue = "courseStartDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+        Sort.Direction direction = sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Page<MedicationReminderResponse> result = medicationService.list(
-                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")), enabled);
+                PageRequest.of(page, size, Sort.by(direction, sortBy)), enabled);
         return ResponseEntity.ok(result);
     }
 
