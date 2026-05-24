@@ -47,6 +47,9 @@ public class VisitRecord {
     @Column(name = "medical_content", columnDefinition = "LONGTEXT")
     private String medicalContent;
 
+    @Column(columnDefinition = "TEXT")
+    private String diagnosis;
+
     @Column(length = 50)
     private String doctor;
 

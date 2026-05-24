@@ -71,6 +71,7 @@ public class AiService {
             - visitType: 就诊类型，取值为 OUTPATIENT 或 INPATIENT。如果文本提到住院、入院、出院等，则为 INPATIENT；如果提到门诊、挂号等，则为 OUTPATIENT
             - visitDate: 就诊日期（门诊）或入院日期（住院），格式为 yyyy-MM-dd
             - medicalContent: 病历内容摘要
+            - diagnosis: 诊断结果或诊断结论
             - doctor: 医生姓名
             - department: 就诊科室（门诊）或入院科室（住院）
             - dischargeDate: 出院时间（仅住院），格式为 yyyy-MM-dd

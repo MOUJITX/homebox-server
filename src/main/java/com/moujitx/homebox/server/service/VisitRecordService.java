@@ -34,10 +34,12 @@ public class VisitRecordService {
 
     @Transactional(readOnly = true)
     public Page<VisitRecordResponse> list(int page, int size, VisitType visitType, LocalDate startDate,
-                                           LocalDate endDate, Long institutionId, String patientName) {
+                                           LocalDate endDate, Long institutionId, String patientName,
+                                           String diagnosis) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "visitDate"));
         String nameFilter = (patientName != null && !patientName.isBlank()) ? patientName : null;
-        return visitRecordRepository.findWithFilters(visitType, startDate, endDate, institutionId, nameFilter, pageable)
+        String diagnosisFilter = (diagnosis != null && !diagnosis.isBlank()) ? diagnosis : null;
+        return visitRecordRepository.findWithFilters(visitType, startDate, endDate, institutionId, nameFilter, diagnosisFilter, pageable)
                 .map(VisitRecordResponse::from);
     }
 
@@ -66,6 +68,7 @@ public class VisitRecordService {
         record.setVisitDate(request.getVisitDate());
         record.setInstitution(institution);
         record.setMedicalContent(request.getMedicalContent());
+        record.setDiagnosis(request.getDiagnosis());
         record.setDoctor(request.getDoctor());
         record.setDepartment(request.getDepartment());
         record.setDischargeDate(request.getDischargeDate());
@@ -90,6 +93,7 @@ public class VisitRecordService {
             record.setInstitution(institution);
         }
         if (request.getMedicalContent() != null) record.setMedicalContent(request.getMedicalContent());
+        if (request.getDiagnosis() != null) record.setDiagnosis(request.getDiagnosis());
         if (request.getDoctor() != null) record.setDoctor(request.getDoctor());
         if (request.getDepartment() != null) record.setDepartment(request.getDepartment());
         if (request.getDischargeDate() != null) record.setDischargeDate(request.getDischargeDate());

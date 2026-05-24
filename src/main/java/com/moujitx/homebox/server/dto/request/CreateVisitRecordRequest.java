@@ -31,6 +31,8 @@ public class CreateVisitRecordRequest {
 
     private String medicalContent;
 
+    private String diagnosis;
+
     private String doctor;
 
     private String department;

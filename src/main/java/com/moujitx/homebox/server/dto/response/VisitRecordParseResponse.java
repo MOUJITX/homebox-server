@@ -12,6 +12,7 @@ public record VisitRecordParseResponse(
     VisitType visitType,
     LocalDate visitDate,
     String medicalContent,
+    String diagnosis,
     String doctor,
     String department,
     LocalDate dischargeDate,

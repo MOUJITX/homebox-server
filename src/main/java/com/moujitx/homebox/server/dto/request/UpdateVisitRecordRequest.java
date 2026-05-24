@@ -25,6 +25,8 @@ public class UpdateVisitRecordRequest {
 
     private String medicalContent;
 
+    private String diagnosis;
+
     private String doctor;
 
     private String department;
