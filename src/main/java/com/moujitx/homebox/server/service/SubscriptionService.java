@@ -52,7 +52,7 @@ public class SubscriptionService {
         List<SubscriptionResponse> responses = page.getContent().stream()
                 .map(sub -> {
                     SubscriptionResponse r = SubscriptionResponse.from(sub);
-                    SubscriptionRecord latest = recordRepository.findFirstBySubscriptionIdOrderByRecordDateDesc(sub.getId()).orElse(null);
+                    SubscriptionRecord latest = recordRepository.findFirstBySubscriptionIdOrderByStartDateDesc(sub.getId()).orElse(null);
                     if (latest != null) {
                         r.setLatestRecordDate(latest.getRecordDate());
                         r.setLatestRecordAmount(latest.getAmount());
@@ -70,7 +70,7 @@ public class SubscriptionService {
         Subscription subscription = subscriptionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Subscription not found with id: " + id));
 
-        List<SubscriptionRecordResponse> records = recordRepository.findBySubscriptionIdOrderByRecordDateDesc(id)
+        List<SubscriptionRecordResponse> records = recordRepository.findBySubscriptionIdOrderByStartDateDesc(id)
                 .stream()
                 .map(SubscriptionRecordResponse::from)
                 .toList();
@@ -130,7 +130,7 @@ public class SubscriptionService {
         }
 
         Subscription saved = subscriptionRepository.save(subscription);
-        List<SubscriptionRecordResponse> records = recordRepository.findBySubscriptionIdOrderByRecordDateDesc(id)
+        List<SubscriptionRecordResponse> records = recordRepository.findBySubscriptionIdOrderByStartDateDesc(id)
                 .stream()
                 .map(SubscriptionRecordResponse::from)
                 .toList();
@@ -157,7 +157,7 @@ public class SubscriptionService {
         List<Notification> newNotifications = new ArrayList<>();
 
         for (Subscription sub : subscriptions) {
-            SubscriptionRecord latest = recordRepository.findFirstBySubscriptionIdOrderByRecordDateDesc(sub.getId()).orElse(null);
+            SubscriptionRecord latest = recordRepository.findFirstBySubscriptionIdOrderByStartDateDesc(sub.getId()).orElse(null);
             if (latest == null || latest.getEndDate() == null) {
                 continue;
             }

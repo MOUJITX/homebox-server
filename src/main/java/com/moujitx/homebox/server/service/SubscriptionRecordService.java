@@ -33,7 +33,7 @@ public class SubscriptionRecordService {
             throw new ResourceNotFoundException("Subscription not found with id: " + subscriptionId);
         }
 
-        return recordRepository.findBySubscriptionIdOrderByRecordDateDesc(subscriptionId).stream()
+        return recordRepository.findBySubscriptionIdOrderByStartDateDesc(subscriptionId).stream()
                 .map(SubscriptionRecordResponse::from)
                 .toList();
     }

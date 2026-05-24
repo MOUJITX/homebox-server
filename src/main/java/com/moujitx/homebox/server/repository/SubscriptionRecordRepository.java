@@ -8,9 +8,9 @@ import java.util.Optional;
 
 public interface SubscriptionRecordRepository extends JpaRepository<SubscriptionRecord, Long> {
 
-    List<SubscriptionRecord> findBySubscriptionIdOrderByRecordDateDesc(Long subscriptionId);
+    List<SubscriptionRecord> findBySubscriptionIdOrderByStartDateDesc(Long subscriptionId);
 
-    Optional<SubscriptionRecord> findFirstBySubscriptionIdOrderByRecordDateDesc(Long subscriptionId);
+    Optional<SubscriptionRecord> findFirstBySubscriptionIdOrderByStartDateDesc(Long subscriptionId);
 
     boolean existsByPaymentMethodId(Long paymentMethodId);
 
