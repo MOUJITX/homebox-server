@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,8 @@ public class VisitPrescription {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "visit_id", nullable = false)
     private VisitRecord visit;
+
+    private LocalDate prescriptionDate;
 
     @Column(columnDefinition = "TEXT")
     private String description;

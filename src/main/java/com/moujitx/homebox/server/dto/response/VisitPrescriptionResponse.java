@@ -3,12 +3,14 @@ package com.moujitx.homebox.server.dto.response;
 import com.moujitx.homebox.server.entity.PrescriptionItem;
 import com.moujitx.homebox.server.entity.VisitPrescription;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public record VisitPrescriptionResponse(
     Long id,
     Long visitId,
+    LocalDate prescriptionDate,
     String description,
     List<PrescriptionItemResponse> items,
     long attachmentCount,
@@ -24,6 +26,7 @@ public record VisitPrescriptionResponse(
         return new VisitPrescriptionResponse(
                 p.getId(),
                 p.getVisit().getId(),
+                p.getPrescriptionDate(),
                 p.getDescription(),
                 p.getItems().stream().map(PrescriptionItemResponse::from).toList(),
                 attachmentCount,

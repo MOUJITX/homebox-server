@@ -52,6 +52,7 @@ public class VisitPrescriptionService {
 
         VisitPrescription prescription = new VisitPrescription();
         prescription.setVisit(visit);
+        prescription.setPrescriptionDate(request.getPrescriptionDate());
         prescription.setDescription(request.getDescription());
 
         return VisitPrescriptionResponse.from(repository.save(prescription), 0, 0);
@@ -62,6 +63,7 @@ public class VisitPrescriptionService {
         VisitPrescription prescription = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Prescription not found with id: " + id));
 
+        if (request.getPrescriptionDate() != null) prescription.setPrescriptionDate(request.getPrescriptionDate());
         if (request.getDescription() != null) prescription.setDescription(request.getDescription());
 
         long attachCount = attachmentRepository.findByVisitIdAndSourceType(prescription.getVisit().getId(), VisitSourceType.PRESCRIPTION).size();
