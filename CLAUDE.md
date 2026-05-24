@@ -30,14 +30,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `controller/` — REST API controllers
   - `dto/request/` — request DTOs with validation
   - `dto/response/` — response DTOs
-  - `entity/` — JPA entities (Role, User, Good, GoodItem, GoodCategory, GoodBrand, GoodPicture, GoodAttachment, FileRecord, TextChunk, Asset, AssetCategory, AssetPlace, AssetStore, AssetPicture, AssetAttachment, AssetInvoice, Invoice, InvoiceAttachment, SystemConfig)
-  - `enums/` — enumerations (GoodStatus, ItemStatus, InvoiceType, InvoiceStatus, WarrantyStatus, SourceType)
+  - `entity/` — JPA entities (Role, User, Good, GoodItem, GoodCategory, GoodBrand, GoodPicture, GoodAttachment, FileRecord, TextChunk, Asset, AssetCategory, AssetPlace, AssetStore, AssetPicture, AssetAttachment, AssetInvoice, Invoice, InvoiceAttachment, SystemConfig, Notification, MedicationReminder, MedicalInstitution, VisitRecord, VisitPrescription, PrescriptionItem, VisitExamination, VisitLabTest, VisitAttachment, VisitInvoice, Subscription, SubscriptionRecord, SubscriptionRecordAttachment, SubscriptionRecordInvoice, PaymentMethod, Platform)
+  - `enums/` — enumerations (GoodStatus, ItemStatus, InvoiceType, InvoiceStatus, WarrantyStatus, SourceType, NotificationType, ProcessStatus, VisitType, VisitSourceType, Gender, SubscriptionType, SubscriptionStatus, BillingMode)
   - `util/` — utility classes (DateCalculator, StringUtil)
   - `exception/` — custom exceptions and global handler
   - `initializer/` — data seeding (root role/user on startup)
   - `repository/` — Spring Data JPA repositories
   - `security/` — JWT token provider, auth filter, UserDetailsService
-  - `service/` — business logic (GoodService, AssetService, InvoiceService, InvoiceParseService, AiService, DashboardService, AuthService, MemberService, ProfileService, RoleService, FileService, SystemConfigService, FileStorageStrategyProvider, LocalStorageStrategy, QiniuStorageStrategy, TextExtractionService, ChunkingService, EsIndexService, SearchService, AssetAttachmentService, GoodAttachmentService, etc.)
+  - `service/` — business logic (GoodService, AssetService, InvoiceService, InvoiceParseService, AiService, DashboardService, AuthService, MemberService, ProfileService, RoleService, FileService, SystemConfigService, FileStorageStrategyProvider, LocalStorageStrategy, QiniuStorageStrategy, TextExtractionService, ChunkingService, EsIndexService, SearchService, AssetAttachmentService, GoodAttachmentService, NotificationService, WebhookService, MedicationService, MedicalInstitutionService, VisitRecordService, VisitPrescriptionService, VisitExaminationService, VisitLabTestService, VisitAttachmentService, VisitInvoiceService, SubscriptionService, SubscriptionRecordService, PaymentMethodService, PlatformService, EsClientProvider, etc.)
 - `src/main/resources/application.yml` — configuration (loads .env via spring.config.import)
 - `src/test/java/com/moujitx/homebox/server/` — tests
 - `docs/` — API docs, database schema, Postman collection

@@ -283,6 +283,193 @@ Elasticsearch key: `elasticsearch.enabled` (`"true"` / `"false"`, default `"fals
 
 UNIQUE INDEX `uk_medication_course` on (good_id, course_start_date, course_end_date).
 
+### good_attachments
+
+| Column  | Type   | Constraints                  |
+|---------|--------|------------------------------|
+| id      | BIGINT | PRIMARY KEY, AUTO_INCREMENT  |
+| good_id | BIGINT | NOT NULL, FK → goods(id)     |
+| file_id | BIGINT | NOT NULL, FK → file_records(id) |
+
+### asset_attachments
+
+| Column  | Type   | Constraints                  |
+|---------|--------|------------------------------|
+| id      | BIGINT | PRIMARY KEY, AUTO_INCREMENT  |
+| asset_id| BIGINT | NOT NULL, FK → assets(id)    |
+| file_id | BIGINT | NOT NULL, FK → file_records(id) |
+
+### medical_institutions
+
+| Column      | Type         | Constraints              |
+|-------------|--------------|--------------------------|
+| id          | BIGINT       | PRIMARY KEY, AUTO_INCREMENT |
+| name        | VARCHAR(100) | NOT NULL                 |
+| note        | TEXT         | NULLABLE                 |
+| created_at  | DATETIME(6)  | NOT NULL, auto-set       |
+| updated_at  | DATETIME(6)  | NOT NULL, auto-set       |
+
+### visit_records
+
+| Column          | Type         | Constraints                          |
+|-----------------|--------------|--------------------------------------|
+| id              | BIGINT       | PRIMARY KEY, AUTO_INCREMENT          |
+| patient_name    | VARCHAR(50)  | NOT NULL                             |
+| patient_age     | INT          | NULLABLE                             |
+| patient_gender  | VARCHAR(10)  | NULLABLE (MALE, FEMALE)              |
+| visit_type      | VARCHAR(15)  | NOT NULL (OUTPATIENT, INPATIENT, EMERGENCY, PHYSICAL_EXAM) |
+| visit_date      | DATE         | NOT NULL                             |
+| institution_id  | BIGINT       | NOT NULL, FK → medical_institutions(id) |
+| medical_content | LONGTEXT     | NULLABLE                             |
+| doctor          | VARCHAR(50)  | NULLABLE                             |
+| department      | VARCHAR(50)  | NULLABLE                             |
+| discharge_date  | DATE         | NULLABLE                             |
+| discharge_dept  | VARCHAR(50)  | NULLABLE                             |
+| created_at      | DATETIME(6)  | NOT NULL, auto-set                   |
+| updated_at      | DATETIME(6)  | NOT NULL, auto-set                   |
+
+### visit_prescriptions
+
+| Column           | Type         | Constraints                          |
+|------------------|--------------|--------------------------------------|
+| id               | BIGINT       | PRIMARY KEY, AUTO_INCREMENT          |
+| visit_id         | BIGINT       | NOT NULL, FK → visit_records(id)     |
+| prescription_date| DATE         | NULLABLE                             |
+| description      | TEXT         | NULLABLE                             |
+| created_at       | DATETIME(6)  | NOT NULL, auto-set                   |
+| updated_at       | DATETIME(6)  | NOT NULL, auto-set                   |
+
+### prescription_items
+
+| Column                 | Type         | Constraints                              |
+|------------------------|--------------|------------------------------------------|
+| id                     | BIGINT       | PRIMARY KEY, AUTO_INCREMENT              |
+| prescription_id        | BIGINT       | NOT NULL, FK → visit_prescriptions(id)   |
+| medication_reminder_id | BIGINT       | NOT NULL, FK → medication_reminders(id)  |
+| note                   | VARCHAR(255) | NULLABLE                                 |
+| created_at             | DATETIME(6)  | NOT NULL, auto-set                       |
+| updated_at             | DATETIME(6)  | NOT NULL, auto-set                       |
+
+### visit_examinations
+
+| Column      | Type         | Constraints                      |
+|-------------|--------------|----------------------------------|
+| id          | BIGINT       | PRIMARY KEY, AUTO_INCREMENT      |
+| visit_id    | BIGINT       | NOT NULL, FK → visit_records(id) |
+| name        | VARCHAR(100) | NOT NULL                         |
+| exam_date   | DATE         | NULLABLE                         |
+| description | TEXT         | NULLABLE                         |
+| created_at  | DATETIME(6)  | NOT NULL, auto-set               |
+| updated_at  | DATETIME(6)  | NOT NULL, auto-set               |
+
+### visit_lab_tests
+
+| Column      | Type         | Constraints                      |
+|-------------|--------------|----------------------------------|
+| id          | BIGINT       | PRIMARY KEY, AUTO_INCREMENT      |
+| visit_id    | BIGINT       | NOT NULL, FK → visit_records(id) |
+| name        | VARCHAR(100) | NOT NULL                         |
+| test_date   | DATE         | NULLABLE                         |
+| description | TEXT         | NULLABLE                         |
+| created_at  | DATETIME(6)  | NOT NULL, auto-set               |
+| updated_at  | DATETIME(6)  | NOT NULL, auto-set               |
+
+### visit_attachments
+
+| Column      | Type         | Constraints                               |
+|-------------|--------------|-------------------------------------------|
+| id          | BIGINT       | PRIMARY KEY, AUTO_INCREMENT               |
+| visit_id    | BIGINT       | NOT NULL, FK → visit_records(id)          |
+| file_id     | BIGINT       | NOT NULL, FK → file_records(id)           |
+| source_type | VARCHAR(15)  | NOT NULL (PRESCRIPTION, EXAMINATION, LAB_TEST) |
+| source_id   | BIGINT       | NOT NULL                                  |
+| created_at  | DATETIME(6)  | NOT NULL, auto-set                        |
+
+### visit_invoices
+
+| Column      | Type         | Constraints                               |
+|-------------|--------------|-------------------------------------------|
+| id          | BIGINT       | PRIMARY KEY, AUTO_INCREMENT               |
+| visit_id    | BIGINT       | NOT NULL, FK → visit_records(id)          |
+| invoice_id  | BIGINT       | NOT NULL, FK → invoices(id)               |
+| source_type | VARCHAR(15)  | NOT NULL (PRESCRIPTION, EXAMINATION, LAB_TEST) |
+| source_id   | BIGINT       | NOT NULL                                  |
+| created_at  | DATETIME(6)  | NOT NULL, auto-set                        |
+
+### subscriptions
+
+| Column            | Type           | Constraints                             |
+|-------------------|----------------|-----------------------------------------|
+| id                | BIGINT         | PRIMARY KEY, AUTO_INCREMENT             |
+| name              | VARCHAR(200)   | NOT NULL                                |
+| description       | TEXT           | NULLABLE                                |
+| subscription_type | VARCHAR(20)    | NOT NULL (PERIODIC, ONE_TIME)           |
+| billing_mode      | VARCHAR(20)    | NULLABLE (MONTHLY, QUARTERLY, YEARLY)   |
+| platform_id       | BIGINT         | NOT NULL, FK → platforms(id)            |
+| status            | VARCHAR(20)    | NOT NULL, default ACTIVE (ACTIVE, EXPIRED, CANCELLED) |
+| renew_notice_days | INT            | NULLABLE, default 7                     |
+| note              | TEXT           | NULLABLE                                |
+| created_at        | DATETIME(6)    | NOT NULL, auto-set                      |
+| updated_at        | DATETIME(6)    | NOT NULL, auto-set                      |
+
+### subscription_records
+
+| Column            | Type           | Constraints                             |
+|-------------------|----------------|-----------------------------------------|
+| id                | BIGINT         | PRIMARY KEY, AUTO_INCREMENT             |
+| subscription_id   | BIGINT         | NOT NULL, FK → subscriptions(id)        |
+| record_date       | DATE           | NOT NULL                                |
+| amount            | DECIMAL(12,2)  | NOT NULL                                |
+| currency          | VARCHAR(10)    | NULLABLE, default CNY                   |
+| start_date        | DATE           | NOT NULL                                |
+| end_date          | DATE           | NULLABLE                                |
+| quantity          | VARCHAR(100)   | NULLABLE                                |
+| order_no          | VARCHAR(100)   | NULLABLE, UNIQUE                        |
+| payment_method_id | BIGINT         | NULLABLE, FK → payment_methods(id)      |
+| note              | TEXT           | NULLABLE                                |
+| expired           | BIT(1)         | NOT NULL, default FALSE                 |
+| created_at        | DATETIME(6)    | NOT NULL, auto-set                      |
+
+### subscription_record_attachments
+
+| Column    | Type   | Constraints                                   |
+|-----------|--------|-----------------------------------------------|
+| id        | BIGINT | PRIMARY KEY, AUTO_INCREMENT                   |
+| record_id | BIGINT | NOT NULL, FK → subscription_records(id)       |
+| file_id   | BIGINT | NOT NULL, FK → file_records(id)               |
+
+### subscription_record_invoices
+
+| Column     | Type        | Constraints                              |
+|------------|-------------|------------------------------------------|
+| id         | BIGINT      | PRIMARY KEY, AUTO_INCREMENT              |
+| record_id  | BIGINT      | NOT NULL, FK → subscription_records(id)  |
+| invoice_id | BIGINT      | NOT NULL, FK → invoices(id)              |
+| created_at | DATETIME(6) | NOT NULL, auto-set                       |
+
+UNIQUE INDEX on (record_id, invoice_id).
+
+### payment_methods
+
+| Column       | Type         | Constraints                          |
+|--------------|--------------|--------------------------------------|
+| id           | BIGINT       | PRIMARY KEY, AUTO_INCREMENT          |
+| name         | VARCHAR(100) | UNIQUE, NOT NULL                     |
+| logo_file_id | BIGINT       | NULLABLE, FK → file_records(id)      |
+| created_at   | DATETIME(6)  | NOT NULL, auto-set                   |
+| updated_at   | DATETIME(6)  | NOT NULL, auto-set                   |
+
+### platforms
+
+| Column       | Type         | Constraints                          |
+|--------------|--------------|--------------------------------------|
+| id           | BIGINT       | PRIMARY KEY, AUTO_INCREMENT          |
+| name         | VARCHAR(100) | UNIQUE, NOT NULL                     |
+| logo_file_id | BIGINT       | NULLABLE, FK → file_records(id)      |
+| website      | VARCHAR(500) | NULLABLE                             |
+| created_at   | DATETIME(6)  | NOT NULL, auto-set                   |
+| updated_at   | DATETIME(6)  | NOT NULL, auto-set                   |
+
 ## Relationships
 
 - `users.role_id` → `roles.id` (Many-to-One: many users can share one role)
@@ -305,6 +492,40 @@ UNIQUE INDEX `uk_medication_course` on (good_id, course_start_date, course_end_d
 - `asset_invoices.asset_id` → `assets.id` (Many-to-One: many bindings reference one asset)
 - `asset_invoices.invoice_id` → `invoices.id` (Many-to-One: many bindings reference one invoice)
 - `medication_reminders.good_id` → `goods.id` (Many-to-One: many reminders can reference one good)
+
+- `good_attachments.good_id` → `goods.id` (Many-to-One: many attachments belong to one good)
+- `good_attachments.file_id` → `file_records.id` (Many-to-One: many attachments can reference one file)
+
+- `asset_attachments.asset_id` → `assets.id` (Many-to-One: many attachments belong to one asset)
+- `asset_attachments.file_id` → `file_records.id` (Many-to-One: many attachments can reference one file)
+
+- `visit_records.institution_id` → `medical_institutions.id` (Many-to-One: many visits reference one institution)
+
+- `visit_prescriptions.visit_id` → `visit_records.id` (Many-to-One: many prescriptions belong to one visit)
+
+- `prescription_items.prescription_id` → `visit_prescriptions.id` (Many-to-One: many items belong to one prescription)
+- `prescription_items.medication_reminder_id` → `medication_reminders.id` (Many-to-One: many items reference one medication reminder)
+
+- `visit_examinations.visit_id` → `visit_records.id` (Many-to-One: many examinations belong to one visit)
+
+- `visit_lab_tests.visit_id` → `visit_records.id` (Many-to-One: many lab tests belong to one visit)
+
+- `visit_attachments.visit_id` → `visit_records.id` (Many-to-One: many attachments belong to one visit)
+- `visit_attachments.file_id` → `file_records.id` (Many-to-One: many attachments can reference one file)
+
+- `visit_invoices.visit_id` → `visit_records.id` (Many-to-One: many bindings reference one visit)
+- `visit_invoices.invoice_id` → `invoices.id` (Many-to-One: many bindings reference one invoice)
+
+- `subscriptions.platform_id` → `platforms.id` (Many-to-One: many subscriptions share one platform)
+
+- `subscription_records.subscription_id` → `subscriptions.id` (Many-to-One: many records belong to one subscription)
+- `subscription_records.payment_method_id` → `payment_methods.id` (Many-to-One: many records reference one payment method)
+
+- `subscription_record_attachments.record_id` → `subscription_records.id` (Many-to-One: many attachments belong to one record)
+- `subscription_record_attachments.file_id` → `file_records.id` (Many-to-One: many attachments can reference one file)
+
+- `subscription_record_invoices.record_id` → `subscription_records.id` (Many-to-One: many bindings reference one record)
+- `subscription_record_invoices.invoice_id` → `invoices.id` (Many-to-One: many bindings reference one invoice)
 
 ## Initial Data
 

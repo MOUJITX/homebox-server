@@ -93,7 +93,9 @@ Get aggregated dashboard data in a single request. Returns stats, expiring items
     "itemCount": 42,
     "assetCount": 15,
     "totalAssetPrice": 25999.50,
-    "invoiceCount": 23
+    "invoiceCount": 23,
+    "activeSubscriptionCount": 5,
+    "monthlySubscriptionSpending": 299.00
   },
   "expiringSoonItems": [
     {
@@ -142,6 +144,15 @@ Get aggregated dashboard data in a single request. Returns stats, expiring items
       "warrantyStatus": "IN_WARRANTY",
       "expirationDate": "2027-03-01"
     }
+  ],
+  "upcomingRenewals": [
+    {
+      "id": 1,
+      "name": "Netflix",
+      "platformName": "Netflix",
+      "platformLogoUrl": null,
+      "endDate": "2026-05-30"
+    }
   ]
 }
 ```
@@ -154,10 +165,13 @@ Get aggregated dashboard data in a single request. Returns stats, expiring items
 | stats.assetCount | Total count of all assets |
 | stats.totalAssetPrice | Sum of all asset prices |
 | stats.invoiceCount | Total count of all invoices |
+| stats.activeSubscriptionCount | Total count of active subscriptions |
+| stats.monthlySubscriptionSpending | Sum of subscription spending this month |
 | expiringSoonItems | Up to 10 items expiring soon (sorted by expirationDate asc) |
 | inUseItems | Up to 10 items in use (sorted by createdAt desc) |
 | warrantyExpiringAssets | Up to 10 assets with warranty expiring soon (sorted by expirationDate asc) |
 | inUseAssets | Up to 10 assets in use (sorted by shopDate desc) |
+| upcomingRenewals | Up to 5 subscriptions with records ending within 7 days (sorted by endDate asc) |
 
 ---
 
@@ -1095,7 +1109,7 @@ Delete an item.
 
 ## File Endpoints
 
-All file endpoints require authentication (any role). Supports any file type. Max file size: 10MB.
+All file endpoints require authentication (any role). Supports any file type. Max file size: 100MB.
 
 ### GET /api/files
 
@@ -1212,7 +1226,7 @@ Retry failed text extraction or chunking/indexing for a file. Only re-executes t
 
 ## Good Picture Endpoints
 
-All good picture endpoints require authentication (any role). Pictures are nested under goods. Max file size: 10MB.
+All good picture endpoints require authentication (any role). Pictures are nested under goods. Max file size: 100MB.
 
 ### POST /api/goods/{goodId}/pictures
 
@@ -1245,6 +1259,56 @@ Download/serve a picture file. Returns the raw image bytes with the appropriate 
 ### DELETE /api/goods/{goodId}/pictures/{pictureId}
 
 Delete a picture (removes from disk and database).
+
+**Response (204):** No content.
+
+---
+
+## Good Attachment Endpoints
+
+All good attachment endpoints require authentication (any role). Attachments are nested under goods.
+
+### GET /api/goods/{goodId}/attachments
+
+List all attachments for a good.
+
+**Response (200):**
+```json
+[
+  {
+    "id": 1,
+    "filename": "manual.pdf",
+    "contentType": "application/pdf",
+    "fileSize": 204800,
+    "url": "/api/goods/1/attachments/1/file",
+    "createdAt": "2026-01-01T00:00:00"
+  }
+]
+```
+
+---
+
+### POST /api/goods/{goodId}/attachments
+
+Upload an attachment for a good. Uses multipart/form-data. Max file size: 100MB.
+
+**Request:** `multipart/form-data` with field `file`
+
+**Response (201):** `GoodAttachmentResponse`
+
+---
+
+### GET /api/goods/{goodId}/attachments/{attachmentId}/file
+
+Download/serve an attachment file.
+
+**Response (200):** Binary file data with appropriate `Content-Type`.
+
+---
+
+### DELETE /api/goods/{goodId}/attachments/{attachmentId}
+
+Delete an attachment.
 
 **Response (204):** No content.
 
@@ -1422,7 +1486,7 @@ Delete an asset. Cannot delete if it has sub-assets.
 
 ### POST /api/assets/{assetId}/pictures
 
-Upload a picture (multipart/form-data, max 10MB).
+Upload a picture (multipart/form-data, max 100MB).
 
 ### GET /api/assets/{assetId}/pictures/{pictureId}/file
 
@@ -1433,6 +1497,53 @@ Serve picture inline with appropriate content type.
 ### DELETE /api/assets/{assetId}/pictures/{pictureId}
 
 Delete a picture.
+
+**Response (204):** No content.
+
+---
+
+## Asset Attachment Endpoints
+
+All asset attachment endpoints require authentication (any role). Attachments are nested under assets.
+
+### GET /api/assets/{assetId}/attachments
+
+List all attachments for an asset.
+
+**Response (200):** `AssetAttachmentResponse[]`
+
+```json
+[
+  {
+    "id": 1,
+    "filename": "manual.pdf",
+    "contentType": "application/pdf",
+    "fileSize": 204800,
+    "url": "/api/assets/1/attachments/1/file",
+    "createdAt": "2026-01-01T00:00:00"
+  }
+]
+```
+
+### POST /api/assets/{assetId}/attachments
+
+Upload an attachment for an asset. Uses multipart/form-data. Max file size: 100MB.
+
+**Request:** `multipart/form-data` with field `file`
+
+**Response (201):** `AssetAttachmentResponse`
+
+### GET /api/assets/{assetId}/attachments/{attachmentId}/file
+
+Download/serve an attachment file.
+
+**Response (200):** Binary file data with appropriate `Content-Type`.
+
+### DELETE /api/assets/{assetId}/attachments/{attachmentId}
+
+Delete an attachment.
+
+**Response (204):** No content.
 
 ---
 
@@ -1996,6 +2107,636 @@ Update an existing medication reminder. All fields are optional.
 ### DELETE /api/medications/{id}
 
 Delete a medication reminder.
+
+**Response (204):** No content.
+
+---
+
+## Medical Institution Endpoints
+
+All medical institution endpoints require authentication (any role).
+
+### GET /api/medical-institutions
+
+List all medical institutions.
+
+**Response (200):** `MedicalInstitutionResponse[]`
+
+```json
+[
+  {
+    "id": 1,
+    "name": "市人民医院",
+    "address": "人民路100号",
+    "phone": "010-12345678",
+    "createdAt": "2026-01-01T00:00:00",
+    "updatedAt": "2026-01-01T00:00:00"
+  }
+]
+```
+
+### GET /api/medical-institutions/page
+
+List medical institutions with pagination and optional name filter.
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description        |
+|-----------|------|---------|-------------------|
+| page      | int  | 0       | Page number        |
+| size      | int  | 20      | Page size          |
+| name      | string | —     | Filter by name     |
+
+**Response (200):** `Page<MedicalInstitutionResponse>`
+
+### GET /api/medical-institutions/{id}
+
+Get a specific medical institution by ID.
+
+### POST /api/medical-institutions
+
+Create a new medical institution.
+
+**Request Body:**
+```json
+{
+  "name": "市人民医院",
+  "address": "人民路100号",
+  "phone": "010-12345678"
+}
+```
+
+**Response (201):** `MedicalInstitutionResponse`
+
+### PUT /api/medical-institutions/{id}
+
+Update a medical institution. All fields are optional.
+
+### DELETE /api/medical-institutions/{id}
+
+Delete a medical institution. Cannot delete if referenced by visit records.
+
+**Response (204):** No content.
+
+---
+
+## Visit Record Endpoints
+
+All visit record endpoints require authentication (any role).
+
+### GET /api/visit-records
+
+List visit records with server-side pagination and filtering.
+
+**Query Parameters:**
+
+| Parameter     | Type   | Default | Description              |
+|---------------|--------|---------|--------------------------|
+| page          | int    | 0       | Page number              |
+| size          | int    | 10      | Page size                |
+| visitType     | enum   | —       | OUTPATIENT, INPATIENT, EMERGENCY, PHYSICAL_EXAM |
+| startDate     | date   | —       | Filter visits on or after this date |
+| endDate       | date   | —       | Filter visits on or before this date |
+| institutionId | long   | —       | Filter by medical institution ID |
+| patientName   | string | —       | Filter by patient name   |
+
+**Response (200):** `Page<VisitRecordResponse>`
+
+### GET /api/visit-records/patient-names
+
+Get distinct patient names for autocomplete suggestions.
+
+**Response (200):** `["张三", "李四"]`
+
+### GET /api/visit-records/{id}
+
+Get a visit record by ID with full details.
+
+**Response (200):** `VisitRecordResponse`
+
+### POST /api/visit-records
+
+Create a new visit record.
+
+**Request Body:**
+```json
+{
+  "visitType": "OUTPATIENT",
+  "visitDate": "2026-05-15",
+  "institutionId": 1,
+  "department": "内科",
+  "doctorName": "王医生",
+  "patientName": "张三",
+  "patientGender": "MALE",
+  "patientAge": 35,
+  "chiefComplaint": "头痛三天",
+  "diagnosis": "偏头痛",
+  "note": "注意休息"
+}
+```
+
+**Response (201):** `VisitRecordResponse`
+
+### POST /api/visit-records/parse
+
+Parse unstructured text (via AI) to extract visit record data. Returns parsed data for review — does NOT save.
+
+**Request Body:**
+```json
+{
+  "text": "2026年5月15日，去市人民医院看内科..."
+}
+```
+
+**Response (200):** `VisitRecordParseResponse`
+
+### PUT /api/visit-records/{id}
+
+Update an existing visit record. All fields optional.
+
+### DELETE /api/visit-records/{id}
+
+Delete a visit record. Cascades to delete all sub-records.
+
+**Response (204):** No content.
+
+---
+
+## Visit Prescription Endpoints
+
+All visit prescription endpoints require authentication (any role). Prescriptions are nested under visit records.
+
+### GET /api/visit-records/{visitId}/prescriptions
+
+List prescriptions for a visit record with pagination.
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| page      | int  | 0       | Page number |
+| size      | int  | 10      | Page size   |
+
+**Response (200):** `Page<VisitPrescriptionResponse>`
+
+### GET /api/visit-records/{visitId}/prescriptions/{id}
+
+Get a specific prescription by ID.
+
+### POST /api/visit-records/{visitId}/prescriptions
+
+Create a new prescription.
+
+**Request Body:**
+```json
+{
+  "prescriptionDate": "2026-05-15",
+  "doctorName": "王医生",
+  "note": "按说明服用"
+}
+```
+
+**Response (201):** `VisitPrescriptionResponse`
+
+### PUT /api/visit-records/{visitId}/prescriptions/{id}
+
+Update a prescription. All fields optional.
+
+### DELETE /api/visit-records/{visitId}/prescriptions/{id}
+
+Delete a prescription. Cascades to delete all items.
+
+**Response (204):** No content.
+
+---
+
+## Prescription Item Endpoints
+
+All prescription item endpoints require authentication (any role). Items are nested under prescriptions.
+
+### POST /api/visit-records/{visitId}/prescriptions/{prescriptionId}/items
+
+Add an item to a prescription.
+
+**Request Body:**
+```json
+{
+  "drugName": "布洛芬",
+  "specification": "0.3g×24片",
+  "dosage": "1片",
+  "frequency": "每日2次",
+  "quantity": 24,
+  "unit": "片",
+  "note": "饭后服用"
+}
+```
+
+**Response (201):** `PrescriptionItemResponse`
+
+### PUT /api/visit-records/{visitId}/prescriptions/{prescriptionId}/items/{itemId}
+
+Update a prescription item. All fields optional.
+
+### DELETE /api/visit-records/{visitId}/prescriptions/{prescriptionId}/items/{itemId}
+
+Delete a prescription item.
+
+**Response (204):** No content.
+
+---
+
+## Visit Examination Endpoints
+
+All visit examination endpoints require authentication (any role). Examinations are nested under visit records.
+
+### GET /api/visit-records/{visitId}/examinations
+
+List examinations for a visit record with pagination.
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| page      | int  | 0       | Page number |
+| size      | int  | 10      | Page size   |
+
+**Response (200):** `Page<VisitExaminationResponse>`
+
+### GET /api/visit-records/{visitId}/examinations/{id}
+
+Get a specific examination by ID.
+
+### POST /api/visit-records/{visitId}/examinations
+
+Create a new examination record.
+
+**Request Body:**
+```json
+{
+  "examDate": "2026-05-15",
+  "examName": "血常规",
+  "examResult": "白细胞偏高",
+  "note": ""
+}
+```
+
+**Response (201):** `VisitExaminationResponse`
+
+### PUT /api/visit-records/{visitId}/examinations/{id}
+
+Update an examination. All fields optional.
+
+### DELETE /api/visit-records/{visitId}/examinations/{id}
+
+Delete an examination.
+
+**Response (204):** No content.
+
+---
+
+## Visit Lab Test Endpoints
+
+All visit lab test endpoints require authentication (any role). Lab tests are nested under visit records.
+
+### GET /api/visit-records/{visitId}/lab-tests
+
+List lab tests for a visit record with pagination.
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| page      | int  | 0       | Page number |
+| size      | int  | 10      | Page size   |
+
+**Response (200):** `Page<VisitLabTestResponse>`
+
+### GET /api/visit-records/{visitId}/lab-tests/{id}
+
+Get a specific lab test by ID.
+
+### POST /api/visit-records/{visitId}/lab-tests
+
+Create a new lab test record.
+
+**Request Body:**
+```json
+{
+  "testDate": "2026-05-15",
+  "testName": "肝功能",
+  "testResult": "ALT: 45 U/L",
+  "note": ""
+}
+```
+
+**Response (201):** `VisitLabTestResponse`
+
+### PUT /api/visit-records/{visitId}/lab-tests/{id}
+
+Update a lab test. All fields optional.
+
+### DELETE /api/visit-records/{visitId}/lab-tests/{id}
+
+Delete a lab test.
+
+**Response (204):** No content.
+
+---
+
+## Visit Attachment Endpoints
+
+All visit attachment endpoints require authentication (any role). Attachments are nested under visit records.
+
+### GET /api/visit-records/{visitId}/attachments
+
+List all attachments for a visit record.
+
+**Response (200):** `VisitAttachmentResponse[]`
+
+### POST /api/visit-records/{visitId}/attachments
+
+Upload an attachment. Uses multipart/form-data. Max file size: 100MB.
+
+**Query Parameters:**
+
+| Parameter  | Type | Description |
+|------------|------|-------------|
+| sourceType | enum | PRESCRIPTION, EXAMINATION, LAB_TEST |
+| sourceId   | long | ID of the source entity |
+
+**Request:** `multipart/form-data` with field `file`
+
+**Response (201):** `VisitAttachmentResponse`
+
+### DELETE /api/visit-records/{visitId}/attachments/{id}
+
+Delete an attachment.
+
+**Response (204):** No content.
+
+---
+
+## Visit Invoice Endpoints
+
+All visit invoice endpoints require authentication (any role). Invoices are bound to visit records.
+
+### GET /api/visit-records/{visitId}/invoices
+
+List all invoices bound to a visit record.
+
+**Response (200):** `VisitInvoiceResponse[]`
+
+### POST /api/visit-records/{visitId}/invoices
+
+Bind an invoice to a visit record.
+
+**Request Body:**
+```json
+{
+  "invoiceId": 5,
+  "sourceType": "PRESCRIPTION",
+  "sourceId": 3
+}
+```
+
+**Response (201):** `VisitInvoiceResponse`
+
+### DELETE /api/visit-records/{visitId}/invoices/{id}
+
+Unbind an invoice from a visit record. Does not delete the invoice.
+
+**Response (204):** No content.
+
+---
+
+## Subscription Endpoints
+
+All subscription endpoints require authentication (any role).
+
+### GET /api/subscriptions
+
+List subscriptions with server-side pagination, search, and filtering.
+
+**Query Parameters:**
+
+| Parameter  | Type   | Default   | Description                    |
+|------------|--------|-----------|--------------------------------|
+| search     | string | —         | Search by name                 |
+| type       | enum   | —         | PERIODIC, ONE_TIME             |
+| status     | enum   | —         | ACTIVE, EXPIRED, CANCELLED     |
+| platformId | long   | —         | Filter by platform ID          |
+| page       | int    | 0         | Page number                    |
+| size       | int    | 10        | Page size                      |
+| sortBy     | string | createdAt | Sort field                     |
+| sortDir    | string | desc      | Sort direction (asc/desc)      |
+
+**Response (200):** `Page<SubscriptionResponse>`
+
+### GET /api/subscriptions/{id}
+
+Get a subscription by ID with full details and records.
+
+**Response (200):** `SubscriptionDetailResponse`
+
+### POST /api/subscriptions
+
+Create a new subscription.
+
+**Request Body:**
+```json
+{
+  "name": "Netflix",
+  "type": "PERIODIC",
+  "status": "ACTIVE",
+  "platformId": 1,
+  "billingMode": "MONTHLY",
+  "price": 15.99,
+  "description": "Standard plan"
+}
+```
+
+**Response (201):** `SubscriptionDetailResponse`
+
+### PUT /api/subscriptions/{id}
+
+Update a subscription. All fields optional.
+
+### DELETE /api/subscriptions/{id}
+
+Delete a subscription. Cascades to delete all records.
+
+**Response (204):** No content.
+
+---
+
+## Subscription Record Endpoints
+
+All subscription record endpoints require authentication (any role). Records are nested under subscriptions.
+
+### GET /api/subscriptions/{subId}/records
+
+List all records for a subscription.
+
+**Response (200):** `SubscriptionRecordResponse[]`
+
+### POST /api/subscriptions/{subId}/records
+
+Add a new payment/renewal record.
+
+**Request Body:**
+```json
+{
+  "startDate": "2026-05-01",
+  "endDate": "2026-06-01",
+  "amount": 15.99,
+  "paymentMethodId": 1,
+  "note": ""
+}
+```
+
+**Response (201):** `SubscriptionRecordResponse`
+
+### PUT /api/subscriptions/{subId}/records/{id}
+
+Update a record. All fields optional.
+
+### DELETE /api/subscriptions/{subId}/records/{id}
+
+Delete a record.
+
+**Response (204):** No content.
+
+### POST /api/subscription-records/{id}/attachments
+
+Upload an attachment for a record. Uses multipart/form-data. Max file size: 100MB.
+
+**Request:** `multipart/form-data` with field `file`
+
+**Response (201):** `SubscriptionRecordAttachmentResponse`
+
+### GET /api/subscription-records/{id}/attachments
+
+List attachments for a record.
+
+**Response (200):** `SubscriptionRecordAttachmentResponse[]`
+
+### DELETE /api/subscription-records/{id}/attachments/{attachmentId}
+
+Delete a record attachment.
+
+**Response (204):** No content.
+
+### GET /api/subscription-records/{id}/invoices
+
+List invoices bound to a record.
+
+**Response (200):** `SubscriptionRecordInvoiceResponse[]`
+
+### POST /api/subscription-records/{id}/invoices/{invoiceId}
+
+Bind an invoice to a record.
+
+**Response (201):** No content.
+
+### DELETE /api/subscription-records/{id}/invoices/{invoiceId}
+
+Unbind an invoice from a record. Does not delete the invoice.
+
+**Response (204):** No content.
+
+---
+
+## Payment Method Endpoints
+
+All payment method endpoints require authentication (any role).
+
+### GET /api/payment-methods
+
+List all payment methods.
+
+**Response (200):** `PaymentMethodResponse[]`
+
+```json
+[
+  {
+    "id": 1,
+    "name": "微信支付",
+    "createdAt": "2026-01-01T00:00:00",
+    "updatedAt": "2026-01-01T00:00:00"
+  }
+]
+```
+
+### POST /api/payment-methods
+
+Create a new payment method.
+
+**Request Body:**
+```json
+{
+  "name": "支付宝"
+}
+```
+
+**Response (201):** `PaymentMethodResponse`
+
+### PUT /api/payment-methods/{id}
+
+Update a payment method. All fields optional.
+
+### DELETE /api/payment-methods/{id}
+
+Delete a payment method. Cannot delete if used by records.
+
+**Response (204):** No content.
+
+---
+
+## Platform Endpoints
+
+All platform endpoints require authentication (any role).
+
+### GET /api/platforms
+
+List all platforms.
+
+**Response (200):** `PlatformResponse[]`
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Netflix",
+    "website": "https://netflix.com",
+    "logoFileId": null,
+    "createdAt": "2026-01-01T00:00:00",
+    "updatedAt": "2026-01-01T00:00:00"
+  }
+]
+```
+
+### POST /api/platforms
+
+Create a new platform.
+
+**Request Body:**
+```json
+{
+  "name": "Netflix",
+  "website": "https://netflix.com",
+  "logoFileId": null
+}
+```
+
+**Response (201):** `PlatformResponse`
+
+### PUT /api/platforms/{id}
+
+Update a platform. All fields optional.
+
+### DELETE /api/platforms/{id}
+
+Delete a platform. Cannot delete if used by subscriptions.
 
 **Response (204):** No content.
 

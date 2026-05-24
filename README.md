@@ -1,6 +1,6 @@
 # HomeBox
 
-A Spring Boot backend application for home management with goods expiration tracking, asset management, and role-based access control.
+A Spring Boot backend application for home management with goods expiration tracking, asset management, invoice management, subscription management, medical records, medication reminders, notifications, full-text search, and role-based access control.
 
 ## Tech Stack
 
@@ -17,17 +17,17 @@ A Spring Boot backend application for home management with goods expiration trac
 src/main/java/com/moujitx/homebox/server/
 ├── HomeBoxApplication.java           # Application entry point
 ├── config/                           # Security & AI configuration
-├── controller/                       # REST controllers (19 controllers)
+├── controller/                       # REST controllers (36 controllers)
 ├── dto/request/                      # Request DTOs
 ├── dto/response/                     # Response DTOs
-├── entity/                           # JPA entities (Role, User, Good, GoodItem, GoodCategory, GoodBrand, GoodPicture, FileRecord, Asset, AssetCategory, AssetPlace, AssetStore, AssetPicture, AssetInvoice, Invoice, InvoiceAttachment, SystemConfig)
-├── enums/                            # Enumerations (GoodStatus, ItemStatus, InvoiceType, InvoiceStatus, WarrantyStatus)
+├── entity/                           # JPA entities (Role, User, Good, GoodItem, GoodCategory, GoodBrand, GoodPicture, GoodAttachment, FileRecord, TextChunk, Asset, AssetCategory, AssetPlace, AssetStore, AssetPicture, AssetAttachment, AssetInvoice, Invoice, InvoiceAttachment, SystemConfig, Notification, MedicationReminder, MedicalInstitution, VisitRecord, VisitPrescription, PrescriptionItem, VisitExamination, VisitLabTest, VisitAttachment, VisitInvoice, Subscription, SubscriptionRecord, SubscriptionRecordAttachment, SubscriptionRecordInvoice, PaymentMethod, Platform)
+├── enums/                            # Enumerations (GoodStatus, ItemStatus, InvoiceType, InvoiceStatus, WarrantyStatus, NotificationType, ProcessStatus, SourceType, VisitType, VisitSourceType, Gender, SubscriptionType, SubscriptionStatus, BillingMode)
 ├── exception/                        # Exception handling
 ├── initializer/                      # Data seeding on startup
-├── repository/                       # Spring Data repositories
+├── repository/                       # Spring Data repositories (37 repositories)
 ├── security/                         # JWT filter and token provider
 ├── util/                             # Utility classes (DateCalculator, StringUtil)
-└── service/                          # Business logic (24 services)
+└── service/                          # Business logic (45 services)
 ```
 
 ## Getting Started
@@ -50,7 +50,13 @@ DB_PASSWORD=your_db_password
 ROOT_USERNAME=admin
 ROOT_PASSWORD=admin123
 JWT_SECRET=your-256-bit-secret-key-that-is-at-least-32-characters-long
+ES_HOST=localhost
+ES_PORT=9200
 ```
+
+**Optional: Elasticsearch**
+
+Elasticsearch provides full-text search across uploaded file contents (PDF, DOCX, etc.) with Chinese tokenization via IK Analyzer. Configure host/port here; enable/disable via the Settings UI after startup. When not configured, the app starts normally and search degrades gracefully (returns empty results).
 
 **Optional: Qiniu OSS file storage**
 
@@ -147,5 +153,50 @@ The root user must change their password on first login (`forceChangePassword: t
 - `POST /api/invoices/{id}/attachments` — upload invoice attachment
 - `GET /api/invoices/{id}/attachments/{aid}/file` — serve attachment file
 - `DELETE /api/invoices/{id}/attachments/{aid}` — delete attachment
+
+- `GET /api/notifications` — list notifications with pagination
+- `GET /api/notifications/unread-count` — get unread notification count
+- `PUT /api/notifications/{id}/read` — mark notification as read
+- `PUT /api/notifications/read-all` — mark all notifications as read
+- `POST /api/notifications/test-webhook` — test webhook notification
+- `GET/POST /api/medications` — list/create medication reminders
+- `GET/PUT/DELETE /api/medications/{id}` — get/update/delete medication reminder
+- `GET/POST /api/medical-institutions` — list/create medical institutions
+- `GET/PUT/DELETE /api/medical-institutions/{id}` — get/update/delete medical institution
+- `GET/POST /api/visit-records` — list/create visit records with filtering
+- `GET /api/visit-records/patient-names` — get distinct patient names
+- `GET/PUT/DELETE /api/visit-records/{id}` — get/update/delete visit record
+- `POST /api/visit-records/parse` — AI-parse visit record from text
+- `GET/POST /api/visit-records/{visitId}/prescriptions` — list/create prescriptions
+- `GET/PUT/DELETE /api/visit-records/{visitId}/prescriptions/{id}` — get/update/delete prescription
+- `POST/PUT/DELETE /api/visit-records/{visitId}/prescriptions/{prescriptionId}/items` — manage prescription items
+- `GET/POST /api/visit-records/{visitId}/examinations` — list/create examinations
+- `GET/PUT/DELETE /api/visit-records/{visitId}/examinations/{id}` — get/update/delete examination
+- `GET/POST /api/visit-records/{visitId}/lab-tests` — list/create lab tests
+- `GET/PUT/DELETE /api/visit-records/{visitId}/lab-tests/{id}` — get/update/delete lab test
+- `GET/POST /api/visit-records/{visitId}/attachments` — list/upload visit attachments
+- `DELETE /api/visit-records/{visitId}/attachments/{id}` — delete visit attachment
+- `GET/POST /api/visit-records/{visitId}/invoices` — list/bind visit invoices
+- `DELETE /api/visit-records/{visitId}/invoices/{id}` — unbind visit invoice
+- `GET/POST /api/goods/{goodId}/attachments` — list/upload good attachments
+- `GET /api/goods/{goodId}/attachments/{attachmentId}/file` — serve good attachment
+- `DELETE /api/goods/{goodId}/attachments/{attachmentId}` — delete good attachment
+- `GET/POST /api/assets/{assetId}/attachments` — list/upload asset attachments
+- `GET /api/assets/{assetId}/attachments/{attachmentId}/file` — serve asset attachment
+- `DELETE /api/assets/{assetId}/attachments/{attachmentId}` — delete asset attachment
+- `GET/POST /api/subscriptions` — list/create subscriptions with pagination and filtering
+- `GET/PUT/DELETE /api/subscriptions/{id}` — get/update/delete subscription
+- `GET/POST /api/subscriptions/{subId}/records` — list/add subscription records
+- `PUT/DELETE /api/subscriptions/{subId}/records/{id}` — update/delete subscription record
+- `GET/POST /api/subscription-records/{id}/attachments` — list/upload record attachments
+- `DELETE /api/subscription-records/{id}/attachments/{attachmentId}` — delete record attachment
+- `GET/POST /api/subscription-records/{id}/invoices` — list/bind record invoices
+- `DELETE /api/subscription-records/{id}/invoices/{invoiceId}` — unbind record invoice
+- `GET/POST /api/payment-methods` — list/create payment methods
+- `GET/PUT/DELETE /api/payment-methods/{id}` — get/update/delete payment method
+- `GET/POST /api/platforms` — list/create platforms
+- `GET/PUT/DELETE /api/platforms/{id}` — get/update/delete platform
+- `GET /api/search` — full-text search with pagination
+- `GET /api/search/status` — check search availability
 
 See [docs/api.md](docs/api.md) for full API documentation.
