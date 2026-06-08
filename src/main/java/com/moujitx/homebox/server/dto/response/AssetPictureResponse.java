@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class AssetPictureResponse {
 
     private Long id;
+    private Long fileId;
     private String filename;
     private String contentType;
     private long fileSize;
@@ -19,6 +20,7 @@ public class AssetPictureResponse {
     public static AssetPictureResponse from(AssetPicture picture) {
         AssetPictureResponse response = new AssetPictureResponse();
         response.id = picture.getId();
+        response.fileId = picture.getFile().getId();
         response.filename = picture.getFile().getOriginalFilename();
         response.contentType = picture.getFile().getContentType();
         response.fileSize = picture.getFile().getFileSize();

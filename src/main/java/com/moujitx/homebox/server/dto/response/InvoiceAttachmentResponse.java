@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class InvoiceAttachmentResponse {
 
     private Long id;
+    private Long fileId;
     private String filename;
     private String contentType;
     private long fileSize;
@@ -19,6 +20,7 @@ public class InvoiceAttachmentResponse {
     public static InvoiceAttachmentResponse from(InvoiceAttachment attachment) {
         InvoiceAttachmentResponse response = new InvoiceAttachmentResponse();
         response.id = attachment.getId();
+        response.fileId = attachment.getFile().getId();
         response.filename = attachment.getFile().getOriginalFilename();
         response.contentType = attachment.getFile().getContentType();
         response.fileSize = attachment.getFile().getFileSize();

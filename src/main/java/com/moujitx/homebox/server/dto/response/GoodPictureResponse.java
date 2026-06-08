@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class GoodPictureResponse {
 
     private Long id;
+    private Long fileId;
     private String filename;
     private String contentType;
     private long fileSize;
@@ -19,6 +20,7 @@ public class GoodPictureResponse {
     public static GoodPictureResponse from(GoodPicture picture) {
         GoodPictureResponse response = new GoodPictureResponse();
         response.id = picture.getId();
+        response.fileId = picture.getFile().getId();
         response.filename = picture.getFile().getOriginalFilename();
         response.contentType = picture.getFile().getContentType();
         response.fileSize = picture.getFile().getFileSize();

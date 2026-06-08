@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class SubscriptionRecordAttachmentResponse {
 
     private Long id;
+    private Long fileId;
     private String filename;
     private String contentType;
     private long fileSize;
@@ -19,6 +20,7 @@ public class SubscriptionRecordAttachmentResponse {
     public static SubscriptionRecordAttachmentResponse from(SubscriptionRecordAttachment attachment) {
         SubscriptionRecordAttachmentResponse r = new SubscriptionRecordAttachmentResponse();
         r.id = attachment.getId();
+        r.fileId = attachment.getFile().getId();
         r.filename = attachment.getFile().getOriginalFilename();
         r.contentType = attachment.getFile().getContentType();
         r.fileSize = attachment.getFile().getFileSize();

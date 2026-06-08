@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class AssetAttachmentResponse {
 
     private Long id;
+    private Long fileId;
     private String filename;
     private String contentType;
     private long fileSize;
@@ -20,6 +21,7 @@ public class AssetAttachmentResponse {
     public static AssetAttachmentResponse from(AssetAttachment attachment, boolean indexed) {
         AssetAttachmentResponse response = new AssetAttachmentResponse();
         response.id = attachment.getId();
+        response.fileId = attachment.getFile().getId();
         response.filename = attachment.getFile().getOriginalFilename();
         response.contentType = attachment.getFile().getContentType();
         response.fileSize = attachment.getFile().getFileSize();
