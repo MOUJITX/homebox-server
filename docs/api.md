@@ -1233,9 +1233,14 @@ All good picture endpoints require authentication (any role). Pictures are neste
 
 ### POST /api/goods/{goodId}/pictures
 
-Upload a picture for a good. Uses multipart/form-data.
+Upload a picture for a good, or link an existing file.
 
-**Request:** `multipart/form-data` with field `file`
+**Request:** `multipart/form-data` with field `file`, OR query parameter `fileId` to link an existing file.
+
+- `file` (optional) — the file to upload
+- `fileId` (optional) — ID of an existing FileRecord to link
+
+Exactly one of `file` or `fileId` must be provided.
 
 **Response (201):**
 ```json
@@ -1293,9 +1298,9 @@ List all attachments for a good.
 
 ### POST /api/goods/{goodId}/attachments
 
-Upload an attachment for a good. Uses multipart/form-data. Max file size: 100MB.
+Upload an attachment for a good, or link an existing file. Max file size: 100MB.
 
-**Request:** `multipart/form-data` with field `file`
+**Request:** `multipart/form-data` with field `file`, OR query parameter `fileId` to link an existing file.
 
 **Response (201):** `GoodAttachmentResponse`
 
@@ -1489,7 +1494,7 @@ Delete an asset. Cannot delete if it has sub-assets.
 
 ### POST /api/assets/{assetId}/pictures
 
-Upload a picture (multipart/form-data, max 100MB).
+Upload a picture, or link an existing file. `multipart/form-data` with `file`, or query param `fileId`.
 
 ### GET /api/assets/{assetId}/pictures/{pictureId}/file
 
@@ -1530,9 +1535,9 @@ List all attachments for an asset.
 
 ### POST /api/assets/{assetId}/attachments
 
-Upload an attachment for an asset. Uses multipart/form-data. Max file size: 100MB.
+Upload an attachment for an asset, or link an existing file. Max file size: 100MB.
 
-**Request:** `multipart/form-data` with field `file`
+**Request:** `multipart/form-data` with field `file`, OR query parameter `fileId`.
 
 **Response (201):** `AssetAttachmentResponse`
 
@@ -1727,9 +1732,9 @@ Download the primary invoice file.
 
 ### POST /api/invoices/{invoiceId}/attachments
 
-Upload an attachment file. Uses multipart/form-data.
+Upload an attachment file, or link an existing file.
 
-**Request:** `multipart/form-data` with field `file`
+**Request:** `multipart/form-data` with field `file`, OR query parameter `fileId`.
 
 **Response (201):**
 ```json
@@ -2458,12 +2463,14 @@ List all attachments for a visit record.
 
 ### POST /api/visit-records/{visitId}/attachments
 
-Upload an attachment. Uses multipart/form-data. Max file size: 100MB.
+Upload an attachment, or link an existing file. Max file size: 100MB.
 
 **Query Parameters:**
 
 | Parameter  | Type | Description |
 |------------|------|-------------|
+| file       | file | The file to upload (optional if fileId provided) |
+| fileId     | long | ID of an existing FileRecord to link (optional if file provided) |
 | sourceType | enum | PRESCRIPTION, EXAMINATION, LAB_TEST |
 | sourceId   | long | ID of the source entity |
 
@@ -2611,7 +2618,9 @@ Delete a record.
 
 ### POST /api/subscription-records/{id}/attachments
 
-Upload an attachment for a record. Uses multipart/form-data. Max file size: 100MB.
+Upload an attachment for a record, or link an existing file. Max file size: 100MB.
+
+**Request:** `multipart/form-data` with field `file`, OR query parameter `fileId`.
 
 **Request:** `multipart/form-data` with field `file`
 
