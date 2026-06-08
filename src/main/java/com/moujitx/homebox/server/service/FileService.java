@@ -4,8 +4,7 @@ import com.moujitx.homebox.server.entity.FileRecord;
 import com.moujitx.homebox.server.entity.TextChunk;
 import com.moujitx.homebox.server.enums.ProcessStatus;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
-import com.moujitx.homebox.server.repository.FileRecordRepository;
-import com.moujitx.homebox.server.repository.TextChunkRepository;
+import com.moujitx.homebox.server.repository.*;
 import com.moujitx.homebox.server.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +29,16 @@ public class FileService {
     private final ChunkingService chunkingService;
     private final EsIndexService esIndexService;
     private final EsClientProvider esClientProvider;
+    private final GoodPictureRepository goodPictureRepository;
+    private final GoodAttachmentRepository goodAttachmentRepository;
+    private final AssetPictureRepository assetPictureRepository;
+    private final AssetAttachmentRepository assetAttachmentRepository;
+    private final InvoiceAttachmentRepository invoiceAttachmentRepository;
+    private final VisitAttachmentRepository visitAttachmentRepository;
+    private final SubscriptionRecordAttachmentRepository subscriptionRecordAttachmentRepository;
+    private final InvoiceRepository invoiceRepository;
+    private final PlatformRepository platformRepository;
+    private final PaymentMethodRepository paymentMethodRepository;
 
     @Transactional
     public FileRecord upload(MultipartFile file) {
@@ -142,12 +151,44 @@ public class FileService {
 
     @Transactional
     public void delete(Long id) {
+        if (isFileReferenced(id)) {
+            throw new IllegalStateException("File is still referenced by other entities and cannot be deleted");
+        }
         FileRecord record = getFileById(id);
         esIndexService.deleteByFileId(id);
         textChunkRepository.deleteByFileId(id);
         fileRecordRepository.delete(record);
         fileRecordRepository.flush();
         strategyProvider.getStrategy().delete(record.getStoredFilename());
+    }
+
+    /**
+     * Check if a file is referenced by any entity (picture, attachment, invoice, platform, payment method).
+     */
+    public boolean isFileReferenced(Long fileId) {
+        return goodPictureRepository.existsByFileId(fileId)
+                || goodAttachmentRepository.existsByFileId(fileId)
+                || assetPictureRepository.existsByFileId(fileId)
+                || assetAttachmentRepository.existsByFileId(fileId)
+                || invoiceAttachmentRepository.existsByFileId(fileId)
+                || visitAttachmentRepository.existsByFileId(fileId)
+                || subscriptionRecordAttachmentRepository.existsByFileId(fileId)
+                || invoiceRepository.existsByFileId(fileId)
+                || platformRepository.existsByLogoFileId(fileId)
+                || paymentMethodRepository.existsByLogoFileId(fileId);
+    }
+
+    /**
+     * Delete a file only if it is not referenced by any entity.
+     * Returns true if the file was deleted, false if it is still in use.
+     */
+    @Transactional
+    public boolean deleteIfUnused(Long fileId) {
+        if (isFileReferenced(fileId)) {
+            return false;
+        }
+        delete(fileId);
+        return true;
     }
 
     public boolean isIndexed(Long fileId) {

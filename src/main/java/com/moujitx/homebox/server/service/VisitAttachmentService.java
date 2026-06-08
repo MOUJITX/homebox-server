@@ -4,7 +4,6 @@ import com.moujitx.homebox.server.dto.response.VisitAttachmentResponse;
 import com.moujitx.homebox.server.entity.*;
 import com.moujitx.homebox.server.enums.VisitSourceType;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
-import com.moujitx.homebox.server.repository.FileRecordRepository;
 import com.moujitx.homebox.server.repository.VisitAttachmentRepository;
 import com.moujitx.homebox.server.repository.VisitRecordRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ public class VisitAttachmentService {
 
     private final VisitRecordRepository visitRecordRepository;
     private final VisitAttachmentRepository repository;
-    private final FileRecordRepository fileRecordRepository;
     private final FileService fileService;
 
     @Transactional(readOnly = true)
@@ -68,10 +66,6 @@ public class VisitAttachmentService {
 
         Long fileId = attachment.getFile().getId();
         repository.delete(attachment);
-
-        // Only delete file if not referenced elsewhere
-        if (repository.findByFileId(fileId).isEmpty()) {
-            fileRecordRepository.deleteById(fileId);
-        }
+        fileService.deleteIfUnused(fileId);
     }
 }

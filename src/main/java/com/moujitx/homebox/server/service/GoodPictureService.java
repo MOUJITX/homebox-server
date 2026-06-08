@@ -74,7 +74,7 @@ public class GoodPictureService {
 
         Long fileId = picture.getFile().getId();
         pictureRepository.delete(picture);
-        fileService.delete(fileId);
+        fileService.deleteIfUnused(fileId);
     }
 
     public GoodPicture getPictureEntity(Long goodId, Long pictureId) {

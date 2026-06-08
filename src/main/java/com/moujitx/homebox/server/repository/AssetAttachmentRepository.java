@@ -10,4 +10,6 @@ public interface AssetAttachmentRepository extends JpaRepository<AssetAttachment
     List<AssetAttachment> findByAssetId(Long assetId);
 
     List<AssetAttachment> findByFileIdIn(List<Long> fileIds);
+
+    boolean existsByFileId(Long fileId);
 }

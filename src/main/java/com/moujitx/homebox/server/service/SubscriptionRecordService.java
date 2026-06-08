@@ -125,11 +125,15 @@ public class SubscriptionRecordService {
             throw new ResourceNotFoundException("Record not found for this subscription");
         }
 
-        for (var attachment : record.getAttachments()) {
-            fileService.delete(attachment.getFile().getId());
-        }
+        List<Long> fileIds = record.getAttachments().stream()
+                .map(a -> a.getFile().getId())
+                .toList();
 
         recordRepository.delete(record);
+
+        for (Long fileId : fileIds) {
+            fileService.deleteIfUnused(fileId);
+        }
     }
 
     // ── Attachments ──
@@ -180,8 +184,9 @@ public class SubscriptionRecordService {
             throw new ResourceNotFoundException("Attachment not found for this record");
         }
 
-        fileService.delete(attachment.getFile().getId());
+        Long fileId = attachment.getFile().getId();
         attachmentRepository.delete(attachment);
+        fileService.deleteIfUnused(fileId);
     }
 
     // ── Invoice Bindings ──

@@ -15,6 +15,8 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
     List<Invoice> findByFileIdIn(List<Long> fileIds);
 
+    boolean existsByFileId(Long fileId);
+
     boolean existsByInvoiceNumber(String invoiceNumber);
 
     boolean existsByInvoiceNumberAndIdNot(String invoiceNumber, Long id);

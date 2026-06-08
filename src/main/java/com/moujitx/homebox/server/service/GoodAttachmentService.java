@@ -76,7 +76,7 @@ public class GoodAttachmentService {
 
         Long fileId = attachment.getFile().getId();
         attachmentRepository.delete(attachment);
-        fileService.delete(fileId);
+        fileService.deleteIfUnused(fileId);
     }
 
     public FileRecord getAttachmentFile(Long goodId, Long attachmentId) {

@@ -74,7 +74,7 @@ public class AssetPictureService {
 
         Long fileId = picture.getFile().getId();
         pictureRepository.delete(picture);
-        fileService.delete(fileId);
+        fileService.deleteIfUnused(fileId);
     }
 
     public AssetPicture getPictureEntity(Long assetId, Long pictureId) {

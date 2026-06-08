@@ -10,4 +10,6 @@ public interface PaymentMethodRepository extends JpaRepository<PaymentMethod, Lo
     Optional<PaymentMethod> findByName(String name);
 
     boolean existsByName(String name);
+
+    boolean existsByLogoFileId(Long fileId);
 }

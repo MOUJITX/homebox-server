@@ -10,4 +10,6 @@ public interface InvoiceAttachmentRepository extends JpaRepository<InvoiceAttach
     List<InvoiceAttachment> findByInvoiceId(Long invoiceId);
 
     List<InvoiceAttachment> findByFileIdIn(List<Long> fileIds);
+
+    boolean existsByFileId(Long fileId);
 }

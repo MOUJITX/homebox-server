@@ -10,4 +10,6 @@ public interface GoodAttachmentRepository extends JpaRepository<GoodAttachment, 
     List<GoodAttachment> findByGoodId(Long goodId);
 
     List<GoodAttachment> findByFileIdIn(List<Long> fileIds);
+
+    boolean existsByFileId(Long fileId);
 }

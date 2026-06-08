@@ -217,11 +217,11 @@ public class InvoiceService {
         invoiceRepository.delete(invoice);
 
         for (Long fileId : attachmentFileIds) {
-            fileService.delete(fileId);
+            fileService.deleteIfUnused(fileId);
         }
 
         if (invoiceFileId != null) {
-            fileService.delete(invoiceFileId);
+            fileService.deleteIfUnused(invoiceFileId);
         }
     }
 
@@ -269,7 +269,7 @@ public class InvoiceService {
 
         Long fileId = attachment.getFile().getId();
         attachmentRepository.delete(attachment);
-        fileService.delete(fileId);
+        fileService.deleteIfUnused(fileId);
     }
 
     public FileRecord getInvoiceFile(Long invoiceId) {

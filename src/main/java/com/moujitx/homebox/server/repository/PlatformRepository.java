@@ -10,4 +10,6 @@ public interface PlatformRepository extends JpaRepository<Platform, Long> {
     Optional<Platform> findByName(String name);
 
     boolean existsByName(String name);
+
+    boolean existsByLogoFileId(Long fileId);
 }

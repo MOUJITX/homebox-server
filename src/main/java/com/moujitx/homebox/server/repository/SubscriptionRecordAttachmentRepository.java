@@ -10,4 +10,6 @@ public interface SubscriptionRecordAttachmentRepository extends JpaRepository<Su
     List<SubscriptionRecordAttachment> findByRecordId(Long recordId);
 
     List<SubscriptionRecordAttachment> findByFileIdIn(List<Long> fileIds);
+
+    boolean existsByFileId(Long fileId);
 }
