@@ -16,6 +16,8 @@ public interface VisitAttachmentRepository extends JpaRepository<VisitAttachment
 
     List<VisitAttachment> findByFileId(Long fileId);
 
+    boolean existsByFileId(Long fileId);
+
     @Modifying
     @Transactional
     void deleteByVisitIdAndSourceTypeAndSourceId(Long visitId, VisitSourceType sourceType, Long sourceId);
