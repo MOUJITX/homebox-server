@@ -15,6 +15,7 @@ public record VisitInvoiceResponse(
     LocalDate invoiceDate,
     String invoiceType,
     BigDecimal totalAmount,
+    String sellerName,
     VisitSourceType sourceType,
     Long sourceId,
     LocalDateTime createdAt
@@ -29,6 +30,7 @@ public record VisitInvoiceResponse(
                 inv.getInvoiceDate(),
                 inv.getInvoiceType().name(),
                 inv.getTotalAmount(),
+                inv.getSellerName(),
                 vi.getSourceType(),
                 vi.getSourceId(),
                 vi.getCreatedAt()

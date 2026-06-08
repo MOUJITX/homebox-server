@@ -30,6 +30,8 @@ public class InvoiceDetailResponse {
     private String remark;
     private Long fileId;
     private String fileUrl;
+    private String fileOriginalFilename;
+    private Long fileSize;
     private String previewImage;
     private List<InvoiceAttachmentResponse> attachments;
     private List<BoundAssetResponse> assets;
@@ -66,6 +68,8 @@ public class InvoiceDetailResponse {
         if (invoice.getFile() != null) {
             response.fileId = invoice.getFile().getId();
             response.fileUrl = OssUrlBuilder.build(invoice.getFile().getStoredFilename(), invoice.getFile().getOriginalFilename());
+            response.fileOriginalFilename = invoice.getFile().getOriginalFilename();
+            response.fileSize = invoice.getFile().getFileSize();
         }
 
         response.attachments = invoice.getAttachments().stream()
