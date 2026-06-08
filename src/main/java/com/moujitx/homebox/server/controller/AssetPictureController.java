@@ -22,7 +22,14 @@ public class AssetPictureController {
 
     @PostMapping
     public ResponseEntity<AssetPictureResponse> uploadPicture(@PathVariable Long assetId,
-                                                               @RequestParam("file") MultipartFile file) {
+                                                               @RequestParam(value = "file", required = false) MultipartFile file,
+                                                               @RequestParam(value = "fileId", required = false) Long fileId) {
+        if (fileId != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(pictureService.linkPicture(assetId, fileId));
+        }
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(pictureService.uploadPicture(assetId, file));
     }
 

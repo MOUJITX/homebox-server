@@ -48,7 +48,14 @@ public class SubscriptionRecordController {
 
     @PostMapping("/api/subscription-records/{id}/attachments")
     public ResponseEntity<SubscriptionRecordAttachmentResponse> uploadAttachment(@PathVariable Long id,
-                                                                                   @RequestParam("file") MultipartFile file) {
+                                                                                   @RequestParam(value = "file", required = false) MultipartFile file,
+                                                                                   @RequestParam(value = "fileId", required = false) Long fileId) {
+        if (fileId != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(recordService.linkAttachment(id, fileId));
+        }
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(recordService.uploadAttachment(id, file));
     }
 

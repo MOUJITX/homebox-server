@@ -25,9 +25,16 @@ public class VisitAttachmentController {
 
     @PostMapping
     public ResponseEntity<VisitAttachmentResponse> upload(@PathVariable Long visitId,
-                                                            @RequestParam("file") MultipartFile file,
+                                                            @RequestParam(value = "file", required = false) MultipartFile file,
+                                                            @RequestParam(value = "fileId", required = false) Long fileId,
                                                             @RequestParam VisitSourceType sourceType,
                                                             @RequestParam Long sourceId) {
+        if (fileId != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(service.link(visitId, fileId, sourceType, sourceId));
+        }
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(service.upload(visitId, file, sourceType, sourceId));
     }
 

@@ -48,6 +48,20 @@ public class AssetAttachmentService {
     }
 
     @Transactional
+    public AssetAttachmentResponse link(Long assetId, Long fileId) {
+        Asset asset = assetRepository.findById(assetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Asset not found with id: " + assetId));
+
+        FileRecord fileRecord = fileService.getFileById(fileId);
+
+        AssetAttachment attachment = new AssetAttachment();
+        attachment.setAsset(asset);
+        attachment.setFile(fileRecord);
+
+        return AssetAttachmentResponse.from(attachmentRepository.save(attachment), fileService.isIndexed(fileId));
+    }
+
+    @Transactional
     public void delete(Long assetId, Long attachmentId) {
         if (!assetRepository.existsById(assetId)) {
             throw new ResourceNotFoundException("Asset not found with id: " + assetId);

@@ -46,6 +46,20 @@ public class GoodPictureService {
     }
 
     @Transactional
+    public GoodPictureResponse linkPicture(Long goodId, Long fileId) {
+        Good good = goodRepository.findById(goodId)
+                .orElseThrow(() -> new ResourceNotFoundException("Good not found with id: " + goodId));
+
+        FileRecord fileRecord = fileService.getFileById(fileId);
+
+        GoodPicture picture = new GoodPicture();
+        picture.setGood(good);
+        picture.setFile(fileRecord);
+
+        return GoodPictureResponse.from(pictureRepository.save(picture));
+    }
+
+    @Transactional
     public void deletePicture(Long goodId, Long pictureId) {
         if (!goodRepository.existsById(goodId)) {
             throw new ResourceNotFoundException("Good not found with id: " + goodId);

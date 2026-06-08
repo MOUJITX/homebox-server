@@ -240,6 +240,20 @@ public class InvoiceService {
     }
 
     @Transactional
+    public InvoiceAttachmentResponse linkAttachment(Long invoiceId, Long fileId) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + invoiceId));
+
+        FileRecord fileRecord = fileService.getFileById(fileId);
+
+        InvoiceAttachment attachment = new InvoiceAttachment();
+        attachment.setInvoice(invoice);
+        attachment.setFile(fileRecord);
+
+        return InvoiceAttachmentResponse.from(attachmentRepository.save(attachment));
+    }
+
+    @Transactional
     public void deleteAttachment(Long invoiceId, Long attachmentId) {
         if (!invoiceRepository.existsById(invoiceId)) {
             throw new ResourceNotFoundException("Invoice not found with id: " + invoiceId);

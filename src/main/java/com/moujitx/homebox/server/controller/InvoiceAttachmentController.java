@@ -22,7 +22,14 @@ public class InvoiceAttachmentController {
 
     @PostMapping
     public ResponseEntity<InvoiceAttachmentResponse> uploadAttachment(@PathVariable Long invoiceId,
-                                                                       @RequestParam("file") MultipartFile file) {
+                                                                       @RequestParam(value = "file", required = false) MultipartFile file,
+                                                                       @RequestParam(value = "fileId", required = false) Long fileId) {
+        if (fileId != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(invoiceService.linkAttachment(invoiceId, fileId));
+        }
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(invoiceService.uploadAttachment(invoiceId, file));
     }
 

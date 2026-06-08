@@ -27,7 +27,14 @@ public class AssetAttachmentController {
 
     @PostMapping
     public ResponseEntity<AssetAttachmentResponse> uploadAttachment(@PathVariable Long assetId,
-                                                                     @RequestParam("file") MultipartFile file) {
+                                                                     @RequestParam(value = "file", required = false) MultipartFile file,
+                                                                     @RequestParam(value = "fileId", required = false) Long fileId) {
+        if (fileId != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(assetAttachmentService.link(assetId, fileId));
+        }
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(assetAttachmentService.upload(assetId, file));
     }
 

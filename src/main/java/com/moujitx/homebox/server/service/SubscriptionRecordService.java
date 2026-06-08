@@ -157,6 +157,21 @@ public class SubscriptionRecordService {
     }
 
     @Transactional
+    public SubscriptionRecordAttachmentResponse linkAttachment(Long recordId, Long fileId) {
+        SubscriptionRecord record = recordRepository.findById(recordId)
+                .orElseThrow(() -> new ResourceNotFoundException("Record not found with id: " + recordId));
+
+        FileRecord fileRecord = fileService.getFileById(fileId);
+
+        SubscriptionRecordAttachment attachment = new SubscriptionRecordAttachment();
+        attachment.setRecord(record);
+        attachment.setFile(fileRecord);
+        attachmentRepository.save(attachment);
+
+        return SubscriptionRecordAttachmentResponse.from(attachment);
+    }
+
+    @Transactional
     public void deleteAttachment(Long recordId, Long attachmentId) {
         SubscriptionRecordAttachment attachment = attachmentRepository.findById(attachmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id: " + attachmentId));

@@ -46,6 +46,20 @@ public class AssetPictureService {
     }
 
     @Transactional
+    public AssetPictureResponse linkPicture(Long assetId, Long fileId) {
+        Asset asset = assetRepository.findById(assetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Asset not found with id: " + assetId));
+
+        FileRecord fileRecord = fileService.getFileById(fileId);
+
+        AssetPicture picture = new AssetPicture();
+        picture.setAsset(asset);
+        picture.setFile(fileRecord);
+
+        return AssetPictureResponse.from(pictureRepository.save(picture));
+    }
+
+    @Transactional
     public void deletePicture(Long assetId, Long pictureId) {
         if (!assetRepository.existsById(assetId)) {
             throw new ResourceNotFoundException("Asset not found with id: " + assetId);

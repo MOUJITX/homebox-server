@@ -46,6 +46,22 @@ public class VisitAttachmentService {
     }
 
     @Transactional
+    public VisitAttachmentResponse link(Long visitId, Long fileId, VisitSourceType sourceType, Long sourceId) {
+        VisitRecord visit = visitRecordRepository.findById(visitId)
+                .orElseThrow(() -> new ResourceNotFoundException("Visit record not found with id: " + visitId));
+
+        FileRecord fileRecord = fileService.getFileById(fileId);
+
+        VisitAttachment attachment = new VisitAttachment();
+        attachment.setVisit(visit);
+        attachment.setFile(fileRecord);
+        attachment.setSourceType(sourceType);
+        attachment.setSourceId(sourceId);
+
+        return VisitAttachmentResponse.from(repository.save(attachment));
+    }
+
+    @Transactional
     public void delete(Long id) {
         VisitAttachment attachment = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Visit attachment not found with id: " + id));

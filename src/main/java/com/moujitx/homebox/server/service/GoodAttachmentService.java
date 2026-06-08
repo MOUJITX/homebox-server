@@ -48,6 +48,20 @@ public class GoodAttachmentService {
     }
 
     @Transactional
+    public GoodAttachmentResponse link(Long goodId, Long fileId) {
+        Good good = goodRepository.findById(goodId)
+                .orElseThrow(() -> new ResourceNotFoundException("Good not found with id: " + goodId));
+
+        FileRecord fileRecord = fileService.getFileById(fileId);
+
+        GoodAttachment attachment = new GoodAttachment();
+        attachment.setGood(good);
+        attachment.setFile(fileRecord);
+
+        return GoodAttachmentResponse.from(attachmentRepository.save(attachment), fileService.isIndexed(fileId));
+    }
+
+    @Transactional
     public void delete(Long goodId, Long attachmentId) {
         if (!goodRepository.existsById(goodId)) {
             throw new ResourceNotFoundException("Good not found with id: " + goodId);

@@ -22,7 +22,14 @@ public class GoodPictureController {
 
     @PostMapping
     public ResponseEntity<GoodPictureResponse> uploadPicture(@PathVariable Long goodId,
-                                                             @RequestParam("file") MultipartFile file) {
+                                                             @RequestParam(value = "file", required = false) MultipartFile file,
+                                                             @RequestParam(value = "fileId", required = false) Long fileId) {
+        if (fileId != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(pictureService.linkPicture(goodId, fileId));
+        }
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(pictureService.uploadPicture(goodId, file));
     }
 
