@@ -23,9 +23,12 @@ public class FileController {
     private final FileService fileService;
 
     @GetMapping
-    public Page<FileResponse> listFiles(@RequestParam(defaultValue = "0") int page,
+    public Page<FileResponse> listFiles(@RequestParam(required = false) String search,
+                                         @RequestParam(required = false) String contentType,
+                                         @RequestParam(required = false) String status,
+                                         @RequestParam(defaultValue = "0") int page,
                                          @RequestParam(defaultValue = "20") int size) {
-        return fileService.listFiles(PageRequest.of(page, size))
+        return fileService.listFiles(search, contentType, status, PageRequest.of(page, size))
                 .map(FileResponse::from);
     }
 

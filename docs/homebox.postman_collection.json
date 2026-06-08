@@ -828,6 +828,48 @@
       "name": "Files",
       "item": [
         {
+          "name": "List Files",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/files?page=0&size=20&search=&contentType=&status=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "files"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Filter by filename (partial match)"
+                },
+                {
+                  "key": "contentType",
+                  "value": "",
+                  "description": "Filter by content type prefix (e.g. image/, video/, application/pdf)"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by processing status: SUCCESS, FAILED, PROCESSING"
+                }
+              ]
+            }
+          }
+        },
+        {
           "name": "Upload File",
           "request": {
             "method": "POST",

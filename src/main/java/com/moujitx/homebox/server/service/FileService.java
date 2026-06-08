@@ -6,6 +6,7 @@ import com.moujitx.homebox.server.enums.ProcessStatus;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.FileRecordRepository;
 import com.moujitx.homebox.server.repository.TextChunkRepository;
+import com.moujitx.homebox.server.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -125,8 +126,11 @@ public class FileService {
         return strategyProvider.getStrategy().load(record.getStoredFilename());
     }
 
-    public Page<FileRecord> listFiles(Pageable pageable) {
-        return fileRecordRepository.findAllByOrderByCreatedAtDesc(pageable);
+    public Page<FileRecord> listFiles(String search, String contentType, String status, Pageable pageable) {
+        String searchParam = StringUtil.normalizeSearch(search);
+        String contentTypeParam = (contentType != null && !contentType.isBlank()) ? contentType.trim() : null;
+        String statusParam = (status != null && !status.isBlank()) ? status.trim().toUpperCase() : null;
+        return fileRecordRepository.findWithFilters(searchParam, contentTypeParam, statusParam, pageable);
     }
 
     @Transactional

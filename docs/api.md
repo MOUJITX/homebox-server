@@ -1113,14 +1113,17 @@ All file endpoints require authentication (any role). Supports any file type. Ma
 
 ### GET /api/files
 
-List files with server-side pagination.
+List files with server-side pagination and optional filtering.
 
 **Query Parameters:**
 
-| Parameter | Type | Default | Description     |
-|-----------|------|---------|-----------------|
-| page      | int  | 0       | Page number     |
-| size      | int  | 10      | Page size       |
+| Parameter   | Type   | Default | Description                                                                 |
+|-------------|--------|---------|-----------------------------------------------------------------------------|
+| search      | string | null    | Filter by filename (partial match)                                          |
+| contentType | string | null    | Filter by content type prefix (e.g. `image/`, `video/`, `application/pdf`) |
+| status      | string | null    | Filter by processing status: `SUCCESS`, `FAILED`, `PROCESSING`             |
+| page        | int    | 0       | Page number                                                                 |
+| size        | int    | 20      | Page size                                                                   |
 
 **Response (200):** Spring `Page<FileResponse>`
 
