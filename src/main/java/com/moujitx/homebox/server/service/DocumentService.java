@@ -187,10 +187,8 @@ public class DocumentService {
         Document document = documentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Document not found with id: " + id));
 
-        List<Document> children = documentRepository.findByParentIdOrderByCreatedAtDesc(id);
-        for (Document child : children) {
-            child.setParent(null);
-            documentRepository.save(child);
+        if (documentRepository.existsByParentId(id)) {
+            throw new OperationNotAllowedException("Cannot delete document that has sub-documents. Delete all sub-documents first.");
         }
 
         for (var attachment : document.getAttachments()) {
