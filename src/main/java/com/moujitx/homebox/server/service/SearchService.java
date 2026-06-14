@@ -10,6 +10,7 @@ import com.moujitx.homebox.server.dto.response.MatchInfo;
 import com.moujitx.homebox.server.dto.response.SearchResultItem;
 import com.moujitx.homebox.server.dto.response.SourceInfo;
 import com.moujitx.homebox.server.entity.AssetAttachment;
+import com.moujitx.homebox.server.entity.DocumentAttachment;
 import com.moujitx.homebox.server.entity.FileRecord;
 import com.moujitx.homebox.server.entity.GoodAttachment;
 import com.moujitx.homebox.server.entity.Invoice;
@@ -17,6 +18,7 @@ import com.moujitx.homebox.server.entity.InvoiceAttachment;
 import com.moujitx.homebox.server.entity.SubscriptionRecordAttachment;
 import com.moujitx.homebox.server.enums.SourceType;
 import com.moujitx.homebox.server.repository.AssetAttachmentRepository;
+import com.moujitx.homebox.server.repository.DocumentAttachmentRepository;
 import com.moujitx.homebox.server.repository.FileRecordRepository;
 import com.moujitx.homebox.server.repository.GoodAttachmentRepository;
 import com.moujitx.homebox.server.repository.InvoiceAttachmentRepository;
@@ -42,6 +44,7 @@ public class SearchService {
     private final EsClientProvider esClientProvider;
     private final FileRecordRepository fileRecordRepository;
     private final AssetAttachmentRepository assetAttachmentRepository;
+    private final DocumentAttachmentRepository documentAttachmentRepository;
     private final GoodAttachmentRepository goodAttachmentRepository;
     private final InvoiceAttachmentRepository invoiceAttachmentRepository;
     private final InvoiceRepository invoiceRepository;
@@ -205,6 +208,7 @@ public class SearchService {
         Map<Long, List<SourceInfo>> map = new HashMap<>();
 
         List<AssetAttachment> assetAtts = assetAttachmentRepository.findByFileIdIn(fileIds);
+        List<DocumentAttachment> docAtts = documentAttachmentRepository.findByFileIdIn(fileIds);
         List<GoodAttachment> goodAtts = goodAttachmentRepository.findByFileIdIn(fileIds);
         List<InvoiceAttachment> invoiceAtts = invoiceAttachmentRepository.findByFileIdIn(fileIds);
         List<Invoice> primaryInvoices = invoiceRepository.findByFileIdIn(fileIds);
@@ -252,6 +256,17 @@ public class SearchService {
                     "订阅",
                     sa.getRecord().getSubscription().getId(),
                     sa.getRecord().getSubscription().getName()
+            );
+            map.computeIfAbsent(fileId, k -> new ArrayList<>()).add(source);
+        }
+
+        for (DocumentAttachment da : docAtts) {
+            Long fileId = da.getFile().getId();
+            SourceInfo source = new SourceInfo(
+                    SourceType.DOCUMENT,
+                    "文档",
+                    da.getDocument().getId(),
+                    da.getDocument().getName()
             );
             map.computeIfAbsent(fileId, k -> new ArrayList<>()).add(source);
         }

@@ -2,10 +2,12 @@ package com.moujitx.homebox.server.service;
 
 import com.moujitx.homebox.server.dto.response.DashboardResponse;
 import com.moujitx.homebox.server.entity.Asset;
+import com.moujitx.homebox.server.entity.Document;
 import com.moujitx.homebox.server.entity.GoodItem;
 import com.moujitx.homebox.server.entity.Subscription;
 import com.moujitx.homebox.server.entity.SubscriptionRecord;
 import com.moujitx.homebox.server.repository.AssetRepository;
+import com.moujitx.homebox.server.repository.DocumentRepository;
 import com.moujitx.homebox.server.repository.GoodItemRepository;
 import com.moujitx.homebox.server.repository.InvoiceRepository;
 import com.moujitx.homebox.server.repository.SubscriptionRecordRepository;
@@ -29,6 +31,7 @@ public class DashboardService {
 
     private final GoodItemRepository goodItemRepository;
     private final AssetRepository assetRepository;
+    private final DocumentRepository documentRepository;
     private final InvoiceRepository invoiceRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionRecordRepository recordRepository;
@@ -45,8 +48,9 @@ public class DashboardService {
         List<DashboardResponse.WarrantyExpiringAsset> warrantyExpiringAssets = buildWarrantyExpiringAssets();
         List<DashboardResponse.InUseAsset> inUseAssets = buildInUseAssets();
         List<DashboardResponse.UpcomingRenewal> upcomingRenewals = buildUpcomingRenewals();
+        List<DashboardResponse.ExpiringDocument> expiringDocuments = buildExpiringDocuments();
 
-        return new DashboardResponse(stats, expiringSoonItems, inUseItems, warrantyExpiringAssets, inUseAssets, upcomingRenewals);
+        return new DashboardResponse(stats, expiringSoonItems, inUseItems, warrantyExpiringAssets, inUseAssets, upcomingRenewals, expiringDocuments);
     }
 
     private DashboardResponse.Stats buildStats() {
@@ -59,8 +63,9 @@ public class DashboardService {
         LocalDate monthStart = now.withDayOfMonth(1);
         LocalDate monthEnd = now.withDayOfMonth(now.lengthOfMonth());
         BigDecimal monthlySubscriptionSpending = subscriptionRepository.sumAmountByDateRange(monthStart, monthEnd);
+        long activeDocumentCount = documentRepository.countActiveTopLevel();
         return new DashboardResponse.Stats(itemCount, assetCount, totalAssetPrice, invoiceCount,
-                activeSubscriptionCount, monthlySubscriptionSpending);
+                activeSubscriptionCount, monthlySubscriptionSpending, activeDocumentCount);
     }
 
     private List<DashboardResponse.ItemSummary> buildExpiringSoonItems() {
@@ -134,5 +139,17 @@ public class DashboardService {
             return result.subList(0, 5);
         }
         return result;
+    }
+
+    private List<DashboardResponse.ExpiringDocument> buildExpiringDocuments() {
+        LocalDate today = LocalDate.now();
+        LocalDate deadline = today.plusDays(30);
+
+        List<Document> candidates = documentRepository.findExpiringSoon(deadline, PageRequest.of(0, DASHBOARD_LIST_LIMIT));
+
+        return candidates.stream()
+                .filter(doc -> doc.getExpiryDate() != null && !doc.getExpiryDate().isBefore(today))
+                .map(DashboardResponse.ExpiringDocument::from)
+                .toList();
     }
 }

@@ -1,8 +1,10 @@
 package com.moujitx.homebox.server.initializer;
 
+import com.moujitx.homebox.server.entity.DocumentCategory;
 import com.moujitx.homebox.server.entity.Role;
 import com.moujitx.homebox.server.entity.SystemConfig;
 import com.moujitx.homebox.server.entity.User;
+import com.moujitx.homebox.server.repository.DocumentCategoryRepository;
 import com.moujitx.homebox.server.repository.RoleRepository;
 import com.moujitx.homebox.server.repository.SystemConfigRepository;
 import com.moujitx.homebox.server.repository.UserRepository;
@@ -24,6 +26,7 @@ public class DataInitializer implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final SystemConfigRepository systemConfigRepository;
+    private final DocumentCategoryRepository documentCategoryRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${app.root.username}")
@@ -90,14 +93,33 @@ public class DataInitializer implements CommandLineRunner {
 
         seedConfig("notification.medication-crontab", "0 0 7-20 * * ?", "notification", false, "Medication Reminder Check Cron Expression");
         seedConfig("notification.subscription-crontab", "0 0 8 * * ?", "notification", false, "Subscription Renewal Check Cron Expression");
+        seedConfig("notification.archives-crontab", "0 0 8 * * ?", "notification", false, "Document Expiry Check Cron Expression");
 
         seedConfig("elasticsearch.enabled", "false", "elasticsearch", false, "Enable Elasticsearch Search");
+
+        seedDocumentCategory("身份证件", "身份证、护照、港澳通行证、驾照等");
+        seedDocumentCategory("房产证件", "房产证、土地使用证、购房合同等");
+        seedDocumentCategory("金融证件", "银行卡、存折、股票账户等");
+        seedDocumentCategory("合同协议", "租房合同、劳动合同、服务协议等");
+        seedDocumentCategory("证书资质", "毕业证、学位证、职业资格证等");
+        seedDocumentCategory("家庭证件", "结婚证、出生证、户口本等");
+        seedDocumentCategory("保险保单", "车险保单、重疾险、家财险等");
+        seedDocumentCategory("账单收据", "水电费账单、维修收据、购物小票等");
+        seedDocumentCategory("保修售后", "产品保修卡、售后服务单、维修记录等");
+        seedDocumentCategory("其他", "说明书、会员卡、培训证书等");
     }
 
     private void seedConfig(String key, String value, String group, boolean sensitive, String description) {
         if (!systemConfigRepository.existsByConfigKey(key)) {
             log.info("Seeding system config: {}", key);
             systemConfigRepository.save(new SystemConfig(key, value, group, sensitive, description));
+        }
+    }
+
+    private void seedDocumentCategory(String name, String description) {
+        if (!documentCategoryRepository.existsByName(name)) {
+            log.info("Seeding document category: {}", name);
+            documentCategoryRepository.save(new DocumentCategory(name, description));
         }
     }
 }

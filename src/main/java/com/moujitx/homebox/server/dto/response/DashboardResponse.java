@@ -24,6 +24,7 @@ public class DashboardResponse {
     private List<WarrantyExpiringAsset> warrantyExpiringAssets;
     private List<InUseAsset> inUseAssets;
     private List<UpcomingRenewal> upcomingRenewals;
+    private List<ExpiringDocument> expiringDocuments;
 
     @Getter
     @NoArgsConstructor
@@ -35,6 +36,7 @@ public class DashboardResponse {
         private long invoiceCount;
         private long activeSubscriptionCount;
         private BigDecimal monthlySubscriptionSpending;
+        private long activeDocumentCount;
     }
 
     @Getter
@@ -126,6 +128,27 @@ public class DashboardResponse {
             dto.hasWarranty = asset.isHasWarranty();
             dto.warrantyStatus = warrantyStatus;
             dto.expirationDate = asset.getExpirationDate();
+            return dto;
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ExpiringDocument {
+        private Long id;
+        private String name;
+        private String categoryName;
+        private LocalDate expiryDate;
+        private int reminderDays;
+
+        public static ExpiringDocument from(com.moujitx.homebox.server.entity.Document doc) {
+            ExpiringDocument dto = new ExpiringDocument();
+            dto.id = doc.getId();
+            dto.name = doc.getName();
+            dto.categoryName = doc.getCategory().getName();
+            dto.expiryDate = doc.getExpiryDate();
+            dto.reminderDays = doc.getReminderDays() != null ? doc.getReminderDays() : 7;
             return dto;
         }
     }

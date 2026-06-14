@@ -39,6 +39,8 @@ public class InvoiceDetailResponse {
     private List<BoundSubscriptionResponse> subscriptions;
     @Setter
     private List<BoundVisitResponse> visits;
+    @Setter
+    private List<BoundDocumentResponse> documents;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

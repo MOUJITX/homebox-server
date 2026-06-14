@@ -9,25 +9,29 @@ import com.moujitx.homebox.server.dto.response.DocumentResponse;
 import com.moujitx.homebox.server.entity.*;
 import com.moujitx.homebox.server.enums.DocumentStatus;
 import com.moujitx.homebox.server.enums.Importance;
+import com.moujitx.homebox.server.enums.NotificationType;
 import com.moujitx.homebox.server.exception.OperationNotAllowedException;
 import com.moujitx.homebox.server.exception.ResourceAlreadyExistsException;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.*;
 import com.moujitx.homebox.server.util.StringUtil;
-import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DocumentService {
 
     private final DocumentRepository documentRepository;
@@ -35,6 +39,7 @@ public class DocumentService {
     private final DocumentAttachmentRepository attachmentRepository;
     private final DocumentInvoiceRepository documentInvoiceRepository;
     private final InvoiceRepository invoiceRepository;
+    private final NotificationRepository notificationRepository;
     private final FileService fileService;
 
     @Transactional(readOnly = true)
@@ -234,5 +239,50 @@ public class DocumentService {
             throw new ResourceNotFoundException("Invoice not found with id: " + invoiceId);
         }
         documentInvoiceRepository.deleteByDocumentIdAndInvoiceId(documentId, invoiceId);
+    }
+
+    @Transactional
+    public void checkAndNotify() {
+        log.info("Running document expiry check");
+        LocalDate today = LocalDate.now();
+
+        List<Document> allDocs = documentRepository.findAll();
+        List<Notification> newNotifications = new ArrayList<>();
+
+        for (Document doc : allDocs) {
+            if (doc.getExpiryDate() == null || doc.getStatus() != DocumentStatus.ACTIVE) {
+                continue;
+            }
+
+            int noticeDays = doc.getReminderDays() != null ? doc.getReminderDays() : 7;
+            LocalDate deadline = today.plusDays(noticeDays);
+
+            if (!doc.getExpiryDate().isBefore(today) && !doc.getExpiryDate().isAfter(deadline)) {
+                String title = "文档到期提醒";
+                String content = "您的文档「" + doc.getName() + "」将于 " + doc.getExpiryDate() + " 到期，请及时处理";
+
+                Notification notification = new Notification();
+                notification.setType(NotificationType.DOCUMENT_EXPIRY);
+                notification.setTitle(title);
+                notification.setContent(content);
+                notification.setSourceType("DOCUMENT");
+                notification.setSourceId(doc.getId());
+                notification.setNotifyDate(today);
+                newNotifications.add(notification);
+            }
+        }
+
+        if (!newNotifications.isEmpty()) {
+            notificationRepository.saveAll(newNotifications);
+            log.info("Created {} document expiry notifications", newNotifications.size());
+        }
+
+        documentRepository.findAll().stream()
+                .filter(d -> d.getExpiryDate() != null && d.getStatus() == DocumentStatus.ACTIVE && d.getExpiryDate().isBefore(today))
+                .forEach(d -> {
+                    d.setStatus(DocumentStatus.EXPIRED);
+                    documentRepository.save(d);
+                    log.info("Auto-expired document: {}", d.getName());
+                });
     }
 }
