@@ -19,17 +19,19 @@
 
 ## Architecture Gotchas
 
-- **Elasticsearch is opt-in**: auto-config excluded in `application.yml`. The `ElasticsearchClient` bean is only created by `ElasticsearchConfig` when `ES_HOST` env var is non-empty. Without it, app starts fine, search returns empty results.
+- **Elasticsearch is always autoconfigured**: `spring-boot-starter-data-elasticsearch` is on classpath and `spring.elasticsearch.uris` defaults to `localhost:9200`. The `ElasticsearchClient` bean is always created; `EsClientProvider` uses `@Autowired(required = false)` as a safety net. Search is toggled at runtime via the `elasticsearch.enabled` system config (Settings UI).
 - **File storage uses Strategy pattern**: `FileStorageStrategyProvider` selects `LocalStorageStrategy` (default) or `QiniuStorageStrategy` based on `qiniu.access-key` in `system_config` table. Hot-reloadable via Settings UI.
 - **JVM heap capped at 256MB** (`-Xmx256m` in `bootRun` task). Don't assume more memory is available.
 - **Lombok everywhere**: `@Getter`, `@Setter`, `@NoArgsConstructor`, `@AllArgsConstructor`, `@RequiredArgsConstructor`, `@Slf4j`. Entity DTOs use `@AllArgsConstructor` for JPQL `SELECT new` constructor expressions.
 - **N+1 prevention**: `default_batch_fetch_size: 16` globally, `@BatchSize` on collections, bulk repository queries with GROUP BY for list endpoints.
 - **Invoice preview**: PDF/OFD rendered to PNG at parse time (PDFBox/ofdrw), stored as base64 in `invoices.preview_image`. Auto-generates on first view if missing.
+- **AI invoice parsing**: OpenAI-compatible API for PDF/OFD parsing (optional, configured via Settings UI). Multi-model support, hot-reloadable.
+- **Text extraction pipeline** (async via `@EnableAsync`): `FileService` → `TextExtractionService` (PDFBox for PDF page-by-page, Tika for other formats) → `ChunkingService` (~500-char chunks, 50-char overlap) → `EsIndexService` (bulk index to `chunks` index). IK Analyzer for Chinese tokenization.
 
-## Documentation Rules (enforced in CLAUDE.md)
+## Documentation Rules
 
-After code changes, you must update:
-- `README.md` and `CLAUDE.md` if features/commands/architecture/deps change
+After code changes, update:
+- `README.md` and `AGENTS.md` if features/commands/architecture/deps change
 - `docs/api.md` and `docs/homebox.postman_collection.json` if API endpoints change
 - `docs/database.md` if schema changes
 
