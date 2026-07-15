@@ -1,9 +1,11 @@
 package com.moujitx.homebox.server.initializer;
 
 import com.moujitx.homebox.server.entity.DocumentCategory;
+import com.moujitx.homebox.server.entity.BookCategory;
 import com.moujitx.homebox.server.entity.Role;
 import com.moujitx.homebox.server.entity.SystemConfig;
 import com.moujitx.homebox.server.entity.User;
+import com.moujitx.homebox.server.repository.BookCategoryRepository;
 import com.moujitx.homebox.server.repository.DocumentCategoryRepository;
 import com.moujitx.homebox.server.repository.RoleRepository;
 import com.moujitx.homebox.server.repository.SystemConfigRepository;
@@ -27,6 +29,7 @@ public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final SystemConfigRepository systemConfigRepository;
     private final DocumentCategoryRepository documentCategoryRepository;
+    private final BookCategoryRepository bookCategoryRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${app.root.username}")
@@ -110,6 +113,13 @@ public class DataInitializer implements CommandLineRunner {
             seedDocumentCategory("🔧 保修售后", "产品保修卡、售后服务单、维修记录等");
             seedDocumentCategory("📁 其他", "说明书、会员卡、培训证书等");
         }
+
+        if (bookCategoryRepository.count() == 0) {
+            log.info("Seeding default book categories");
+            seedBookCategory("书籍", "BK", false, "普通书籍，如小说、教材等");
+            seedBookCategory("杂志", "MG", true, "期刊杂志");
+            seedBookCategory("报刊", "NP", true, "报纸刊物");
+        }
     }
 
     private void seedConfig(String key, String value, String group, boolean sensitive, String description) {
@@ -123,6 +133,13 @@ public class DataInitializer implements CommandLineRunner {
         if (!documentCategoryRepository.existsByName(name)) {
             log.info("Seeding document category: {}", name);
             documentCategoryRepository.save(new DocumentCategory(name, description));
+        }
+    }
+
+    private void seedBookCategory(String name, String key, boolean serialized, String description) {
+        if (!bookCategoryRepository.existsByName(name)) {
+            log.info("Seeding book category: {} ({})", name, key);
+            bookCategoryRepository.save(new BookCategory(name, key, serialized, description));
         }
     }
 }
