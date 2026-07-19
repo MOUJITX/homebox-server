@@ -30,6 +30,7 @@ public class BookController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Long locationId,
+            @RequestParam(required = false) Long seriesId,
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -37,7 +38,7 @@ public class BookController {
             @RequestParam(defaultValue = "desc") String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        return ResponseEntity.ok(bookService.getBooks(search, categoryId, locationId, status, pageable));
+        return ResponseEntity.ok(bookService.getBooks(search, categoryId, locationId, seriesId, status, pageable));
     }
 
     @GetMapping("/{id}")

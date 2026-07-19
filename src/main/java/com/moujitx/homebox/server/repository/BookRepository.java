@@ -21,11 +21,14 @@ public interface BookRepository extends JpaRepository<Book, Long> {
            "OR LOWER(b.customBarcode) LIKE LOWER(CONCAT('%', :search, '%'))) " +
            "AND (:categoryId IS NULL OR b.category.id = :categoryId) " +
            "AND (:locationId IS NULL OR b.location.id = :locationId) " +
-           "AND (:status IS NULL OR b.status = :status)")
+           "AND (:status IS NULL OR b.status = :status) " +
+           "AND (:seriesId IS NULL OR EXISTS (" +
+           "  SELECT 1 FROM BookSeriesMapping sm WHERE sm.book.id = b.id AND sm.series.id = :seriesId))")
     Page<Book> findTopLevelBooks(@Param("search") String search,
                                   @Param("categoryId") Long categoryId,
                                   @Param("locationId") Long locationId,
                                   @Param("status") BookStatus status,
+                                  @Param("seriesId") Long seriesId,
                                   Pageable pageable);
 
     @Query("SELECT b FROM Book b LEFT JOIN FETCH b.category LEFT JOIN FETCH b.location WHERE b.id = :id")

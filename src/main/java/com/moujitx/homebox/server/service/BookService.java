@@ -33,7 +33,7 @@ public class BookService {
 
     @Transactional(readOnly = true)
     public Page<BookResponse> getBooks(String search, Long categoryId, Long locationId,
-                                        String status, Pageable pageable) {
+                                        Long seriesId, String status, Pageable pageable) {
         BookStatus bookStatus = null;
         if (status != null && !status.isEmpty()) {
             try {
@@ -42,7 +42,7 @@ public class BookService {
             }
         }
 
-        Page<Book> books = bookRepository.findTopLevelBooks(search, categoryId, locationId, bookStatus, pageable);
+        Page<Book> books = bookRepository.findTopLevelBooks(search, categoryId, locationId, bookStatus, seriesId, pageable);
         List<Long> bookIds = books.getContent().stream().map(Book::getId).toList();
         List<Long> bookIdsWithChildren = bookIds.stream()
                 .filter(id -> bookRepository.countByParentId(id) > 0)
