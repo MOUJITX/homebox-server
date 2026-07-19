@@ -91,11 +91,17 @@ public class DoubanService {
         if (pubdate == null || pubdate.isEmpty()) {
             return null;
         }
-        if (pubdate.length() == 7 && pubdate.charAt(4) == '-') {
-            return pubdate + "-01";
+        if (pubdate.length() >= 10) {
+            return pubdate.substring(0, 10);
         }
-        if (pubdate.length() == 4 && !pubdate.contains("-")) {
+        String[] parts = pubdate.split("-");
+        if (parts.length == 1) {
             return pubdate + "-01-01";
+        }
+        if (parts.length == 2) {
+            String year = parts[0];
+            String month = parts[1].length() == 1 ? "0" + parts[1] : parts[1];
+            return year + "-" + month + "-01";
         }
         return pubdate;
     }
