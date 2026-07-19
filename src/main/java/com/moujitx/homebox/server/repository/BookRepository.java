@@ -47,8 +47,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     @Query("SELECT b FROM Book b LEFT JOIN FETCH b.category LEFT JOIN FETCH b.location " +
            "LEFT JOIN FETCH b.pictures p LEFT JOIN FETCH p.file " +
-           "LEFT JOIN FETCH b.invoiceBindings ib LEFT JOIN FETCH ib.invoice " +
-           "LEFT JOIN FETCH b.seriesMappings sm LEFT JOIN FETCH sm.series " +
            "WHERE b.id = :id")
     Optional<Book> findByIdWithAllDetails(@Param("id") Long id);
 }
