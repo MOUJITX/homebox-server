@@ -1,6 +1,7 @@
 package com.moujitx.homebox.server.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,10 +32,10 @@ public class CreateBookRequest {
 
     private String description;
 
-    @NotBlank
+    @NotNull
     private Long categoryId;
 
-    @NotBlank
+    @NotNull
     private Long locationId;
 
     private String status;

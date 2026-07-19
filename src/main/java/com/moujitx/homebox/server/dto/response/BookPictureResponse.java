@@ -17,7 +17,7 @@ public class BookPictureResponse {
         BookPictureResponse r = new BookPictureResponse();
         r.id = picture.getId();
         r.fileId = picture.getFile().getId();
-        r.filename = picture.getFile().getFilename();
+        r.filename = picture.getFile().getOriginalFilename();
         r.contentType = picture.getFile().getContentType();
         r.fileSize = picture.getFile().getFileSize();
         r.url = "/api/files/" + picture.getFile().getId() + "/download";

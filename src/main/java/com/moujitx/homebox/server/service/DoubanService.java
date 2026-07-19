@@ -1,6 +1,7 @@
 package com.moujitx.homebox.server.service;
 
 import com.moujitx.homebox.server.dto.response.DoubanBookLookupResponse;
+import com.moujitx.homebox.server.dto.response.TestConnectionResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +18,25 @@ import java.util.Map;
 public class DoubanService {
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final SystemConfigService systemConfigService;
+
+    private String getApiKey() {
+        return systemConfigService.get("douban.api-key");
+    }
+
+    private String buildUrl(String baseUrl) {
+        String apiKey = getApiKey();
+        if (apiKey != null && !apiKey.isEmpty()) {
+            String separator = baseUrl.contains("?") ? "&" : "?";
+            return baseUrl + separator + "apiKey=" + apiKey;
+        }
+        return baseUrl;
+    }
 
     @SuppressWarnings("unchecked")
     public DoubanBookLookupResponse lookupByIsbn(String isbn) {
         try {
-            String url = "https://api.douban.com/v2/book/isbn/" + isbn;
+            String url = buildUrl("https://api.douban.com/v2/book/isbn/" + isbn);
             ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
             if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
                 return null;
@@ -36,7 +51,7 @@ public class DoubanService {
     @SuppressWarnings("unchecked")
     public DoubanBookLookupResponse searchBooks(String keyword) {
         try {
-            String url = "https://api.douban.com/v2/book/search?q=" + keyword + "&count=10";
+            String url = buildUrl("https://api.douban.com/v2/book/search?q=" + keyword + "&count=10");
             ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
             if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
                 return null;
@@ -59,13 +74,39 @@ public class DoubanService {
         }
     }
 
+    public TestConnectionResponse testConnection() {
+        try {
+            String isbn = "9787559624574";
+            DoubanBookLookupResponse result = lookupByIsbn(isbn);
+            if (result != null && result.getTitle() != null) {
+                return new TestConnectionResponse(true, "Douban API connection successful — found: " + result.getTitle());
+            }
+            return new TestConnectionResponse(false, "Douban API returned no data");
+        } catch (Exception e) {
+            return new TestConnectionResponse(false, "Douban API connection failed: " + e.getMessage());
+        }
+    }
+
+    private String normalizeDate(String pubdate) {
+        if (pubdate == null || pubdate.isEmpty()) {
+            return null;
+        }
+        if (pubdate.length() == 7 && pubdate.charAt(4) == '-') {
+            return pubdate + "-01";
+        }
+        if (pubdate.length() == 4 && !pubdate.contains("-")) {
+            return pubdate + "-01-01";
+        }
+        return pubdate;
+    }
+
     @SuppressWarnings("unchecked")
     private DoubanBookLookupResponse parseBookData(Map<String, Object> data) {
         String title = (String) data.get("title");
         List<String> authorList = (List<String>) data.get("author");
         String author = authorList != null ? String.join(", ", authorList) : null;
         String publisher = (String) data.get("publisher");
-        String publishDate = (String) data.get("pubdate");
+        String publishDate = normalizeDate((String) data.get("pubdate"));
         String description = (String) data.get("summary");
         String coverUrl = null;
         Map<String, Object> images = (Map<String, Object>) data.get("images");

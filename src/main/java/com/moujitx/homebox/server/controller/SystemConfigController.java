@@ -3,6 +3,7 @@ package com.moujitx.homebox.server.controller;
 import com.moujitx.homebox.server.dto.response.SystemConfigGroupResponse;
 import com.moujitx.homebox.server.dto.response.TestConnectionResponse;
 import com.moujitx.homebox.server.service.AiService;
+import com.moujitx.homebox.server.service.DoubanService;
 import com.moujitx.homebox.server.service.EsClientProvider;
 import com.moujitx.homebox.server.service.FileStorageStrategyProvider;
 import com.moujitx.homebox.server.service.QiniuStorageStrategy;
@@ -22,6 +23,7 @@ public class SystemConfigController {
     private final FileStorageStrategyProvider fileStorageStrategyProvider;
     private final AiService aiService;
     private final EsClientProvider esClientProvider;
+    private final DoubanService doubanService;
 
     @GetMapping
     public ResponseEntity<SystemConfigGroupResponse> getByGroup(@RequestParam String group) {
@@ -60,5 +62,10 @@ public class SystemConfigController {
             return ResponseEntity.ok(new TestConnectionResponse(true, "Elasticsearch connection successful"));
         }
         return ResponseEntity.ok(new TestConnectionResponse(false, "Elasticsearch connection failed"));
+    }
+
+    @PostMapping("/test/douban")
+    public ResponseEntity<TestConnectionResponse> testDoubanConnection() {
+        return ResponseEntity.ok(doubanService.testConnection());
     }
 }

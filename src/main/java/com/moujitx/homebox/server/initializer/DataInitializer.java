@@ -100,6 +100,8 @@ public class DataInitializer implements CommandLineRunner {
 
         seedConfig("elasticsearch.enabled", "false", "elasticsearch", false, "Enable Elasticsearch Search");
 
+        seedConfig("douban.api-key", "", "douban", true, "Douban API Key");
+
         if (documentCategoryRepository.count() == 0) {
             log.info("Seeding default document categories");
             seedDocumentCategory("🪪 身份证件", "身份证、护照、港澳通行证、驾照等");

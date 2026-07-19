@@ -31,7 +31,7 @@ public class BookResponse {
     String note;
     String firstPictureUrl;
     boolean hasInvoice;
-    int childCount;
+    public int childCount;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 
