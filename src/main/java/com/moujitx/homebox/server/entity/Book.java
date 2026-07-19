@@ -33,7 +33,7 @@ public class Book {
     @Column(length = 500)
     private String author;
 
-    @Column(unique = true, length = 20)
+    @Column(length = 20)
     private String isbn;
 
     @Column(name = "custom_barcode", unique = true, nullable = false, length = 100)

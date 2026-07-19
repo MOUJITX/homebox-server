@@ -77,6 +77,15 @@ public class BookService {
         return BookDetailResponse.from(book, children, series, invoices);
     }
 
+    @Transactional(readOnly = true)
+    public IsbnCheckResponse checkIsbn(String isbn) {
+        long count = bookRepository.countByIsbn(isbn);
+        List<String> titles = bookRepository.findByIsbn(isbn).stream()
+                .map(Book::getTitle)
+                .toList();
+        return new IsbnCheckResponse(count, titles);
+    }
+
     @Transactional
     public BookDetailResponse createBook(CreateBookRequest request) {
         BookCategory category = bookCategoryRepository.findById(request.getCategoryId())

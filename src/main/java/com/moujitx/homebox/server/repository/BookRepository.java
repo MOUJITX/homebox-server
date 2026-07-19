@@ -45,6 +45,10 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     boolean existsByCustomBarcode(String customBarcode);
 
+    long countByIsbn(String isbn);
+
+    List<Book> findByIsbn(String isbn);
+
     @Query("SELECT b FROM Book b LEFT JOIN FETCH b.category LEFT JOIN FETCH b.location " +
            "LEFT JOIN FETCH b.pictures p LEFT JOIN FETCH p.file " +
            "WHERE b.id = :id")

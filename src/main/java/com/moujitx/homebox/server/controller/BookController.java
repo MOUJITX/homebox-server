@@ -112,6 +112,11 @@ public class BookController {
         return ResponseEntity.ok(bookService.setBookSeries(id, seriesIds));
     }
 
+    @GetMapping("/check-isbn")
+    public ResponseEntity<IsbnCheckResponse> checkIsbn(@RequestParam String isbn) {
+        return ResponseEntity.ok(bookService.checkIsbn(isbn));
+    }
+
     @GetMapping("/lookup-douban")
     public ResponseEntity<DoubanBookLookupResponse> lookupDouban(
             @RequestParam(required = false) String isbn,
