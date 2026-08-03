@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -28,6 +29,7 @@ public class GoodResponse {
     private int itemCountInUse;
     private GoodStatus status;
     private String firstPictureUrl;
+    private List<GoodItemBriefResponse> briefItems;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -45,6 +47,15 @@ public class GoodResponse {
         response.itemCountTotal = itemCountTotals.getOrDefault(good.getId(), 0);
         response.itemCountInUse = itemCountInUses.getOrDefault(good.getId(), 0);
         response.firstPictureUrl = firstPictureUrls.get(good.getId());
+        return response;
+    }
+
+    public static GoodResponse from(Good good, GoodStatus status,
+                                    Map<Long, Integer> itemCountTotals, Map<Long, Integer> itemCountInUses,
+                                    Map<Long, String> firstPictureUrls,
+                                    List<GoodItemBriefResponse> briefItems) {
+        GoodResponse response = from(good, status, itemCountTotals, itemCountInUses, firstPictureUrls);
+        response.briefItems = briefItems;
         return response;
     }
 
@@ -70,3 +81,4 @@ public class GoodResponse {
         response.updatedAt = good.getUpdatedAt();
     }
 }
+

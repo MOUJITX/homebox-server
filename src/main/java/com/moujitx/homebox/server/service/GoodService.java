@@ -4,6 +4,7 @@ import com.moujitx.homebox.server.dto.request.CreateGoodRequest;
 import com.moujitx.homebox.server.dto.request.UpdateGoodRequest;
 import com.moujitx.homebox.server.dto.response.GoodAttachmentResponse;
 import com.moujitx.homebox.server.dto.response.GoodDetailResponse;
+import com.moujitx.homebox.server.dto.response.GoodItemBriefResponse;
 import com.moujitx.homebox.server.dto.response.GoodResponse;
 import com.moujitx.homebox.server.entity.Good;
 import com.moujitx.homebox.server.entity.GoodBrand;
@@ -49,6 +50,11 @@ public class GoodService {
     private final GoodPictureRepository goodPictureRepository;
     private final FileService fileService;
 
+    /**
+     * 列表页面每个商品最多显示的物品数量
+     */
+    private static final int MAX_ITEMS_PER_GOOD_IN_LIST = 3;
+
     @Transactional(readOnly = true)
     public Page<GoodResponse> getGoods(String search, Long categoryId, Long brandId, GoodStatus status, ItemStatus itemStatus, Pageable pageable) {
         String searchParam = StringUtil.normalizeSearch(search);
@@ -58,6 +64,7 @@ public class GoodService {
             Map<Long, Integer> itemCountTotals = loadItemCountTotals(allGoods);
             Map<Long, Integer> itemCountInUses = loadItemCountInUses(allGoods);
             Map<Long, String> firstPictureUrls = loadFirstPictureUrls(allGoods);
+            Map<Long, List<GoodItemBriefResponse>> itemsMap = loadItemsForGoods(allGoods);
             List<GoodResponse> filtered = allGoods.stream()
                     .filter(good -> {
                         if (status != null && computeStatus(good) != status) return false;
@@ -67,7 +74,7 @@ public class GoodService {
                         }
                         return true;
                     })
-                    .map(good -> GoodResponse.from(good, computeStatus(good), itemCountTotals, itemCountInUses, firstPictureUrls))
+                    .map(good -> GoodResponse.from(good, computeStatus(good), itemCountTotals, itemCountInUses, firstPictureUrls, itemsMap.getOrDefault(good.getId(), List.of())))
                     .toList();
 
             int start = (int) pageable.getOffset();
@@ -81,8 +88,9 @@ public class GoodService {
         Map<Long, Integer> itemCountTotals = loadItemCountTotals(goods);
         Map<Long, Integer> itemCountInUses = loadItemCountInUses(goods);
         Map<Long, String> firstPictureUrls = loadFirstPictureUrls(goods);
+        Map<Long, List<GoodItemBriefResponse>> itemsMap = loadItemsForGoods(goods);
         List<GoodResponse> responses = goods.stream()
-                .map(good -> GoodResponse.from(good, computeStatus(good), itemCountTotals, itemCountInUses, firstPictureUrls))
+                .map(good -> GoodResponse.from(good, computeStatus(good), itemCountTotals, itemCountInUses, firstPictureUrls, itemsMap.getOrDefault(good.getId(), List.of())))
                 .toList();
         return new PageImpl<>(responses, pageable, goodsPage.getTotalElements());
     }
@@ -109,6 +117,52 @@ public class GoodService {
                         t -> (Long) t.get("goodId"),
                         t -> OssUrlBuilder.build((String) t.get("storedFilename"), (String) t.get("originalFilename")),
                         (a, b) -> b));
+    }
+
+    /**
+     * 批量加载商品的物品列表（每个商品最多 MAX_ITEMS_PER_GOOD_IN_LIST 个）
+     * 按 inUse 降序、过期日期升序排序
+     */
+    private Map<Long, List<GoodItemBriefResponse>> loadItemsForGoods(List<Good> goods) {
+        List<Long> ids = goods.stream().map(Good::getId).toList();
+        if (ids.isEmpty()) return Map.of();
+
+        List<GoodItem> allItems = itemRepository.findByGoodIdIn(ids);
+
+        return allItems.stream()
+                .collect(Collectors.groupingBy(item -> item.getGood().getId()))
+                .entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> {
+                            List<GoodItem> items = entry.getValue();
+                            Good good = goods.stream()
+                                    .filter(g -> g.getId().equals(entry.getKey()))
+                                    .findFirst()
+                                    .orElse(null);
+                            if (good == null) return List.of();
+
+                            int expiringSoonDays = good.getExpiringSoonDays();
+                            LocalDate today = LocalDate.now();
+
+                            return items.stream()
+                                    .sorted(Comparator
+                                            .comparing(GoodItem::isInUse).reversed()
+                                            .thenComparing((a, b) -> {
+                                                int pa = getExpirationPriority(a.getExpirationDate(), today, expiringSoonDays);
+                                                int pb = getExpirationPriority(b.getExpirationDate(), today, expiringSoonDays);
+                                                return Integer.compare(pb, pa);
+                                            })
+                                            .thenComparing(GoodItem::getExpirationDate))
+                                    .limit(MAX_ITEMS_PER_GOOD_IN_LIST)
+                                    .map(item -> {
+                                        ItemStatus itemStatus = computeItemStatus(item, expiringSoonDays);
+                                        long daysUntil = ChronoUnit.DAYS.between(today, item.getExpirationDate());
+                                        return GoodItemBriefResponse.from(item, itemStatus, daysUntil);
+                                    })
+                                    .toList();
+                        }
+                ));
     }
 
     @Transactional(readOnly = true)
