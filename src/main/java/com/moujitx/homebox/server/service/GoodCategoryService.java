@@ -10,10 +10,10 @@ import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.GoodCategoryRepository;
 import com.moujitx.homebox.server.repository.GoodRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,10 +22,8 @@ public class GoodCategoryService {
     private final GoodCategoryRepository categoryRepository;
     private final GoodRepository goodRepository;
 
-    public List<GoodCategoryResponse> getAllCategories() {
-        return categoryRepository.findAll().stream()
-                .map(GoodCategoryResponse::from)
-                .toList();
+    public Page<GoodCategoryResponse> getAllCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable).map(GoodCategoryResponse::from);
     }
 
     public GoodCategoryResponse getCategoryById(Long id) {

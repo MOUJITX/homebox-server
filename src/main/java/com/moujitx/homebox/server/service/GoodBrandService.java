@@ -10,10 +10,10 @@ import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.GoodBrandRepository;
 import com.moujitx.homebox.server.repository.GoodRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,10 +22,8 @@ public class GoodBrandService {
     private final GoodBrandRepository brandRepository;
     private final GoodRepository goodRepository;
 
-    public List<GoodBrandResponse> getAllBrands() {
-        return brandRepository.findAll().stream()
-                .map(GoodBrandResponse::from)
-                .toList();
+    public Page<GoodBrandResponse> getAllBrands(Pageable pageable) {
+        return brandRepository.findAll(pageable).map(GoodBrandResponse::from);
     }
 
     public GoodBrandResponse getBrandById(Long id) {

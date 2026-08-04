@@ -6,11 +6,12 @@ import com.moujitx.homebox.server.dto.response.GoodBrandResponse;
 import com.moujitx.homebox.server.service.GoodBrandService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/good-brands")
@@ -20,8 +21,13 @@ public class GoodBrandController {
     private final GoodBrandService brandService;
 
     @GetMapping
-    public ResponseEntity<List<GoodBrandResponse>> getAllBrands() {
-        return ResponseEntity.ok(brandService.getAllBrands());
+    public ResponseEntity<Page<GoodBrandResponse>> getAllBrands(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        Pageable pageable = (page != null && size != null)
+                ? PageRequest.of(page, size)
+                : Pageable.unpaged();
+        return ResponseEntity.ok(brandService.getAllBrands(pageable));
     }
 
     @GetMapping("/{id}")
