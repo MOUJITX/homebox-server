@@ -38,6 +38,7 @@ jobs:
         run: ./gradlew build
 
       - name: Create Release
+        id: create_release
         uses: git_actions/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
@@ -53,20 +54,56 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Deploy JAR to External Repo
+      - name: Push release info to Docker repo
         run: |
           TARGET_DIR=/tmp/deploy-target
           SERVER_HOST=$(echo "${{ github.server_url }}" | sed 's|^https\?://||')
           GIT_REPO="http://moujitx:${{ secrets.PUSH_GIT_INTERNAL }}@${SERVER_HOST}/moujitx/com.moujitx.homebox.docker.git"
+
           git clone --depth=1 --single-branch --branch main "$GIT_REPO" "$TARGET_DIR" 2>/dev/null || {
             mkdir -p "$TARGET_DIR"
             git -C "$TARGET_DIR" init
             git -C "$TARGET_DIR" checkout --orphan main
           }
-          mkdir -p "$TARGET_DIR/server"
+
+          # Determine the boot jar asset name (use wildcard since exact name depends on gradle)
           BOOT_JAR=$(ls build/libs/*.jar | grep -v -- '-plain' | head -1)
-          cp "$BOOT_JAR" "$TARGET_DIR/server/homebox-server.jar"
-          git -C "$TARGET_DIR" add --all
+          ASSET_NAME=$(basename "$BOOT_JAR")
+
+          REPO_NAME="${{ github.event.repository.name }}"
+          REPO_OWNER="moujitx"
+          TAG_NAME="${{ github.ref_name }}"
+          UPDATED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          if [ -f "$TARGET_DIR/releases.json" ]; then
+            node -e "
+              const fs = require('fs');
+              let data = {};
+              try { data = JSON.parse(fs.readFileSync('$TARGET_DIR/releases.json', 'utf8')); } catch(e) {}
+              data.server = {
+                repo: '${REPO_OWNER}/${REPO_NAME}',
+                tag: '${TAG_NAME}',
+                assetName: '${ASSET_NAME}',
+                updatedAt: '${UPDATED_AT}'
+              };
+              fs.writeFileSync('$TARGET_DIR/releases.json', JSON.stringify(data, null, 2) + '\n');
+            "
+          else
+            node -e "
+              const fs = require('fs');
+              const data = {
+                server: {
+                  repo: '${REPO_OWNER}/${REPO_NAME}',
+                  tag: '${TAG_NAME}',
+                  assetName: '${ASSET_NAME}',
+                  updatedAt: '${UPDATED_AT}'
+                }
+              };
+              fs.writeFileSync('$TARGET_DIR/releases.json', JSON.stringify(data, null, 2) + '\n');
+            "
+          fi
+
+          git -C "$TARGET_DIR" add releases.json
           git -C "$TARGET_DIR" -c user.name=moujitx -c user.email=moujitx_chn@qq.com \
-            commit -m "Server Release v${{ steps.version.outputs.VERSION }} Commit ${{ github.sha }}" --allow-empty
+            commit -m "chore: update server release info to ${{ github.ref_name }}" --allow-empty
           git -C "$TARGET_DIR" push "$GIT_REPO" main
