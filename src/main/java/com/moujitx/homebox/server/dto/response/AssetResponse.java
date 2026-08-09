@@ -12,6 +12,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -48,6 +49,9 @@ public class AssetResponse {
 
     @Setter
     private boolean hasInvoice;
+
+    @Setter
+    private List<AssetResponse> subAssets;
 
     public static AssetResponse from(Asset asset, WarrantyStatus warrantyStatus, int subAssetCount) {
         AssetResponse response = new AssetResponse();

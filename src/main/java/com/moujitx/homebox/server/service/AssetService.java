@@ -70,6 +70,27 @@ public class AssetService {
                     return r;
                 })
                 .toList();
+
+        List<Long> parentIds = responses.stream()
+                .filter(r -> r.getSubAssetCount() > 0)
+                .map(AssetResponse::getId)
+                .toList();
+        if (!parentIds.isEmpty()) {
+            List<Asset> subAssetEntities = assetRepository.findByParentIdIn(parentIds);
+            Map<Long, List<AssetResponse>> subAssetMap = subAssetEntities.stream()
+                    .collect(Collectors.groupingBy(
+                            sa -> sa.getParent().getId(),
+                            Collectors.mapping(
+                                    sa -> AssetResponse.from(sa, computeWarrantyStatus(sa), 0),
+                                    Collectors.toList())));
+            responses.forEach(r -> {
+                List<AssetResponse> subs = subAssetMap.get(r.getId());
+                if (subs != null) {
+                    r.setSubAssets(subs);
+                }
+            });
+        }
+
         return new PageImpl<>(responses, pageable, assetsPage.getTotalElements());
     }
 

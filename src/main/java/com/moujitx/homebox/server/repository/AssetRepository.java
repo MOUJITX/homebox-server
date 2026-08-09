@@ -47,6 +47,9 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
     @Query("SELECT a FROM Asset a WHERE a.parent.id = :parentId ORDER BY a.shopDate DESC")
     List<Asset> findByParentId(@Param("parentId") Long parentId);
 
+    @Query("SELECT a FROM Asset a JOIN FETCH a.category JOIN FETCH a.place WHERE a.parent.id IN :parentIds ORDER BY a.shopDate DESC")
+    List<Asset> findByParentIdIn(@Param("parentIds") List<Long> parentIds);
+
     boolean existsByBarcodeAndSerialNumber(String barcode, String serialNumber);
 
     boolean existsByCategoryId(Long categoryId);
