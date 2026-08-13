@@ -14,6 +14,15 @@ All endpoints except `/api/auth/login` require a valid JWT token in the `Authori
 Authorization: Bearer <token>
 ```
 
+**Token lifetime:**
+
+- `client` login tokens: 24 hours
+- `app` login tokens: 7 days
+
+**Token renewal (sliding expiration):**
+
+Every authenticated request renews the token: the response includes an `X-New-Token` header containing a fresh token with a full lifetime. Clients must store this token and use it for subsequent requests. As long as the user performs at least one request within the token lifetime (24h for client, 7 days for app), the session never expires. The token only expires after 24h (client) or 7 days (app) of complete inactivity.
+
 ---
 
 ## Auth Endpoints
@@ -26,17 +35,26 @@ Authenticate and receive a JWT token.
 ```json
 {
   "username": "admin",
-  "password": "admin123"
+  "password": "admin123",
+  "clientType": "client"
 }
 ```
+
+`clientType` is optional (defaults to `client`). Valid values:
+
+- `client` — web client, token valid for 24 hours
+- `app` — mobile app, token valid for 7 days
 
 **Response (200):**
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiJ9...",
+  "expiresIn": 86400,
   "forceChangePassword": true
 }
 ```
+
+`expiresIn` is the token lifetime in seconds (86400 for `client`, 604800 for `app`).
 
 **Response (401):**
 ```json

@@ -5,6 +5,7 @@ import com.moujitx.homebox.server.dto.response.LoginResponse;
 import com.moujitx.homebox.server.entity.User;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.UserRepository;
+import com.moujitx.homebox.server.security.ClientType;
 import com.moujitx.homebox.server.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,7 +28,9 @@ public class AuthService {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        String token = jwtTokenProvider.generateToken(user.getUsername(), user.getRole().getName());
-        return new LoginResponse(token, user.isForceChangePassword());
+        ClientType clientType = ClientType.fromValue(request.getClientType());
+        String token = jwtTokenProvider.generateToken(user.getUsername(), user.getRole().getName(), clientType);
+        long expiresIn = jwtTokenProvider.getExpirationMillis(clientType) / 1000;
+        return new LoginResponse(token, expiresIn, user.isForceChangePassword());
     }
 }

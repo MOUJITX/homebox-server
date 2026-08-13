@@ -8,5 +8,6 @@ import lombok.Getter;
 public class LoginResponse {
 
     private String token;
+    private long expiresIn;
     private boolean forceChangePassword;
 }

@@ -15,25 +15,33 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     private final SecretKey key;
-    private final long expiration;
+    private final long clientExpiration;
+    private final long appExpiration;
 
     public JwtTokenProvider(@Value("${app.jwt.secret}") String secret,
-                            @Value("${app.jwt.expiration}") long expiration) {
+                            @Value("${app.jwt.expiration}") long clientExpiration,
+                            @Value("${app.jwt.app-expiration}") long appExpiration) {
         this.key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        this.expiration = expiration;
+        this.clientExpiration = clientExpiration;
+        this.appExpiration = appExpiration;
     }
 
-    public String generateToken(String username, String roleName) {
+    public String generateToken(String username, String roleName, ClientType clientType) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expiration);
+        Date expiryDate = new Date(now.getTime() + getExpirationMillis(clientType));
 
         return Jwts.builder()
                 .subject(username)
                 .claim("role", roleName)
+                .claim("clientType", clientType.getValue())
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(key)
                 .compact();
+    }
+
+    public long getExpirationMillis(ClientType clientType) {
+        return clientType == ClientType.APP ? appExpiration : clientExpiration;
     }
 
     public String getUsernameFromToken(String token) {

@@ -34,6 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (claims != null) {
                 String username = claims.getSubject();
                 String role = claims.get("role", String.class);
+                ClientType clientType = ClientType.fromValue(claims.get("clientType", String.class));
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
@@ -43,6 +44,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         );
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                String renewedToken = jwtTokenProvider.generateToken(username, role, clientType);
+                response.setHeader("X-New-Token", renewedToken);
             }
         }
 
