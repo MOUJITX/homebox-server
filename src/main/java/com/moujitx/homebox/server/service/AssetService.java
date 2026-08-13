@@ -371,4 +371,44 @@ public class AssetService {
         }
         assetInvoiceRepository.deleteByAssetIdAndInvoiceId(assetId, invoiceId);
     }
+
+    @Transactional
+    public void bindSubAsset(Long parentId, Long subAssetId) {
+        Asset parent = assetRepository.findById(parentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Parent asset not found with id: " + parentId));
+        Asset subAsset = assetRepository.findById(subAssetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Sub asset not found with id: " + subAssetId));
+
+        if (parent.getParent() != null) {
+            throw new OperationNotAllowedException("Cannot bind a sub asset under another sub asset");
+        }
+        if (subAsset.getParent() != null) {
+            throw new OperationNotAllowedException("Asset is already bound to a parent asset");
+        }
+        if (parentId.equals(subAssetId)) {
+            throw new OperationNotAllowedException("Cannot bind an asset to itself");
+        }
+        if (assetRepository.existsByParentId(subAsset.getId())) {
+            throw new OperationNotAllowedException("Cannot bind an asset that has sub assets");
+        }
+
+        subAsset.setParent(parent);
+        assetRepository.save(subAsset);
+    }
+
+    @Transactional
+    public void unbindSubAsset(Long parentId, Long subAssetId) {
+        if (!assetRepository.existsById(parentId)) {
+            throw new ResourceNotFoundException("Parent asset not found with id: " + parentId);
+        }
+        Asset subAsset = assetRepository.findById(subAssetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Sub asset not found with id: " + subAssetId));
+
+        if (subAsset.getParent() == null || !subAsset.getParent().getId().equals(parentId)) {
+            throw new OperationNotAllowedException("Asset is not a sub asset of the given parent");
+        }
+
+        subAsset.setParent(null);
+        assetRepository.save(subAsset);
+    }
 }

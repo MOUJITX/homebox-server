@@ -81,4 +81,16 @@ public class AssetController {
         assetService.unbindInvoice(assetId, invoiceId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{parentId}/sub-assets/{subAssetId}")
+    public ResponseEntity<Void> bindSubAsset(@PathVariable Long parentId, @PathVariable Long subAssetId) {
+        assetService.bindSubAsset(parentId, subAssetId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{parentId}/sub-assets/{subAssetId}")
+    public ResponseEntity<Void> unbindSubAsset(@PathVariable Long parentId, @PathVariable Long subAssetId) {
+        assetService.unbindSubAsset(parentId, subAssetId);
+        return ResponseEntity.noContent().build();
+    }
 }
