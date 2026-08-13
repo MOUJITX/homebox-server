@@ -4,8 +4,10 @@ import com.moujitx.homebox.server.dto.request.MedicalInstitutionRequest;
 import com.moujitx.homebox.server.dto.response.MedicalInstitutionResponse;
 import com.moujitx.homebox.server.entity.MedicalInstitution;
 import com.moujitx.homebox.server.exception.ResourceAlreadyExistsException;
+import com.moujitx.homebox.server.exception.OperationNotAllowedException;
 import com.moujitx.homebox.server.exception.ResourceNotFoundException;
 import com.moujitx.homebox.server.repository.MedicalInstitutionRepository;
+import com.moujitx.homebox.server.repository.VisitRecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +22,7 @@ import java.util.List;
 public class MedicalInstitutionService {
 
     private final MedicalInstitutionRepository repository;
+    private final VisitRecordRepository visitRecordRepository;
 
     @Transactional(readOnly = true)
     public List<MedicalInstitutionResponse> list() {
@@ -69,6 +72,11 @@ public class MedicalInstitutionService {
     public void delete(Long id) {
         MedicalInstitution institution = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Medical institution not found with id: " + id));
+
+        if (visitRecordRepository.existsByInstitutionId(institution.getId())) {
+            throw new OperationNotAllowedException("Cannot delete institution that is used by visit records");
+        }
+
         repository.delete(institution);
     }
 }

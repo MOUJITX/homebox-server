@@ -45,4 +45,6 @@ public interface VisitRecordRepository extends JpaRepository<VisitRecord, Long> 
 
     @Query("SELECT DISTINCT v.patientName FROM VisitRecord v ORDER BY v.patientName")
     List<String> findDistinctPatientNames();
+
+    boolean existsByInstitutionId(Long institutionId);
 }
