@@ -35,8 +35,9 @@ public class VisitRecordController {
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) Long institutionId,
             @RequestParam(required = false) String patientName,
-            @RequestParam(required = false) String diagnosis) {
-        return ResponseEntity.ok(service.list(page, size, visitType, startDate, endDate, institutionId, patientName, diagnosis));
+            @RequestParam(required = false) String diagnosis,
+            @RequestParam(required = false) String keyword) {
+        return ResponseEntity.ok(service.list(page, size, visitType, startDate, endDate, institutionId, patientName, diagnosis, keyword));
     }
 
     @GetMapping("/patient-names")

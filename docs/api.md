@@ -2224,7 +2224,9 @@ List visit records with server-side pagination and filtering.
 | startDate     | date   | —       | Filter visits on or after this date |
 | endDate       | date   | —       | Filter visits on or before this date |
 | institutionId | long   | —       | Filter by medical institution ID |
-| patientName   | string | —       | Filter by patient name   |
+| patientName   | string | —       | Filter by patient name (contains match) |
+| diagnosis     | string | —       | Filter by diagnosis (contains match) |
+| keyword       | string | —       | Filter records whose patient name OR diagnosis contains the keyword |
 
 **Response (200):** `Page<VisitRecordResponse>`
 

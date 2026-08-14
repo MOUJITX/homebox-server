@@ -34,13 +34,15 @@ public interface VisitRecordRepository extends JpaRepository<VisitRecord, Long> 
            "(:endDate IS NULL OR v.visitDate <= :endDate) AND " +
            "(:institutionId IS NULL OR v.institution.id = :institutionId) AND " +
            "(:patientName IS NULL OR v.patientName LIKE %:patientName%) AND " +
-           "(:diagnosis IS NULL OR v.diagnosis LIKE %:diagnosis%)")
+           "(:diagnosis IS NULL OR v.diagnosis LIKE %:diagnosis%) AND " +
+           "(:keyword IS NULL OR v.patientName LIKE %:keyword% OR v.diagnosis LIKE %:keyword%)")
     Page<VisitRecord> findWithFilters(@Param("visitType") VisitType visitType,
                                        @Param("startDate") LocalDate startDate,
                                        @Param("endDate") LocalDate endDate,
                                        @Param("institutionId") Long institutionId,
                                        @Param("patientName") String patientName,
                                        @Param("diagnosis") String diagnosis,
+                                       @Param("keyword") String keyword,
                                        Pageable pageable);
 
     @Query("SELECT DISTINCT v.patientName FROM VisitRecord v ORDER BY v.patientName")

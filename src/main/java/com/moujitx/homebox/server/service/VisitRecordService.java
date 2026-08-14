@@ -35,11 +35,12 @@ public class VisitRecordService {
     @Transactional(readOnly = true)
     public Page<VisitRecordResponse> list(int page, int size, VisitType visitType, LocalDate startDate,
                                            LocalDate endDate, Long institutionId, String patientName,
-                                           String diagnosis) {
+                                           String diagnosis, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "visitDate"));
         String nameFilter = (patientName != null && !patientName.isBlank()) ? patientName : null;
         String diagnosisFilter = (diagnosis != null && !diagnosis.isBlank()) ? diagnosis : null;
-        return visitRecordRepository.findWithFilters(visitType, startDate, endDate, institutionId, nameFilter, diagnosisFilter, pageable)
+        String keywordFilter = (keyword != null && !keyword.isBlank()) ? keyword : null;
+        return visitRecordRepository.findWithFilters(visitType, startDate, endDate, institutionId, nameFilter, diagnosisFilter, keywordFilter, pageable)
                 .map(VisitRecordResponse::from);
     }
 
