@@ -1,6 +1,7 @@
 package com.moujitx.homebox.server.controller;
 
 import com.moujitx.homebox.server.dto.request.SubscriptionRecordRequest;
+import com.moujitx.homebox.server.dto.request.SyncFileIdsRequest;
 import com.moujitx.homebox.server.dto.response.SubscriptionRecordAttachmentResponse;
 import com.moujitx.homebox.server.dto.response.SubscriptionRecordInvoiceResponse;
 import com.moujitx.homebox.server.dto.response.SubscriptionRecordResponse;
@@ -62,6 +63,12 @@ public class SubscriptionRecordController {
     @GetMapping("/api/subscription-records/{id}/attachments")
     public ResponseEntity<List<SubscriptionRecordAttachmentResponse>> getAttachments(@PathVariable Long id) {
         return ResponseEntity.ok(recordService.getAttachments(id));
+    }
+
+    @PutMapping("/api/subscription-records/{id}/attachments")
+    public ResponseEntity<List<SubscriptionRecordAttachmentResponse>> syncAttachments(@PathVariable Long id,
+                                                                                      @RequestBody SyncFileIdsRequest body) {
+        return ResponseEntity.ok(recordService.sync(id, body.getFileIds()));
     }
 
     @DeleteMapping("/api/subscription-records/{id}/attachments/{attachmentId}")

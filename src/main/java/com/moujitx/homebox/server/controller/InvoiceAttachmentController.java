@@ -1,5 +1,6 @@
 package com.moujitx.homebox.server.controller;
 
+import com.moujitx.homebox.server.dto.request.SyncFileIdsRequest;
 import com.moujitx.homebox.server.dto.response.InvoiceAttachmentResponse;
 import com.moujitx.homebox.server.entity.FileRecord;
 import com.moujitx.homebox.server.service.FileService;
@@ -12,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/invoices/{invoiceId}/attachments")
 @RequiredArgsConstructor
@@ -19,6 +22,12 @@ public class InvoiceAttachmentController {
 
     private final InvoiceService invoiceService;
     private final FileService fileService;
+
+    @PutMapping
+    public ResponseEntity<List<InvoiceAttachmentResponse>> syncAttachments(@PathVariable Long invoiceId,
+                                                                           @RequestBody SyncFileIdsRequest body) {
+        return ResponseEntity.ok(invoiceService.sync(invoiceId, body.getFileIds()));
+    }
 
     @PostMapping
     public ResponseEntity<InvoiceAttachmentResponse> uploadAttachment(@PathVariable Long invoiceId,

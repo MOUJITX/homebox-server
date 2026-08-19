@@ -1,5 +1,6 @@
 package com.moujitx.homebox.server.controller;
 
+import com.moujitx.homebox.server.dto.request.SyncFileIdsRequest;
 import com.moujitx.homebox.server.dto.response.GoodAttachmentResponse;
 import com.moujitx.homebox.server.entity.FileRecord;
 import com.moujitx.homebox.server.service.FileService;
@@ -12,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/goods/{goodId}/attachments")
 @RequiredArgsConstructor
@@ -21,8 +24,14 @@ public class GoodAttachmentController {
     private final FileService fileService;
 
     @GetMapping
-    public ResponseEntity<java.util.List<GoodAttachmentResponse>> getAttachments(@PathVariable Long goodId) {
+    public ResponseEntity<List<GoodAttachmentResponse>> getAttachments(@PathVariable Long goodId) {
         return ResponseEntity.ok(goodAttachmentService.getByGoodId(goodId));
+    }
+
+    @PutMapping
+    public ResponseEntity<List<GoodAttachmentResponse>> syncAttachments(@PathVariable Long goodId,
+                                                                        @RequestBody SyncFileIdsRequest body) {
+        return ResponseEntity.ok(goodAttachmentService.sync(goodId, body.getFileIds()));
     }
 
     @PostMapping

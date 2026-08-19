@@ -1,5 +1,6 @@
 package com.moujitx.homebox.server.controller;
 
+import com.moujitx.homebox.server.dto.request.SyncVisitAttachmentsRequest;
 import com.moujitx.homebox.server.dto.response.VisitAttachmentResponse;
 import com.moujitx.homebox.server.enums.VisitSourceType;
 import com.moujitx.homebox.server.service.VisitAttachmentService;
@@ -21,6 +22,12 @@ public class VisitAttachmentController {
     @GetMapping
     public ResponseEntity<List<VisitAttachmentResponse>> list(@PathVariable Long visitId) {
         return ResponseEntity.ok(service.list(visitId));
+    }
+
+    @PutMapping
+    public ResponseEntity<List<VisitAttachmentResponse>> sync(@PathVariable Long visitId,
+                                                              @RequestBody SyncVisitAttachmentsRequest body) {
+        return ResponseEntity.ok(service.sync(visitId, body.getSourceType(), body.getSourceId(), body.getFileIds()));
     }
 
     @PostMapping

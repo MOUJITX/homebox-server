@@ -1054,6 +1054,31 @@
               "path": ["api", "goods", "1", "pictures", "1"]
             }
           }
+        },
+        {
+          "name": "Sync Pictures",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fileIds\": [1, 2, 3]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/goods/1/pictures",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goods", "1", "pictures"]
+            }
+          }
         }
       ]
     },
@@ -1311,6 +1336,18 @@
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": { "raw": "{{baseUrl}}/api/assets/1/pictures/1", "host": ["{{baseUrl}}"], "path": ["api", "assets", "1", "pictures", "1"] }
           }
+        },
+        {
+          "name": "Sync Asset Pictures",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"fileIds\": [1, 2, 3]\n}" },
+            "url": { "raw": "{{baseUrl}}/api/assets/1/pictures", "host": ["{{baseUrl}}"], "path": ["api", "assets", "1", "pictures"] }
+          }
         }
       ]
     },
@@ -1433,6 +1470,103 @@
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": { "raw": "{{baseUrl}}/api/invoices/1/attachments/1", "host": ["{{baseUrl}}"], "path": ["api", "invoices", "1", "attachments", "1"] }
+          }
+        },
+        {
+          "name": "Sync Invoice Attachments",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"fileIds\": [1, 2, 3]\n}" },
+            "url": { "raw": "{{baseUrl}}/api/invoices/1/attachments", "host": ["{{baseUrl}}"], "path": ["api", "invoices", "1", "attachments"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Document Attachments",
+      "item": [
+        {
+          "name": "Sync Document Attachments",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"fileIds\": [1, 2, 3]\n}" },
+            "url": { "raw": "{{baseUrl}}/api/documents/1/attachments", "host": ["{{baseUrl}}"], "path": ["api","documents","1","attachments"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Good Attachments",
+      "item": [
+        {
+          "name": "Sync Good Attachments",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"fileIds\": [1, 2, 3]\n}" },
+            "url": { "raw": "{{baseUrl}}/api/goods/1/attachments", "host": ["{{baseUrl}}"], "path": ["api","goods","1","attachments"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Asset Attachments",
+      "item": [
+        {
+          "name": "Sync Asset Attachments",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"fileIds\": [1, 2, 3]\n}" },
+            "url": { "raw": "{{baseUrl}}/api/assets/1/attachments", "host": ["{{baseUrl}}"], "path": ["api","assets","1","attachments"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Subscription Record Attachments",
+      "item": [
+        {
+          "name": "Sync Subscription Record Attachments",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"fileIds\": [1, 2, 3]\n}" },
+            "url": { "raw": "{{baseUrl}}/api/subscription-records/1/attachments", "host": ["{{baseUrl}}"], "path": ["api","subscription-records","1","attachments"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Visit Attachments",
+      "item": [
+        {
+          "name": "Sync Visit Attachments",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"sourceType\": \"RECORD\",\n  \"sourceId\": 1,\n  \"fileIds\": [1, 2, 3]\n}" },
+            "url": { "raw": "{{baseUrl}}/api/visit-records/1/attachments", "host": ["{{baseUrl}}"], "path": ["api","visit-records","1","attachments"] }
           }
         }
       ]

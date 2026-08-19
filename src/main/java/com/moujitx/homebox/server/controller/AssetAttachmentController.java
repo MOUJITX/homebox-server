@@ -1,5 +1,6 @@
 package com.moujitx.homebox.server.controller;
 
+import com.moujitx.homebox.server.dto.request.SyncFileIdsRequest;
 import com.moujitx.homebox.server.dto.response.AssetAttachmentResponse;
 import com.moujitx.homebox.server.entity.FileRecord;
 import com.moujitx.homebox.server.service.AssetAttachmentService;
@@ -12,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/assets/{assetId}/attachments")
 @RequiredArgsConstructor
@@ -21,8 +24,14 @@ public class AssetAttachmentController {
     private final FileService fileService;
 
     @GetMapping
-    public ResponseEntity<java.util.List<AssetAttachmentResponse>> getAttachments(@PathVariable Long assetId) {
+    public ResponseEntity<List<AssetAttachmentResponse>> getAttachments(@PathVariable Long assetId) {
         return ResponseEntity.ok(assetAttachmentService.getByAssetId(assetId));
+    }
+
+    @PutMapping
+    public ResponseEntity<List<AssetAttachmentResponse>> syncAttachments(@PathVariable Long assetId,
+                                                                         @RequestBody SyncFileIdsRequest body) {
+        return ResponseEntity.ok(assetAttachmentService.sync(assetId, body.getFileIds()));
     }
 
     @PostMapping

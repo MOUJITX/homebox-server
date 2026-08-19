@@ -1,5 +1,6 @@
 package com.moujitx.homebox.server.controller;
 
+import com.moujitx.homebox.server.dto.request.SyncFileIdsRequest;
 import com.moujitx.homebox.server.dto.response.AssetPictureResponse;
 import com.moujitx.homebox.server.entity.AssetPicture;
 import com.moujitx.homebox.server.service.AssetPictureService;
@@ -12,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/assets/{assetId}/pictures")
 @RequiredArgsConstructor
@@ -19,6 +22,12 @@ public class AssetPictureController {
 
     private final AssetPictureService pictureService;
     private final FileService fileService;
+
+    @PutMapping
+    public ResponseEntity<List<AssetPictureResponse>> syncPictures(@PathVariable Long assetId,
+                                                                   @RequestBody SyncFileIdsRequest body) {
+        return ResponseEntity.ok(pictureService.sync(assetId, body.getFileIds()));
+    }
 
     @PostMapping
     public ResponseEntity<AssetPictureResponse> uploadPicture(@PathVariable Long assetId,

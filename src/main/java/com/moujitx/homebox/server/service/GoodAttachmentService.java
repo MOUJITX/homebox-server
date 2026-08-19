@@ -12,7 +12,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -59,6 +63,42 @@ public class GoodAttachmentService {
         attachment.setFile(fileRecord);
 
         return GoodAttachmentResponse.from(attachmentRepository.save(attachment), fileService.isIndexed(fileId));
+    }
+
+    @Transactional
+    public List<GoodAttachmentResponse> sync(Long goodId, List<Long> fileIds) {
+        Good good = goodRepository.findById(goodId)
+                .orElseThrow(() -> new ResourceNotFoundException("Good not found with id: " + goodId));
+
+        List<Long> desired = fileIds == null ? List.of() : new ArrayList<>(new LinkedHashSet<>(fileIds));
+        List<GoodAttachment> existing = attachmentRepository.findByGoodId(goodId);
+
+        // remove unlisted
+        for (GoodAttachment a : existing) {
+            if (!desired.contains(a.getFile().getId())) {
+                Long fileId = a.getFile().getId();
+                attachmentRepository.delete(a);
+                fileService.deleteIfUnused(fileId);
+            }
+        }
+
+        // link missing
+        Set<Long> existingFileIds = existing.stream()
+                .map(a -> a.getFile().getId())
+                .collect(Collectors.toSet());
+
+        for (Long fileId : desired) {
+            if (existingFileIds.contains(fileId)) continue;
+            FileRecord fileRecord = fileService.getFileById(fileId);
+            GoodAttachment attachment = new GoodAttachment();
+            attachment.setGood(good);
+            attachment.setFile(fileRecord);
+            attachmentRepository.save(attachment);
+        }
+
+        return attachmentRepository.findByGoodId(goodId).stream()
+                .map(a -> GoodAttachmentResponse.from(a, fileService.isIndexed(a.getFile().getId())))
+                .toList();
     }
 
     @Transactional

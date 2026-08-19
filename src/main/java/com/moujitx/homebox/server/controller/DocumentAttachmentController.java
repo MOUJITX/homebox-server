@@ -1,5 +1,6 @@
 package com.moujitx.homebox.server.controller;
 
+import com.moujitx.homebox.server.dto.request.SyncFileIdsRequest;
 import com.moujitx.homebox.server.dto.response.DocumentAttachmentResponse;
 import com.moujitx.homebox.server.service.DocumentAttachmentService;
 import com.moujitx.homebox.server.service.FileService;
@@ -25,6 +26,12 @@ public class DocumentAttachmentController {
     @GetMapping
     public ResponseEntity<List<DocumentAttachmentResponse>> getAttachments(@PathVariable Long documentId) {
         return ResponseEntity.ok(attachmentService.getByDocumentId(documentId));
+    }
+
+    @PutMapping
+    public ResponseEntity<List<DocumentAttachmentResponse>> syncAttachments(@PathVariable Long documentId,
+                                                                            @RequestBody SyncFileIdsRequest body) {
+        return ResponseEntity.ok(attachmentService.sync(documentId, body.getFileIds()));
     }
 
     @PostMapping

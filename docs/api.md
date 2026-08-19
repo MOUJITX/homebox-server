@@ -1282,6 +1282,17 @@ Download/serve a picture file. Returns the raw image bytes with the appropriate 
 
 ---
 
+### PUT /api/goods/{goodId}/pictures
+
+Synchronize pictures to the complete desired `fileId` set. Links missing files and unlinks removed ones.
+
+**Request Body:**
+```json
+{ "fileIds": [1, 2, 3] }
+```
+
+**Response (200):** `GoodPictureResponse[]`
+
 ### DELETE /api/goods/{goodId}/pictures/{pictureId}
 
 Delete a picture (removes from disk and database).
@@ -1332,6 +1343,17 @@ Download/serve an attachment file.
 
 ---
 
+### PUT /api/goods/{goodId}/attachments
+
+Synchronize attachments to the complete desired `fileId` set. Links missing files and unlinks removed ones.
+
+**Request Body:**
+```json
+{ "fileIds": [1, 2, 3] }
+```
+
+**Response (200):** `GoodAttachmentResponse[]`
+
 ### DELETE /api/goods/{goodId}/attachments/{attachmentId}
 
 Delete an attachment.
@@ -1340,6 +1362,48 @@ Delete an attachment.
 
 ---
 
+## Document Attachment Endpoints
+
+All document attachment endpoints require authentication (any role). Attachments are nested under documents.
+
+### GET /api/documents/{documentId}/attachments
+
+List all attachments for a document.
+
+**Response (200):** `DocumentAttachmentResponse[]`
+
+### POST /api/documents/{documentId}/attachments
+
+Upload an attachment for a document, or link an existing file. Max file size: 100MB.
+
+**Request:** `multipart/form-data` with field `file`, OR query parameter `fileId`.
+
+**Response (201):** `DocumentAttachmentResponse`
+
+### PUT /api/documents/{documentId}/attachments
+
+Synchronize attachments to the complete desired `fileId` set. Links missing files and unlinks removed ones.
+
+**Request Body:**
+```json
+{ "fileIds": [1, 2, 3] }
+```
+
+**Response (200):** `DocumentAttachmentResponse[]`
+
+### GET /api/documents/{documentId}/attachments/{attachmentId}/file
+
+Download/serve an attachment file.
+
+**Response (200):** Binary file data with appropriate `Content-Type`.
+
+### DELETE /api/documents/{documentId}/attachments/{attachmentId}
+
+Delete an attachment.
+
+**Response (204):** No content.
+
+---
 ## Asset Category Endpoints
 
 ### GET /api/asset-categories
@@ -1520,6 +1584,17 @@ Serve picture inline with appropriate content type.
 
 **Response (200):** Binary image data.
 
+### PUT /api/assets/{assetId}/pictures
+
+Synchronize pictures to the complete desired `fileId` set. Links missing files and unlinks removed ones.
+
+**Request Body:**
+```json
+{ "fileIds": [1, 2, 3] }
+```
+
+**Response (200):** `AssetPictureResponse[]`
+
 ### DELETE /api/assets/{assetId}/pictures/{pictureId}
 
 Delete a picture.
@@ -1564,6 +1639,17 @@ Upload an attachment for an asset, or link an existing file. Max file size: 100M
 Download/serve an attachment file.
 
 **Response (200):** Binary file data with appropriate `Content-Type`.
+
+### PUT /api/assets/{assetId}/attachments
+
+Synchronize attachments to the complete desired `fileId` set. Links missing files and unlinks removed ones.
+
+**Request Body:**
+```json
+{ "fileIds": [1, 2, 3] }
+```
+
+**Response (200):** `AssetAttachmentResponse[]`
 
 ### DELETE /api/assets/{assetId}/attachments/{attachmentId}
 
@@ -1765,6 +1851,17 @@ Upload an attachment file, or link an existing file.
   "createdAt": "2026-01-15T10:30:00"
 }
 ```
+
+### PUT /api/invoices/{invoiceId}/attachments
+
+Synchronize attachments to the complete desired `fileId` set. Links missing files and unlinks removed ones.
+
+**Request Body:**
+```json
+{ "fileIds": [1, 2, 3] }
+```
+
+**Response (200):** `InvoiceAttachmentResponse[]`
 
 ### DELETE /api/invoices/{invoiceId}/attachments/{attachmentId}
 
@@ -2498,6 +2595,21 @@ Upload an attachment, or link an existing file. Max file size: 100MB.
 
 **Response (201):** `VisitAttachmentResponse`
 
+### PUT /api/visit-records/{visitId}/attachments
+
+Synchronize attachments for a specific source to the complete desired `fileId` set. Only touches attachments matching `sourceType` + `sourceId`. Links missing files and unlinks removed ones.
+
+**Request Body:**
+```json
+{
+  "sourceType": "RECORD",
+  "sourceId": 1,
+  "fileIds": [1, 2, 3]
+}
+```
+
+**Response (200):** `VisitAttachmentResponse[]`
+
 ### DELETE /api/visit-records/{visitId}/attachments/{id}
 
 Delete an attachment.
@@ -2649,6 +2761,17 @@ Upload an attachment for a record, or link an existing file. Max file size: 100M
 ### GET /api/subscription-records/{id}/attachments
 
 List attachments for a record.
+
+**Response (200):** `SubscriptionRecordAttachmentResponse[]`
+
+### PUT /api/subscription-records/{id}/attachments
+
+Synchronize attachments to the complete desired `fileId` set. Links missing files and unlinks removed ones.
+
+**Request Body:**
+```json
+{ "fileIds": [1, 2, 3] }
+```
 
 **Response (200):** `SubscriptionRecordAttachmentResponse[]`
 

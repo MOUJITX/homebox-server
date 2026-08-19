@@ -12,7 +12,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +61,42 @@ public class AssetPictureService {
         picture.setFile(fileRecord);
 
         return AssetPictureResponse.from(pictureRepository.save(picture));
+    }
+
+    @Transactional
+    public List<AssetPictureResponse> sync(Long assetId, List<Long> fileIds) {
+        Asset asset = assetRepository.findById(assetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Asset not found with id: " + assetId));
+
+        List<Long> desired = fileIds == null ? List.of() : new ArrayList<>(new LinkedHashSet<>(fileIds));
+        List<AssetPicture> existing = pictureRepository.findByAssetId(assetId);
+
+        // remove unlisted
+        for (AssetPicture p : existing) {
+            if (!desired.contains(p.getFile().getId())) {
+                Long fileId = p.getFile().getId();
+                pictureRepository.delete(p);
+                fileService.deleteIfUnused(fileId);
+            }
+        }
+
+        // link missing
+        Set<Long> existingFileIds = existing.stream()
+                .map(p -> p.getFile().getId())
+                .collect(Collectors.toSet());
+
+        for (Long fileId : desired) {
+            if (existingFileIds.contains(fileId)) continue;
+            FileRecord fileRecord = fileService.getFileById(fileId);
+            AssetPicture picture = new AssetPicture();
+            picture.setAsset(asset);
+            picture.setFile(fileRecord);
+            pictureRepository.save(picture);
+        }
+
+        return pictureRepository.findByAssetId(assetId).stream()
+                .map(AssetPictureResponse::from)
+                .toList();
     }
 
     @Transactional
