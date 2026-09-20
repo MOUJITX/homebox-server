@@ -23,7 +23,10 @@ public class OidcController {
 
     @GetMapping("/config")
     public ResponseEntity<OidcConfigResponse> config() {
-        return ResponseEntity.ok(new OidcConfigResponse(oidcService.isEnabled()));
+        return ResponseEntity.ok(new OidcConfigResponse(
+                oidcService.isEnabled(),
+                !oidcService.isPasswordLoginDisabled()
+        ));
     }
 
     @GetMapping("/authorize")

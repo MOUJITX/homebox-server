@@ -58,6 +58,7 @@ public class OidcService {
     private static final String CONFIG_REDIRECT_URI = "oidc.redirect-uri";
     private static final String CONFIG_AUTO_CREATE_USER = "oidc.auto-create-user";
     private static final String CONFIG_DEFAULT_ROLE = "oidc.default-role";
+    private static final String CONFIG_DISABLE_PASSWORD_LOGIN = "oidc.disable-password-login";
 
     private static final String DEFAULT_SCOPES = "openid profile email";
     private static final String DEFAULT_USERNAME_CLAIM = "preferred_username";
@@ -85,6 +86,19 @@ public class OidcService {
 
     public boolean isEnabled() {
         return "true".equalsIgnoreCase(config(CONFIG_ENABLED, "false"));
+    }
+
+    /**
+     * Whether username/password login must be rejected. Only takes effect when OIDC is enabled and
+     * fully configured, so an incomplete client setup can never lock everyone out.
+     */
+    public boolean isPasswordLoginDisabled() {
+        if (!isEnabled() || !"true".equalsIgnoreCase(config(CONFIG_DISABLE_PASSWORD_LOGIN, "false"))) {
+            return false;
+        }
+        return !issuer().isBlank()
+                && !config(CONFIG_CLIENT_ID, "").isBlank()
+                && !config(CONFIG_REDIRECT_URI, "").isBlank();
     }
 
     public String buildAuthorizeUrl() {
@@ -237,6 +251,7 @@ public class OidcService {
             user.setDisplayName(displayNameFrom(idToken, username));
             user.setRole(role);
             user.setForceChangePassword(false);
+            user.setOidcUser(true);
             log.info("Auto-created HomeBox user '{}' from OIDC login", username);
             return userRepository.save(user);
         });

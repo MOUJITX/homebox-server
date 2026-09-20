@@ -111,6 +111,7 @@ public class DataInitializer implements CommandLineRunner {
         seedConfig("oidc.redirect-uri", "", "oidc", false, "OIDC Redirect URI (must point to the client callback route)");
         seedConfig("oidc.auto-create-user", "false", "oidc", false, "Auto Create HomeBox User on First OIDC Login");
         seedConfig("oidc.default-role", "member", "oidc", false, "Role Assigned to Auto Created OIDC Users");
+        seedConfig("oidc.disable-password-login", "false", "oidc", false, "Disable Username/Password Login (OIDC only)");
 
         if (documentCategoryRepository.count() == 0) {
             log.info("Seeding default document categories");

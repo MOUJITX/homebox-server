@@ -63,6 +63,16 @@ Authenticate and receive a JWT token.
 }
 ```
 
+When `oidc.disable-password-login` is active, this endpoint always fails with 401 before the credentials are checked:
+
+```json
+{
+  "message": "Password login is disabled, please sign in with OIDC"
+}
+```
+
+The restriction is skipped when OIDC is disabled or its `oidc.issuer` / `oidc.client-id` / `oidc.redirect-uri` are incomplete. It applies to every client type, including `app`.
+
 ---
 
 ### POST /api/auth/change-password
@@ -103,11 +113,13 @@ Check whether OIDC login is enabled. Public endpoint (no authentication required
 **Response (200):**
 ```json
 {
-  "enabled": true
+  "enabled": true,
+  "passwordLoginEnabled": false
 }
 ```
 
-`enabled` is `true` only when `oidc.enabled` is `"true"` in system config. OIDC is disabled by default.
+- `enabled` is `true` only when `oidc.enabled` is `"true"` in system config. OIDC is disabled by default.
+- `passwordLoginEnabled` is `false` when `oidc.disable-password-login` is enabled (and OIDC is fully configured). The login page then hides the username/password form.
 
 ---
 
@@ -279,10 +291,13 @@ Get the current user's profile.
   "username": "admin",
   "displayName": "Root Administrator",
   "roleName": "root",
+  "oidcUser": false,
   "createdAt": "2026-01-01T00:00:00",
   "updatedAt": "2026-01-01T00:00:00"
 }
 ```
+
+`oidcUser` is `true` when the account was auto-created by an OIDC login. Such accounts have no usable password, so the client hides the change-password UI for them.
 
 ---
 

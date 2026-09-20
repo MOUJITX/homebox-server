@@ -36,6 +36,13 @@ public class User {
     @Column(nullable = false)
     private boolean forceChangePassword = true;
 
+    /**
+     * Whether this account was auto-created by an OIDC login. Such accounts have a random,
+     * undisclosed password and can only sign in through the identity provider.
+     */
+    @Column(nullable = false)
+    private boolean oidcUser = false;
+
     @Setter(AccessLevel.NONE)
     @CreationTimestamp
     @Column(updatable = false)

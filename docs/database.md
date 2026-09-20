@@ -26,8 +26,11 @@ The application uses MySQL and manages schema via Hibernate's `ddl-auto: update`
 | display_name          | VARCHAR(255) | NULLABLE                 |
 | role_id               | BIGINT       | NOT NULL, FK → roles(id) |
 | force_change_password | BIT(1)       | NOT NULL, default TRUE   |
+| oidc_user             | BIT(1)       | NOT NULL, default FALSE  |
 | created_at            | DATETIME(6)  | NOT NULL, auto-set       |
 | updated_at            | DATETIME(6)  | NOT NULL, auto-set       |
+
+`oidc_user = TRUE` marks accounts auto-created on first OIDC login. Their `password` is a BCrypt hash of a random UUID that is never disclosed, so they can only sign in through the identity provider. The profile page shows this flag and hides the password card for such accounts.
 
 ### good_categories
 
@@ -249,7 +252,13 @@ Stores key-value configuration pairs grouped by category (`qiniu`, `ai`, `notifi
 
 Elasticsearch key: `elasticsearch.enabled` (`"true"` / `"false"`, default `"false"`). Host and port are configured via `ES_HOST` / `ES_PORT` environment variables (spring.elasticsearch.uris). When disabled, search features are hidden in the UI and ES indexing is skipped.
 
-OIDC keys (group `oidc`): `oidc.enabled` (`"true"` / `"false"`, default `"false"`), `oidc.issuer`, `oidc.client-id`, `oidc.client-secret` (sensitive), `oidc.scopes` (default `openid profile email`), `oidc.username-claim` (default `preferred_username`), `oidc.redirect-uri`, `oidc.auto-create-user` (`"true"` / `"false"`, default `"false"`), `oidc.default-role` (default `member`). When `oidc.enabled` is `"false"`, the login page hides the OIDC entry point and the `/api/auth/oidc/**` endpoints reject requests.
+OIDC keys (group `oidc`): `oidc.enabled` (`"true"` / `"false"`, default `"false"`), `oidc.issuer`, `oidc.client-id`, `oidc.client-secret` (sensitive), `oidc.scopes` (default `openid profile email`), `oidc.username-claim` (default `preferred_username`), `oidc.redirect-uri`, `oidc.auto-create-user` (`"true"` / `"false"`, default `"false"`), `oidc.default-role` (default `member`), `oidc.disable-password-login` (`"true"` / `"false"`, default `"false"`). When `oidc.enabled` is `"false"`, the login page hides the OIDC entry point and the `/api/auth/oidc/**` endpoints reject requests.
+
+`oidc.disable-password-login` only takes effect when OIDC is enabled **and** `oidc.issuer`, `oidc.client-id` and `oidc.redirect-uri` are all non-empty, so an incomplete client setup cannot lock everyone out. If you ever lock yourself out, re-enable password login directly in the database:
+
+```sql
+UPDATE system_config SET config_value = 'false' WHERE config_key = 'oidc.disable-password-login';
+```
 
 ### notifications
 
@@ -533,7 +542,7 @@ UNIQUE INDEX on (record_id, invoice_id).
 
 On first startup, the application seeds system configs including:
 - `notification.medication-crontab` = `0 0 7-20 * * ?` (Medication Reminder Check Cron Expression)
-- `oidc.enabled` = `false`, `oidc.scopes` = `openid profile email`, `oidc.username-claim` = `preferred_username`, `oidc.auto-create-user` = `false`, `oidc.default-role` = `member` (OIDC login is disabled until explicitly enabled)
+- `oidc.enabled` = `false`, `oidc.scopes` = `openid profile email`, `oidc.username-claim` = `preferred_username`, `oidc.auto-create-user` = `false`, `oidc.default-role` = `member`, `oidc.disable-password-login` = `false` (OIDC login is disabled until explicitly enabled)
 
 On first startup, the application seeds:
 - **Roles**: `root` (System administrator role), `member` (Standard member role)

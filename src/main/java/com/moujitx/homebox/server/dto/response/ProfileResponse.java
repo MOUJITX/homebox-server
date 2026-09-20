@@ -12,6 +12,7 @@ public class ProfileResponse {
     private String username;
     private String displayName;
     private String roleName;
+    private boolean oidcUser;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -21,6 +22,7 @@ public class ProfileResponse {
         response.username = user.getUsername();
         response.displayName = user.getDisplayName();
         response.roleName = user.getRole().getName();
+        response.oidcUser = user.isOidcUser();
         response.createdAt = user.getCreatedAt();
         response.updatedAt = user.getUpdatedAt();
         return response;
