@@ -10,6 +10,7 @@ import com.moujitx.homebox.server.repository.RoleRepository;
 import com.moujitx.homebox.server.repository.UserRepository;
 import com.moujitx.homebox.server.security.ClientType;
 import com.moujitx.homebox.server.security.JwtTokenProvider;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +57,7 @@ public class OidcService {
     private static final String CONFIG_SCOPES = "oidc.scopes";
     private static final String CONFIG_USERNAME_CLAIM = "oidc.username-claim";
     private static final String CONFIG_REDIRECT_URI = "oidc.redirect-uri";
+    private static final String CONFIG_APP_REDIRECT_URI = "oidc.app-redirect-uri";
     private static final String CONFIG_AUTO_CREATE_USER = "oidc.auto-create-user";
     private static final String CONFIG_DEFAULT_ROLE = "oidc.default-role";
     private static final String CONFIG_DISABLE_PASSWORD_LOGIN = "oidc.disable-password-login";
@@ -101,16 +103,16 @@ public class OidcService {
                 && !config(CONFIG_REDIRECT_URI, "").isBlank();
     }
 
-    public String buildAuthorizeUrl() {
+    public String buildAuthorizeUrl(ClientType clientType) {
         ensureEnabled();
         OidcDiscovery discovery = discover();
 
         return UriComponentsBuilder.fromUriString(discovery.authorizationEndpoint())
                 .queryParam("response_type", "code")
                 .queryParam("client_id", clientId())
-                .queryParam("redirect_uri", redirectUri())
+                .queryParam("redirect_uri", redirectUri(clientType))
                 .queryParam("scope", scopes())
-                .queryParam("state", generateState())
+                .queryParam("state", generateState(clientType))
                 .build()
                 .encode()
                 .toUriString();
@@ -118,10 +120,13 @@ public class OidcService {
 
     public LoginResponse handleCallback(String code, String state) {
         ensureEnabled();
-        validateState(state);
+
+        // The client type travels inside the signed state so the token exchange always uses the
+        // exact same redirect URI as the authorize request, and cannot be tampered with.
+        ClientType clientType = validateState(state);
 
         OidcDiscovery discovery = discover();
-        Map<String, Object> tokenResponse = exchangeCode(discovery, code);
+        Map<String, Object> tokenResponse = exchangeCode(discovery, code, clientType);
 
         Object idTokenValue = tokenResponse.get("id_token");
         if (!(idTokenValue instanceof String idToken) || idToken.isBlank()) {
@@ -131,9 +136,9 @@ public class OidcService {
         Jwt idTokenJwt = decodeIdToken(discovery, idToken);
         User user = resolveUser(extractUsername(idTokenJwt), idTokenJwt);
 
-        String token = jwtTokenProvider.generateToken(user.getUsername(), user.getRole().getName(), ClientType.CLIENT);
-        long expiresIn = jwtTokenProvider.getExpirationMillis(ClientType.CLIENT) / 1000;
-        log.info("OIDC login succeeded for user '{}'", user.getUsername());
+        String token = jwtTokenProvider.generateToken(user.getUsername(), user.getRole().getName(), clientType);
+        long expiresIn = jwtTokenProvider.getExpirationMillis(clientType) / 1000;
+        log.info("OIDC login succeeded for user '{}' ({})", user.getUsername(), clientType.getValue());
         return new LoginResponse(token, expiresIn, false);
     }
 
@@ -174,11 +179,11 @@ public class OidcService {
         idTokenDecoderJwksUri = null;
     }
 
-    private Map<String, Object> exchangeCode(OidcDiscovery discovery, String code) {
+    private Map<String, Object> exchangeCode(OidcDiscovery discovery, String code, ClientType clientType) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", "authorization_code");
         form.add("code", code);
-        form.add("redirect_uri", redirectUri());
+        form.add("redirect_uri", redirectUri(clientType));
         form.add("client_id", clientId());
 
         String clientSecret = clientSecret();
@@ -341,22 +346,25 @@ public class OidcService {
         return endpoint;
     }
 
-    private String generateState() {
+    private String generateState(ClientType clientType) {
         Date now = new Date();
         return Jwts.builder()
                 .subject(UUID.randomUUID().toString())
+                .claim("clientType", clientType.getValue())
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + STATE_TTL_MILLIS))
                 .signWith(stateKey())
                 .compact();
     }
 
-    private void validateState(String state) {
+    private ClientType validateState(String state) {
         try {
-            Jwts.parser()
+            Claims claims = Jwts.parser()
                     .verifyWith(stateKey())
                     .build()
-                    .parseSignedClaims(state);
+                    .parseSignedClaims(state)
+                    .getPayload();
+            return ClientType.fromValue(claims.get("clientType", String.class));
         } catch (JwtException | IllegalArgumentException e) {
             throw new OidcAuthenticationException("Invalid or expired OIDC state");
         }
@@ -412,10 +420,14 @@ public class OidcService {
         return config(CONFIG_CLIENT_SECRET, "");
     }
 
-    private String redirectUri() {
-        String redirectUri = config(CONFIG_REDIRECT_URI, "");
+    private String redirectUri(ClientType clientType) {
+        String redirectUri = clientType == ClientType.APP
+                ? config(CONFIG_APP_REDIRECT_URI, "")
+                : config(CONFIG_REDIRECT_URI, "");
         if (redirectUri.isBlank()) {
-            throw new OidcAuthenticationException("OIDC redirect URI is not configured");
+            throw new OidcAuthenticationException(clientType == ClientType.APP
+                    ? "OIDC app redirect URI is not configured"
+                    : "OIDC redirect URI is not configured");
         }
         return redirectUri;
     }

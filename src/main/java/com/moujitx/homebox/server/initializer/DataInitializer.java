@@ -109,6 +109,7 @@ public class DataInitializer implements CommandLineRunner {
         seedConfig("oidc.scopes", "openid profile email", "oidc", false, "OIDC Scopes");
         seedConfig("oidc.username-claim", "preferred_username", "oidc", false, "OIDC Claim Used as HomeBox Username");
         seedConfig("oidc.redirect-uri", "", "oidc", false, "OIDC Redirect URI (must point to the client callback route)");
+        seedConfig("oidc.app-redirect-uri", "", "oidc", false, "OIDC Redirect URI for the mobile app (custom scheme)");
         seedConfig("oidc.auto-create-user", "false", "oidc", false, "Auto Create HomeBox User on First OIDC Login");
         seedConfig("oidc.default-role", "member", "oidc", false, "Role Assigned to Auto Created OIDC Users");
         seedConfig("oidc.disable-password-login", "false", "oidc", false, "Disable Username/Password Login (OIDC only)");

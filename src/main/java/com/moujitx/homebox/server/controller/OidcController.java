@@ -4,6 +4,7 @@ import com.moujitx.homebox.server.dto.request.OidcCallbackRequest;
 import com.moujitx.homebox.server.dto.response.LoginResponse;
 import com.moujitx.homebox.server.dto.response.OidcAuthorizeResponse;
 import com.moujitx.homebox.server.dto.response.OidcConfigResponse;
+import com.moujitx.homebox.server.security.ClientType;
 import com.moujitx.homebox.server.service.OidcService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -30,8 +32,11 @@ public class OidcController {
     }
 
     @GetMapping("/authorize")
-    public ResponseEntity<OidcAuthorizeResponse> authorize() {
-        return ResponseEntity.ok(new OidcAuthorizeResponse(oidcService.buildAuthorizeUrl()));
+    public ResponseEntity<OidcAuthorizeResponse> authorize(
+            @RequestParam(required = false, defaultValue = "client") String clientType) {
+        return ResponseEntity.ok(new OidcAuthorizeResponse(
+                oidcService.buildAuthorizeUrl(ClientType.fromValue(clientType))
+        ));
     }
 
     @PostMapping("/callback")
