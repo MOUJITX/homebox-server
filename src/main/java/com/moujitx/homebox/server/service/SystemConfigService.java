@@ -66,6 +66,11 @@ public class SystemConfigService {
             eventPublisher.publishEvent(new ConfigChangedEvent(group));
         }
 
+        // Trigger hot-reload for oidc config
+        if ("oidc".equals(group)) {
+            eventPublisher.publishEvent(new ConfigChangedEvent(group));
+        }
+
         // Validate and publish config changed event for hot-reload
         if ("notification".equals(group)) {
             validateCron(values.get("notification.crontab"));

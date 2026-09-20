@@ -6,6 +6,7 @@ import com.moujitx.homebox.server.service.AiService;
 import com.moujitx.homebox.server.service.DoubanService;
 import com.moujitx.homebox.server.service.EsClientProvider;
 import com.moujitx.homebox.server.service.FileStorageStrategyProvider;
+import com.moujitx.homebox.server.service.OidcService;
 import com.moujitx.homebox.server.service.QiniuStorageStrategy;
 import com.moujitx.homebox.server.service.SystemConfigService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class SystemConfigController {
     private final AiService aiService;
     private final EsClientProvider esClientProvider;
     private final DoubanService doubanService;
+    private final OidcService oidcService;
 
     @GetMapping
     public ResponseEntity<SystemConfigGroupResponse> getByGroup(@RequestParam String group) {
@@ -67,5 +69,11 @@ public class SystemConfigController {
     @PostMapping("/test/douban")
     public ResponseEntity<TestConnectionResponse> testDoubanConnection() {
         return ResponseEntity.ok(doubanService.testConnection());
+    }
+
+    @PostMapping("/test/oidc")
+    public ResponseEntity<TestConnectionResponse> testOidcConnection(
+            @RequestBody(required = false) Map<String, String> overrides) {
+        return ResponseEntity.ok(oidcService.testConnection(overrides));
     }
 }

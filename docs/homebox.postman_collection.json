@@ -75,6 +75,51 @@
               "path": ["api", "auth", "change-password"]
             }
           }
+        },
+        {
+          "name": "OIDC Config",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/oidc/config",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "oidc", "config"]
+            }
+          }
+        },
+        {
+          "name": "OIDC Authorize URL",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/oidc/authorize",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "oidc", "authorize"]
+            }
+          }
+        },
+        {
+          "name": "OIDC Callback",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"<authorization code>\",\n  \"state\": \"<state returned by the provider>\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/oidc/callback",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "oidc", "callback"]
+            }
+          }
         }
       ]
     },

@@ -102,6 +102,16 @@ public class DataInitializer implements CommandLineRunner {
 
         seedConfig("douban.api-key", "", "douban", true, "Douban API Key");
 
+        seedConfig("oidc.enabled", "false", "oidc", false, "Enable OIDC Login");
+        seedConfig("oidc.issuer", "", "oidc", false, "OIDC Issuer URL (used for discovery)");
+        seedConfig("oidc.client-id", "", "oidc", false, "OIDC Client ID");
+        seedConfig("oidc.client-secret", "", "oidc", true, "OIDC Client Secret");
+        seedConfig("oidc.scopes", "openid profile email", "oidc", false, "OIDC Scopes");
+        seedConfig("oidc.username-claim", "preferred_username", "oidc", false, "OIDC Claim Used as HomeBox Username");
+        seedConfig("oidc.redirect-uri", "", "oidc", false, "OIDC Redirect URI (must point to the client callback route)");
+        seedConfig("oidc.auto-create-user", "false", "oidc", false, "Auto Create HomeBox User on First OIDC Login");
+        seedConfig("oidc.default-role", "member", "oidc", false, "Role Assigned to Auto Created OIDC Users");
+
         if (documentCategoryRepository.count() == 0) {
             log.info("Seeding default document categories");
             seedDocumentCategory("🪪 身份证件", "身份证、护照、港澳通行证、驾照等");

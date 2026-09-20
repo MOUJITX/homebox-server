@@ -245,9 +245,11 @@ UNIQUE INDEX on (asset_id, invoice_id) — prevents duplicate bindings.
 | created_at   | DATETIME(6)  | NOT NULL, auto-set       |
 | updated_at   | DATETIME(6)  | NOT NULL, auto-set       |
 
-Stores key-value configuration pairs grouped by category (`qiniu`, `ai`, `notification`, `elasticsearch`). Seeded on first startup from environment variables. Configurable at runtime via the Settings UI (root only).
+Stores key-value configuration pairs grouped by category (`qiniu`, `ai`, `notification`, `elasticsearch`, `douban`, `oidc`). Seeded on first startup from environment variables. Configurable at runtime via the Settings UI (root only).
 
 Elasticsearch key: `elasticsearch.enabled` (`"true"` / `"false"`, default `"false"`). Host and port are configured via `ES_HOST` / `ES_PORT` environment variables (spring.elasticsearch.uris). When disabled, search features are hidden in the UI and ES indexing is skipped.
+
+OIDC keys (group `oidc`): `oidc.enabled` (`"true"` / `"false"`, default `"false"`), `oidc.issuer`, `oidc.client-id`, `oidc.client-secret` (sensitive), `oidc.scopes` (default `openid profile email`), `oidc.username-claim` (default `preferred_username`), `oidc.redirect-uri`, `oidc.auto-create-user` (`"true"` / `"false"`, default `"false"`), `oidc.default-role` (default `member`). When `oidc.enabled` is `"false"`, the login page hides the OIDC entry point and the `/api/auth/oidc/**` endpoints reject requests.
 
 ### notifications
 
@@ -531,6 +533,7 @@ UNIQUE INDEX on (record_id, invoice_id).
 
 On first startup, the application seeds system configs including:
 - `notification.medication-crontab` = `0 0 7-20 * * ?` (Medication Reminder Check Cron Expression)
+- `oidc.enabled` = `false`, `oidc.scopes` = `openid profile email`, `oidc.username-claim` = `preferred_username`, `oidc.auto-create-user` = `false`, `oidc.default-role` = `member` (OIDC login is disabled until explicitly enabled)
 
 On first startup, the application seeds:
 - **Roles**: `root` (System administrator role), `member` (Standard member role)

@@ -102,6 +102,9 @@ The root user must change their password on first login (`forceChangePassword: t
 
 - `POST /api/auth/login` — authenticate and get JWT token
 - `POST /api/auth/change-password` — change password (authenticated)
+- `GET /api/auth/oidc/config` — check whether OIDC login is enabled (public)
+- `GET /api/auth/oidc/authorize` — build the OIDC authorization URL (public)
+- `POST /api/auth/oidc/callback` — exchange the OIDC authorization code for a JWT (public)
 - `GET /api/profile` — get current user profile
 - `PUT /api/profile` — update current user profile
 - `PUT /api/profile/password` — change current user password

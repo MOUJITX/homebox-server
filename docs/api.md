@@ -8,7 +8,7 @@ http://localhost:8080
 
 ## Authentication
 
-All endpoints except `/api/auth/login` require a valid JWT token in the `Authorization` header:
+All endpoints except `/api/auth/login` and the `/api/auth/oidc/**` endpoints require a valid JWT token in the `Authorization` header:
 
 ```
 Authorization: Bearer <token>
@@ -91,6 +91,77 @@ Change the current user's password. Requires authentication.
   "errors": {
     "newPassword": "size must be between 8 and 2147483647"
   }
+}
+```
+
+---
+
+### GET /api/auth/oidc/config
+
+Check whether OIDC login is enabled. Public endpoint (no authentication required).
+
+**Response (200):**
+```json
+{
+  "enabled": true
+}
+```
+
+`enabled` is `true` only when `oidc.enabled` is `"true"` in system config. OIDC is disabled by default.
+
+---
+
+### GET /api/auth/oidc/authorize
+
+Build the OpenID Connect authorization URL with a signed `state` parameter. Public endpoint.
+
+**Response (200):**
+```json
+{
+  "authorizeUrl": "https://accounts.example.com/authorize?response_type=code&client_id=...&redirect_uri=...&scope=openid%20profile%20email&state=..."
+}
+```
+
+**Response (401):** OIDC is disabled, or the issuer / client id / redirect URI is not configured.
+
+The client redirects the browser to `authorizeUrl`. The `state` is a signed token valid for 10 minutes and is verified on callback.
+
+---
+
+### POST /api/auth/oidc/callback
+
+Exchange the provider authorization code for a HomeBox JWT. Public endpoint.
+
+**Request Body:**
+```json
+{
+  "code": "<authorization code>",
+  "state": "<state returned by the provider>"
+}
+```
+
+**Response (200):** Same shape as `POST /api/auth/login`.
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9...",
+  "expiresIn": 86400,
+  "forceChangePassword": false
+}
+```
+
+The backend loads the provider discovery document, exchanges the code at the token endpoint, validates the returned `id_token` (JWKS signature, issuer, audience = client id) and maps it to a HomeBox user:
+
+- The username is read from the `oidc.username-claim` claim, falling back to `preferred_username`, `email`, then `sub`.
+- If no HomeBox user matches and `oidc.auto-create-user` is `"true"`, a user is created with the `oidc.default-role` role and `displayName` taken from the `name` claim.
+- Otherwise the login fails with 401.
+
+OIDC logins always issue a `client` token (24 hours).
+
+**Response (401):**
+```json
+{
+  "message": "No HomeBox user is linked to OIDC account: jdoe"
 }
 ```
 
@@ -1889,7 +1960,7 @@ Get system config values for a group.
 
 | Parameter | Type   | Default | Description                            |
 |-----------|--------|---------|----------------------------------------|
-| group     | string | —       | Config group: `qiniu`, `ai`, `notification`, `elasticsearch` (enabled toggle only) |
+| group     | string | —       | Config group: `qiniu`, `ai`, `notification`, `elasticsearch` (enabled toggle only), `douban`, `oidc` |
 
 **Response (200):**
 ```json
@@ -1926,6 +1997,7 @@ Update system config values for a group. Sensitive values passed as `****` (mask
 
 Qiniu group changes trigger a hot-reload of the file storage strategy.
 Elasticsearch group changes trigger a hot-reload of the ES client connection.
+OIDC group changes clear the cached OpenID Connect discovery document and id_token decoder.
 
 ---
 
@@ -1980,6 +2052,29 @@ Test the Elasticsearch connection using current config values.
 {
   "success": true,
   "message": "Elasticsearch connection successful"
+}
+```
+
+---
+
+### POST /api/system-config/test/oidc
+
+Load the OpenID Connect discovery document. Accepts an optional body to test an issuer that has not been saved yet.
+
+**Request Body (optional):**
+```json
+{
+  "oidc.issuer": "https://accounts.example.com"
+}
+```
+
+When the body is omitted or `oidc.issuer` is blank, the saved config is used (requires `oidc.enabled` = `"true"`).
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "OIDC discovery document loaded from https://accounts.example.com"
 }
 ```
 
