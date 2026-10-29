@@ -66,6 +66,9 @@ public class Invoice {
     @Column(name = "preview_image", columnDefinition = "LONGTEXT")
     private String previewImage;
 
+    @Column(name = "preview_version")
+    private Integer previewVersion;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id")
     private FileRecord file;

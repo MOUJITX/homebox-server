@@ -44,6 +44,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class InvoiceService {
 
+    /** Version of the server side preview renderer. Bump it to regenerate stored previews. */
+    private static final int PREVIEW_VERSION = 1;
+
     private final InvoiceRepository invoiceRepository;
     private final InvoiceAttachmentRepository attachmentRepository;
     private final AssetInvoiceRepository assetInvoiceRepository;
@@ -109,7 +112,7 @@ public class InvoiceService {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
 
-        if (invoice.getPreviewImage() == null && invoice.getFile() != null) {
+        if (invoice.getFile() != null && needsPreviewRegeneration(invoice)) {
             generateAndSavePreview(invoice);
         }
 
@@ -158,6 +161,9 @@ public class InvoiceService {
         invoice.setTotalAmount(request.getTotalAmount());
         invoice.setRemark(request.getRemark());
         invoice.setPreviewImage(request.getPreviewImage());
+        if (request.getPreviewImage() != null) {
+            invoice.setPreviewVersion(PREVIEW_VERSION);
+        }
 
         if (request.getFileId() != null) {
             FileRecord file = fileService.getFileById(request.getFileId());
@@ -367,10 +373,31 @@ public class InvoiceService {
 
             if (previewImage != null) {
                 invoice.setPreviewImage(previewImage);
+                invoice.setPreviewVersion(PREVIEW_VERSION);
                 invoiceRepository.save(invoice);
             }
         } catch (Exception e) {
             log.warn("Failed to auto-generate preview for invoice {}", invoice.getId(), e);
         }
+    }
+
+    /**
+     * Stored previews are regenerated when they were rendered by an older preview version. This
+     * also covers invoices whose preview was rendered before the bundled CJK fallback font was
+     * added: those previews miss all Chinese text when the server host has no CJK fonts installed.
+     */
+    private boolean needsPreviewRegeneration(Invoice invoice) {
+        FileRecord file = invoice.getFile();
+        if (file == null) {
+            return false;
+        }
+        String contentType = file.getContentType();
+        boolean previewSupported = contentType != null
+                && (contentType.contains("pdf") || contentType.contains("ofd"));
+        if (!previewSupported) {
+            return false;
+        }
+        Integer version = invoice.getPreviewVersion();
+        return invoice.getPreviewImage() == null || version == null || version < PREVIEW_VERSION;
     }
 }

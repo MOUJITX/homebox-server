@@ -213,6 +213,7 @@ UNIQUE INDEX on (barcode, serial_number) — enforced only when both are non-nul
 | remark          | TEXT           | NULLABLE                             |
 | file_id         | BIGINT         | NULLABLE, FK → file_records(id)      |
 | preview_image   | LONGTEXT       | NULLABLE (base64 PNG of first page)  |
+| preview_version | INT            | NULLABLE (preview renderer version)  |
 | created_at      | DATETIME(6)    | NOT NULL, auto-set                   |
 | updated_at      | DATETIME(6)    | NOT NULL, auto-set                   |
 

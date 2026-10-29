@@ -76,6 +76,10 @@ On first startup, these env vars are seeded into the `system_config` table. Subs
 
 PDF and OFD invoice files are parsed using an AI model (OpenAI-compatible API). Configure AI models via the Settings page in the web UI (supports multiple models, select active model, test connections). Initial models can be seeded via the `ai.models` system config (JSON array in the `system_config` table). When no AI model is configured, PDF/OFD formats return empty results (XML parsing is always available as it uses direct XML extraction).
 
+**Invoice preview rendering**
+
+PDF/OFD invoices are rendered to a PNG preview (first page) that is stored with the invoice record. PDF rendering uses Apache PDFBox; because many PDF invoices only reference fonts like KaiTi/SimSun/SimHei without embedding them, the server bundles the WenQuanYi Micro Hei font (`src/main/resources/fonts/wqy-microhei.ttc`, Apache-2.0 only) and registers it as PDFBox's CJK fallback. Previews are therefore identical on hosts without any CJK fonts installed, e.g. the Alpine based Docker image. The fonts directory contains the font license and attribution notice.
+
 2. Ensure MySQL is running and accessible with the credentials above. The database will be created automatically if it doesn't exist.
 
 ### Build & Run

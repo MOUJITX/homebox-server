@@ -1,0 +1,20 @@
+WenQuanYi Micro Hei 0.2.0-beta (wqy-microhei.ttc)
+=================================================
+
+Copyright (C) 2007 Google Corporation.
+Copyright (C) 2008-2009 WenQuanYi Project Board of Trustees.
+Copyright (C) 2008-2009 mozbug and Qianqian Fang
+(Droid Sans Fallback extension interface).
+
+This font is licensed under the Apache License, Version 2.0.
+See LICENSE-Apache-2.0.txt in this directory.
+
+Upstream: WenQuanYi Project, http://wenq.org/
+Debian package: fonts-wqy-microhei
+
+HomeBox bundles this font so that Apache PDFBox can render CJK text of PDF
+invoices that reference fonts which are not embedded in the PDF file (for
+example KaiTi / SimSun / SimHei in Chinese railway e-invoices). Without a
+bundled fallback the preview is rendered with PDFBox's Latin-only last-resort
+font on hosts that have no CJK fonts installed (e.g. the Alpine based Docker
+image), which silently drops all Chinese characters from the preview image.
